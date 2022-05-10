@@ -4,10 +4,11 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
+#include <wifi.h>
 
-const char* host = "esp32";
-const char* ssid = "xxx";
-const char* password = "xxxx";
+const char* host = "BuckysPlasticArm";
+const char* ssid = wifiName;
+const char* password = wifiHeslo;
 
 WebServer server(80);
 
@@ -102,6 +103,82 @@ const char* serverIndex =
  * setup function
  */
 
+//Motor definice
+#define Mpocet 8
+int Mpiny[Mpocet] = {32,33,25,26,27,13,23,19};
+byte Mdata = 0;
+#define MStopLow 0
+#define MStopHight 10
+#define MStop MStopLow
+#define Mvpred 1
+#define Mvzad -1
+#define MEindex -1
+#define MEmod -2
+int Mfreq = 5000; 
+int Mresolution = 8; 
+int MlatchPin = 18;
+int MdataPin = 17;
+int MclockPin = 16;
+
+
+void PosunReg(byte dataNov )
+{
+  if (dataNov != Mdata)
+  {
+    Mdata = dataNov;
+    digitalWrite(MlatchPin, LOW);
+    shiftOut(MdataPin, MclockPin, MSBFIRST, Mdata);
+    digitalWrite(MlatchPin, HIGH);  
+  }
+}
+
+
+void PosRegIndex(int index, bool A_N)
+{
+  if (A_N)
+  {
+    PosunReg((int)(Mdata | (1 << index)));
+  }
+  else
+  {
+    PosunReg(Mdata & (~(1 << index)));
+  }
+}
+
+
+void MotorRun(int index, int mod, int rychlost)
+{
+  if (rychlost < 0)
+  {
+    rychlost = 0;
+  }
+  else if (rychlost > 255)
+  {
+    rychlost = 255;
+  }
+  if (mod == MStopLow)
+  {
+    ledcWrite(index, 0);
+    PosRegIndex(index, 0);
+  }
+  else if (mod == MStopHight)
+  {
+    ledcWrite(index, 255);
+    PosRegIndex(index, 1);
+  }
+  else if (mod == Mvpred)
+  {
+    ledcWrite(index, rychlost);
+    PosRegIndex(index, 0 );
+  }
+  else if (mod == Mvzad)
+  {
+    ledcWrite(index,255- rychlost);
+    PosRegIndex(index, 1);
+  }
+}
+
+
 void setup() {
   // put your setup code here, to run once:
   //H mustek
@@ -123,6 +200,16 @@ void setup() {
   touchRead(2);
   touchRead(3);
 
+//inicializace PWM
+  // configure LED PWM functionalitites
+  for (size_t i = 0; i < Mpocet; i++)
+  {
+      ledcSetup(i, Mfreq, Mresolution);
+  
+  // attach the channel to the GPIO to be controlled
+  ledcAttachPin(Mpiny[i], i);
+  }
+  
   //Inicializace OTA
   Serial.begin(115200);
 
@@ -184,7 +271,10 @@ void setup() {
     }
   });
   server.begin();
+
+  MotorRun(0,Mvpred,(int)255);
 }
+
 
 void loop(void) {
   server.handleClient();
