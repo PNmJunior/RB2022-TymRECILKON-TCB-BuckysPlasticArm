@@ -4,7 +4,8 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
-#include <wifi.h>
+#include <tajnosti.h>
+#include <webHTMLtext.h>
 
 const char* host = "BuckysPlasticArm";
 const char* ssid = wifiName;
@@ -13,99 +14,12 @@ const char* password = wifiHeslo;
 WebServer server(80);
 
 /*
- * Login page
- */
-
-const char* loginIndex =
- "<form name='loginForm'>"
-    "<table width='20%' bgcolor='A09F9F' align='center'>"
-        "<tr>"
-            "<td colspan=2>"
-                "<center><font size=4><b>ESP32 Login Page</b></font></center>"
-                "<br>"
-            "</td>"
-            "<br>"
-            "<br>"
-        "</tr>"
-        "<tr>"
-             "<td>Username:</td>"
-             "<td><input type='text' size=25 name='userid'><br></td>"
-        "</tr>"
-        "<br>"
-        "<br>"
-        "<tr>"
-            "<td>Password:</td>"
-            "<td><input type='Password' size=25 name='pwd'><br></td>"
-            "<br>"
-            "<br>"
-        "</tr>"
-        "<tr>"
-            "<td><input type='submit' onclick='check(this.form)' value='Login'></td>"
-        "</tr>"
-    "</table>"
-"</form>"
-"<script>"
-    "function check(form)"
-    "{"
-    "if(form.userid.value=='admin' && form.pwd.value=='admin')"
-    "{"
-    "window.open('/serverIndex')"
-    "}"
-    "else"
-    "{"
-    " alert('Error Password or Username')/*displays error message*/"
-    "}"
-    "}"
-"</script>";
-
-/*
- * Server Index Page
- */
-
-const char* serverIndex =
-"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
-"<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
-   "<input type='file' name='update'>"
-        "<input type='submit' value='Update'>"
-    "</form>"
- "<div id='prg'>progress: 0%</div>"
- "<script>"
-  "$('form').submit(function(e){"
-  "e.preventDefault();"
-  "var form = $('#upload_form')[0];"
-  "var data = new FormData(form);"
-  " $.ajax({"
-  "url: '/update',"
-  "type: 'POST',"
-  "data: data,"
-  "contentType: false,"
-  "processData:false,"
-  "xhr: function() {"
-  "var xhr = new window.XMLHttpRequest();"
-  "xhr.upload.addEventListener('progress', function(evt) {"
-  "if (evt.lengthComputable) {"
-  "var per = evt.loaded / evt.total;"
-  "$('#prg').html('progress: ' + Math.round(per*100) + '%');"
-  "}"
-  "}, false);"
-  "return xhr;"
-  "},"
-  "success:function(d, s) {"
-  "console.log('success!')"
- "},"
- "error: function (a, b, c) {"
- "}"
- "});"
- "});"
- "</script>";
-
-/*
  * setup function
  */
 
 //Motor definice
 #define Mpocet 8
-int Mpiny[Mpocet] = {32,33,25,26,27,13,23,19};
+int Mpiny[Mpocet] = {32,33,23,19,27,13,26,25};
 byte Mdata = 0;
 #define MStopLow 0
 #define MStopHight 10
@@ -114,12 +28,15 @@ byte Mdata = 0;
 #define Mvzad -1
 #define MEindex -1
 #define MEmod -2
-int Mfreq = 5000; 
+int Mfreq = 1000; 
 int Mresolution = 8; 
 int MlatchPin = 18;
 int MdataPin = 17;
 int MclockPin = 16;
 
+//test2=test motorů
+long timeTest1=0;
+byte mmm=0;
 
 void PosunReg(byte dataNov )
 {
@@ -176,6 +93,7 @@ void MotorRun(int index, int mod, int rychlost)
     ledcWrite(index,255- rychlost);
     PosRegIndex(index, 1);
   }
+  Serial.print(index);Serial.print(",");Serial.print(Mpiny[index]);Serial.print(",");Serial.print(mod);Serial.print(","),Serial.println(rychlost);
 }
 
 
@@ -199,7 +117,7 @@ void setup() {
   //dotikovy senzor
   touchRead(2);
   touchRead(3);
-
+Serial.begin(9600);
 //inicializace PWM
   // configure LED PWM functionalitites
   for (size_t i = 0; i < Mpocet; i++)
@@ -208,10 +126,12 @@ void setup() {
   
   // attach the channel to the GPIO to be controlled
   ledcAttachPin(Mpiny[i], i);
+  Serial.print(i);Serial.print(",");Serial.println(Mpiny[i]);
+  
   }
   
   //Inicializace OTA
-  Serial.begin(115200);
+  
 
   // Connect to WiFi network
   WiFi.begin(ssid, password);
@@ -272,11 +192,55 @@ void setup() {
   });
   server.begin();
 
-  MotorRun(0,Mvpred,(int)255);
+  //MotorRun(0,Mvpred,(int)255);
 }
 
 
 void loop(void) {
   server.handleClient();
   delay(1);
+  timeTest1 ++;
+  if (timeTest1 == 1000)
+  {
+    MotorRun(mmm,MStopHight,(int)255);
+  }
+    if (timeTest1 == 2000)
+  {
+    MotorRun(mmm,Mvpred,(int)255);
+  }
+    if (timeTest1 == 3000)
+  {
+    MotorRun(mmm,MStopLow,(int)255);
+  }
+    if (timeTest1 == 4000)
+  {
+    MotorRun(mmm,Mvzad,(int)255);
+  }
+
+  if (timeTest1 == 5000)
+  {
+    MotorRun(mmm,MStopHight,(int)100);
+  }
+    if (timeTest1 == 6000)
+  {
+    MotorRun(mmm,Mvpred,(int)100);
+  }
+    if (timeTest1 == 7000)
+  {
+    MotorRun(mmm,MStopLow,(int)100);
+  }
+    if (timeTest1 == 8000)
+  {
+    MotorRun(mmm,Mvzad,(int)100);
+    timeTest1 = 0;
+    if (mmm == 7)
+    {
+      mmm=0;
+    }
+    else
+    {
+      mmm++;
+    }
+    
+  }
 }
