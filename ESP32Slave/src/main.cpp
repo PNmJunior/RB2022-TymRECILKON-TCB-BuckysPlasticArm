@@ -19,11 +19,13 @@ WebServer server(80);
 
 //Motor definice
 #define Mpocet 8
-int Mpiny[Mpocet] = {32,33,23,19,27,13,26,25};
+int Mpiny[Mpocet] = {32,33,23,19,27,13,26,25};//bila-modra,cerv-fial,zel-bila,zlut-seda,fial-bila,mod-fial,fial-bila,seda-cerv,
 byte Mdata = 0;
+//32-bila-modra,33-cerv-fial,23-zel-bila,19-zlut-seda,27-fial-bila,13-mod-fial,26-fial-bila,25-seda-cerv,
 #define MStopLow 0
 #define MStopHight 10
 #define MStop MStopLow
+//26-seda-cerv,25-bila-zel
 #define Mvpred 1
 #define Mvzad -1
 #define MEindex -1
@@ -38,14 +40,19 @@ int MclockPin = 16;
 long timeTest1=0;
 byte mmm=0;
 
+void PosunReg()
+{
+    digitalWrite(MlatchPin, LOW);
+    shiftOut(MdataPin, MclockPin, MSBFIRST, Mdata);
+    digitalWrite(MlatchPin, HIGH);  
+}
+
 void PosunReg(byte dataNov )
 {
   if (dataNov != Mdata)
   {
     Mdata = dataNov;
-    digitalWrite(MlatchPin, LOW);
-    shiftOut(MdataPin, MclockPin, MSBFIRST, Mdata);
-    digitalWrite(MlatchPin, HIGH);  
+    PosunReg();
   }
 }
 
@@ -61,6 +68,19 @@ void PosRegIndex(int index, bool A_N)
     PosunReg(Mdata & (~(1 << index)));
   }
 }
+
+void MotorStopAll()
+{
+  Mdata = 0;
+  PosunReg();
+  for (int i = 0; i < Mpocet; i++)
+  {
+    ledcWrite(i, 0);
+  }
+  
+}
+
+
 
 
 void MotorRun(int index, int mod, int rychlost)
@@ -115,9 +135,9 @@ void setup() {
   pinMode(16,OUTPUT);
 
   //dotikovy senzor
-  touchRead(2);
-  touchRead(3);
-Serial.begin(9600);
+  //touchRead(2);
+  //touchRead(3);
+
 //inicializace PWM
   // configure LED PWM functionalitites
   for (size_t i = 0; i < Mpocet; i++)
@@ -126,10 +146,12 @@ Serial.begin(9600);
   
   // attach the channel to the GPIO to be controlled
   ledcAttachPin(Mpiny[i], i);
-  Serial.print(i);Serial.print(",");Serial.println(Mpiny[i]);
+  //Serial.print(i);Serial.print(",");Serial.println(Mpiny[i]);
   
   }
-  
+
+  MotorStopAll();
+  Serial.begin(9600);
   //Inicializace OTA
   
 
@@ -200,38 +222,70 @@ void loop(void) {
   server.handleClient();
   delay(1);
   timeTest1 ++;
-  if (timeTest1 == 1000)
-  {
-    MotorRun(mmm,MStopHight,(int)255);
-  }
-    if (timeTest1 == 2000)
+  //byte mmm=0;
+  /*
+  if (timeTest1 == 250)
   {
     MotorRun(mmm,Mvpred,(int)255);
   }
-    if (timeTest1 == 3000)
+    if (timeTest1 == 500)
   {
     MotorRun(mmm,MStopLow,(int)255);
   }
-    if (timeTest1 == 4000)
+    if (timeTest1 == 7500)
   {
     MotorRun(mmm,Mvzad,(int)255);
+  }
+    if (timeTest1 == 1000)
+  {
+    MotorRun(mmm,MStopHight,(int)255);
+  
+    if (mmm == 7)
+    {
+      mmm=0;
+    }
+    else
+    {
+      mmm++;
+    }
+    
+  }*/
+
+
+/*
+
+    if (timeTest1 == 1000)
+  {
+    MotorRun(mmm,Mvpred,(int)255);
+  }
+    if (timeTest1 == 2000)
+  {
+    MotorRun(mmm,MStopLow,(int)255);
+  }
+    if (timeTest1 == 3000)
+  {
+    MotorRun(mmm,Mvzad,(int)255);
+  }
+    if (timeTest1 == 4000)
+  {
+    MotorRun(mmm,MStopHight,(int)255);
   }
 
   if (timeTest1 == 5000)
   {
-    MotorRun(mmm,MStopHight,(int)100);
+    MotorRun(mmm,Mvpred,(int)100);
   }
     if (timeTest1 == 6000)
   {
-    MotorRun(mmm,Mvpred,(int)100);
+    MotorRun(mmm,MStopLow,(int)100);
   }
     if (timeTest1 == 7000)
   {
-    MotorRun(mmm,MStopLow,(int)100);
+    MotorRun(mmm,Mvzad,(int)100);
   }
     if (timeTest1 == 8000)
   {
-    MotorRun(mmm,Mvzad,(int)100);
+    MotorRun(mmm,MStopHight,(int)100);
     timeTest1 = 0;
     if (mmm == 7)
     {
@@ -242,5 +296,5 @@ void loop(void) {
       mmm++;
     }
     
-  }
+  }*/
 }
