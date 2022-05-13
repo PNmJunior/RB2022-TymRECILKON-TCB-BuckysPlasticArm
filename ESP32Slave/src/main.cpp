@@ -80,7 +80,35 @@ void MotorStopAll()
   
 }
 
+void MotorBegin(int Platch, int Pdata, int Pclock, int piny[Mpocet])
+{
+MlatchPin =Platch;
+MdataPin = Pdata;
+MclockPin = Pclock;
 
+for (int i = 0; i < Mpocet; i++)
+{
+  Mpiny[i] = piny[i];
+        ledcSetup(i, Mfreq, Mresolution);
+  
+  // attach the channel to the GPIO to be controlled
+  ledcWrite(i, 255);
+  //ledcAttachPin(Mpiny[i], i);
+
+}
+
+  pinMode(MlatchPin,OUTPUT);
+  pinMode(MdataPin,OUTPUT);
+  pinMode(Pclock,OUTPUT);
+
+  Mdata = B11111111;
+  PosunReg();
+  for (int i = 0; i < Mpocet; i++)
+  {
+    pinMode(Mpiny[i],OUTPUT);
+    ledcAttachPin(Mpiny[i], i);
+  }
+}
 
 
 void MotorRun(int index, int mod, int rychlost)
@@ -113,13 +141,14 @@ void MotorRun(int index, int mod, int rychlost)
     ledcWrite(index,255- rychlost);
     PosRegIndex(index, 1);
   }
-  Serial.print(index);Serial.print(",");Serial.print(Mpiny[index]);Serial.print(",");Serial.print(mod);Serial.print(","),Serial.println(rychlost);
+  //Serial.print(index);Serial.print(",");Serial.print(Mpiny[index]);Serial.print(",");Serial.print(mod);Serial.print(","),Serial.println(rychlost);
 }
 
 
 void setup() {
   // put your setup code here, to run once:
   //H mustek
+  /*
   pinMode(32,OUTPUT);
   pinMode(33,OUTPUT);
   pinMode(25,OUTPUT);
@@ -133,13 +162,16 @@ void setup() {
   pinMode(18,OUTPUT);
   pinMode(17,OUTPUT);
   pinMode(16,OUTPUT);
+*/
 
+MotorBegin(18,17,16,Mpiny);
   //dotikovy senzor
   //touchRead(2);
   //touchRead(3);
 
 //inicializace PWM
   // configure LED PWM functionalitites
+  /*
   for (size_t i = 0; i < Mpocet; i++)
   {
       ledcSetup(i, Mfreq, Mresolution);
@@ -151,33 +183,35 @@ void setup() {
   }
 
   MotorStopAll();
-  Serial.begin(9600);
+  */
+  //Serial.begin(9600);
   //Inicializace OTA
   
 
   // Connect to WiFi network
   WiFi.begin(ssid, password);
-  Serial.println("");
+  //Serial.println("");
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(".");
+    //Serial.print(".");
   }
+  /* 
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(WiFi.localIP());*/
 
   /*use mdns for host name resolution*/
   if (!MDNS.begin(host)) { //http://esp32.local
-    Serial.println("Error setting up MDNS responder!");
+    //Serial.println("Error setting up MDNS responder!");
     while (1) {
       delay(1000);
     }
   }
-  Serial.println("mDNS responder started");
+  //Serial.println("mDNS responder started");
   /*return index page which is stored in serverIndex */
   server.on("/", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
@@ -206,7 +240,7 @@ void setup() {
       }
     } else if (upload.status == UPLOAD_FILE_END) {
       if (Update.end(true)) { //true to set the size to the current progress
-        Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+        //Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
       } else {
         Update.printError(Serial);
       }
