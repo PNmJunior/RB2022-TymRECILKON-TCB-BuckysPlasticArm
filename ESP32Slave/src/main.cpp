@@ -1,18 +1,16 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <WiFiClient.h>
-#include <WebServer.h>
-#include <ESPmDNS.h>
-#include <Update.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <AsyncElegantOTA.h>
 #include <tajnosti.h>//Jsou zde definované jmého a heslo wifi
-#include <webHTMLtext.h>
 
 const char* host = "BuckysPlasticArm";
 const char* ssid = wifiName;
 const char* password = wifiHeslo;
 
-WebServer server(80);
-
+//WebServer server(80);
+AsyncWebServer server(80);
 /*
  * setup function
  */
@@ -238,8 +236,8 @@ MotorBegin(18,17,16,Mpiny);
   touchRead(3);
 
   Serial.begin(9600);
-  //Inicializace OTA
-  // Connect to WiFi network
+
+   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("");
 
@@ -253,59 +251,25 @@ MotorBegin(18,17,16,Mpiny);
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  
 
-  /*use mdns for host name resolution*/
-  if (!MDNS.begin(host)) { //http://esp32.local
-    Serial.println("Error setting up MDNS responder!");
-    while (1) {
-      delay(1000);
-    }
-  }
-  Serial.println("mDNS responder started");
-  /*return index page which is stored in serverIndex */
-  server.on("/", HTTP_GET, []() {
-    server.sendHeader("Connection", "close");
-    server.send(200, "text/html", loginIndex);
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "Hi! I am ESP32.");
   });
-  server.on("/serverIndex", HTTP_GET, []() {
-    server.sendHeader("Connection", "close");
-    server.send(200, "text/html", serverIndex);
-  });
-  /*handling uploading firmware file */
-  server.on("/update", HTTP_POST, []() {
-    server.sendHeader("Connection", "close");
-    server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
-    ESP.restart();
-  }, []() {
-    HTTPUpload& upload = server.upload();
-    if (upload.status == UPLOAD_FILE_START) {
-      Serial.printf("Update: %s\n", upload.filename.c_str());
-      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
-        Update.printError(Serial);
-      }
-    } else if (upload.status == UPLOAD_FILE_WRITE) {
-      /* flashing firmware to ESP*/
-      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-        Update.printError(Serial);
-      }
-    } else if (upload.status == UPLOAD_FILE_END) {
-      if (Update.end(true)) { //true to set the size to the current progress
-        Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-      } else {
-        Update.printError(Serial);
-      }
-    }
-  });
+
+  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
+  Serial.println("HTTP server started");
 }
 
 
-void loop(void) {
-  server.handleClient();
+void loop(void) 
+{
   delay(1);
   timeTest1 ++;
   //byte mmm=0;
   //test
+  /*
   if (timeTest1 == 500)
   {
     MotorRunRaw(mmm,Mvpred,(int)150);
@@ -332,6 +296,6 @@ void loop(void) {
     }
     timeTest1=0;
     
-  }
+  }*/
 
 }

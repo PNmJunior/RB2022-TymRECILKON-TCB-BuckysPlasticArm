@@ -1,4 +1,5 @@
 .pio/build/esp32doit-devkit-v1/*
+.pio/libdeps/esp32doit-devkit-v1
 //!firmware.bin
 .pio/build/project.checksum
 .vscode/.browse.c_cpp.db*
