@@ -4,6 +4,8 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 #include <tajnosti.h>//Jsou zde definované jmého a heslo wifi
+#include "SPIFFS.h"
+#include <Arduino_JSON.h>
 
 const char* host = "BuckysPlasticArm";
 const char* ssid = wifiName;
@@ -11,6 +13,96 @@ const char* password = wifiHeslo;
 
 //WebServer server(80);
 AsyncWebServer server(80);
+
+AsyncWebSocket ws("/ws");
+
+String message = "";
+String sliderValue1 = "0";
+String sliderValue2 = "0";
+String sliderValue3 = "0";
+
+
+//Json Variable to Hold Slider Values
+JSONVar sliderValues;
+
+//Get Slider Values
+String getSliderValues(){
+  sliderValues["sliderValue1"] = String(sliderValue1);
+  sliderValues["sliderValue2"] = String(sliderValue2);
+  sliderValues["sliderValue3"] = String(sliderValue3);
+
+  String jsonString = JSON.stringify(sliderValues);
+  return jsonString;
+}
+
+void initFS() {
+  if (!SPIFFS.begin()) {
+    Serial.println("An error has occurred while mounting SPIFFS");
+  }
+  else{
+   Serial.println("SPIFFS mounted successfully");
+  }
+}
+
+void notifyClients(String sliderValues) {
+  ws.textAll(sliderValues);
+}
+
+float MC0;
+float MC1;
+float MC2;
+float MC3;
+float MC4;
+float MC5;
+
+float MC6;
+float MC7;
+
+
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
+  AwsFrameInfo *info = (AwsFrameInfo*)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
+    data[len] = 0;
+    message = (char*)data;
+    if (message.indexOf("1s") >= 0) {
+      sliderValue1 = message.substring(2);
+      notifyClients(getSliderValues());
+      MC1 = sliderValue1.toFloat();
+    }
+    if (message.indexOf("2s") >= 0) {
+      sliderValue2 = message.substring(2);
+      notifyClients(getSliderValues());
+    }    
+    if (message.indexOf("3s") >= 0) {
+      sliderValue3 = message.substring(2);
+      notifyClients(getSliderValues());
+    }
+    if (strcmp((char*)data, "getValues") == 0) {
+      notifyClients(getSliderValues());
+    }
+  }
+}
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  switch (type) {
+    case WS_EVT_CONNECT:
+      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+      break;
+    case WS_EVT_DISCONNECT:
+      Serial.printf("WebSocket client #%u disconnected\n", client->id());
+      break;
+    case WS_EVT_DATA:
+      handleWebSocketMessage(arg, data, len);
+      break;
+    case WS_EVT_PONG:
+    case WS_EVT_ERROR:
+      break;
+  }
+}
+
+void initWebSocket() {
+  ws.onEvent(onEvent);
+  server.addHandler(&ws);
+}
 /*
  * setup function
  */
@@ -112,12 +204,12 @@ void MotorStopAll()//Vždy zastaví chod robota. Automaticky posílá data posuv
 }
 
 
-void MotorSetProc(int index, byte minimum, byte maximum)// nastavení MotorRunProc
+void MotorSetProc(int index, byte minimum = 0, byte maximum=255)// nastavení MotorRunProc
 {
   MprocDataIn[index][0] = minimum;
   MprocDataIn[index][1] = maximum;
   MprocDataWork[index][0] = MprocDataIn[index][0] ;
-  MprocDataWork[index][1] = MprocDataIn[index][1]  -MprocDataIn[index][0] ;
+  MprocDataWork[index][1] = (MprocDataIn[index][1]  -MprocDataIn[index][0])/100.0 ;
 }
 
 
@@ -204,7 +296,7 @@ void MotorRunProc(int index, float proc)//Možnost nastavení procent výkonu, k
   }
   else
   {
-    float o  =(abs(proc)*MprocDataWork[index][1]/100.0)+MprocDataWork[index][0];
+    float o  =(abs(proc)*MprocDataWork[index][1])+MprocDataWork[index][0];
     int u = o;
     if (u >255)
     {
@@ -236,7 +328,7 @@ MotorBegin(18,17,16,Mpiny);
   touchRead(3);
 
   Serial.begin(9600);
-
+initFS();
    WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("");
@@ -252,10 +344,17 @@ MotorBegin(18,17,16,Mpiny);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   
-
+ initWebSocket();
+ /*
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/plain", "Hi! I am ESP32.");
   });
+*/
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/index.html", "text/html");
+  });
+  
+  server.serveStatic("/", SPIFFS, "/");
 
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
@@ -265,7 +364,10 @@ MotorBegin(18,17,16,Mpiny);
 
 void loop(void) 
 {
-  delay(1);
+MotorRunProc(1,MC1);
+ws.cleanupClients();
+
+  //delay(1);
   timeTest1 ++;
   //byte mmm=0;
   //test
