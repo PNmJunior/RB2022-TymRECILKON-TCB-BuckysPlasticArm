@@ -43,7 +43,8 @@ function onMessage(event) {
     var myObj = JSON.parse(event.data);
     var keys = Object.keys(myObj);
 
-    for (var i = 0; i < keys.length; i++){
+    for (var i = 0; i < keys.length; i++)
+    {
         var key = keys[i];
         document.getElementById(key).innerHTML = myObj[key];
         document.getElementById("slider"+ (i+1).toString()).value = myObj[key];

@@ -20,6 +20,11 @@ String message = "";
 String sliderValue1 = "0";
 String sliderValue2 = "0";
 String sliderValue3 = "0";
+String sliderValue4 = "0";
+String sliderValue5 = "0";
+String sliderValue6 = "0";
+String sliderValue7 = "0";
+String sliderValue8 = "0";
 
 
 //Json Variable to Hold Slider Values
@@ -30,6 +35,11 @@ String getSliderValues(){
   sliderValues["sliderValue1"] = String(sliderValue1);
   sliderValues["sliderValue2"] = String(sliderValue2);
   sliderValues["sliderValue3"] = String(sliderValue3);
+  sliderValues["sliderValue4"] = String(sliderValue4);
+  sliderValues["sliderValue5"] = String(sliderValue5);
+  sliderValues["sliderValue6"] = String(sliderValue6);
+  sliderValues["sliderValue7"] = String(sliderValue7);
+  sliderValues["sliderValue8"] = String(sliderValue8);
 
   String jsonString = JSON.stringify(sliderValues);
   return jsonString;
@@ -48,7 +58,7 @@ void notifyClients(String sliderValues) {
   ws.textAll(sliderValues);
 }
 
-float MC0;
+float MC8;
 float MC1;
 float MC2;
 float MC3;
@@ -66,19 +76,49 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     message = (char*)data;
     if (message.indexOf("1s") >= 0) {
       sliderValue1 = message.substring(2);
-      notifyClients(getSliderValues());
       MC1 = sliderValue1.toFloat();
+      notifyClients(getSliderValues());
+      
     }
     if (message.indexOf("2s") >= 0) {
       sliderValue2 = message.substring(2);
+      MC2 = sliderValue2.toFloat();
       notifyClients(getSliderValues());
+      
     }    
     if (message.indexOf("3s") >= 0) {
       sliderValue3 = message.substring(2);
+      MC3 = sliderValue3.toFloat();
+      notifyClients(getSliderValues());
+    }
+        if (message.indexOf("4s") >= 0) {
+      sliderValue4 = message.substring(2);
+      MC4 = sliderValue4.toFloat();
+      notifyClients(getSliderValues());
+    }
+        if (message.indexOf("5s") >= 0) {
+      sliderValue5 = message.substring(2);
+      MC5 = sliderValue5.toFloat();
+      notifyClients(getSliderValues());
+    }
+        if (message.indexOf("6s") >= 0) {
+      sliderValue6 = message.substring(2);
+      MC6 = sliderValue6.toFloat();
+      notifyClients(getSliderValues());
+    }
+        if (message.indexOf("7s") >= 0) {
+      sliderValue7 = message.substring(2);
+      MC7 = sliderValue7.toFloat();
+      notifyClients(getSliderValues());
+    }
+        if (message.indexOf("8s") >= 0) {
+      sliderValue8 = message.substring(2);
+      MC8 = sliderValue8.toFloat();
       notifyClients(getSliderValues());
     }
     if (strcmp((char*)data, "getValues") == 0) {
       notifyClients(getSliderValues());
+      
     }
   }
 }
@@ -119,7 +159,7 @@ byte Mdata = 0;
 #define Mvzad -1
 #define MEindex -1
 #define MEmod -2
-int Mfreq = 1000; 
+int Mfreq = 2000; 
 int Mresolution = 8; 
 int MlatchPin = 18;
 int MdataPin = 17;
@@ -179,6 +219,7 @@ void PosunReg(byte dataNov )//Pokud nastane změna výstupu posuvného registru,
   }
 }
 
+#define MathKanalu 2*
 
 void PosRegIndex(int index, bool A_N)//Vyrobení změny ve výstupu pos. registru
 {
@@ -199,7 +240,7 @@ void MotorStopAll()//Vždy zastaví chod robota. Automaticky posílá data posuv
   PosunReg();
   for (int i = 0; i < Mpocet; i++)
   {
-    ledcWrite(i, 0);
+    ledcWrite( MathKanalu i, 0);
   }
 }
 
@@ -213,6 +254,7 @@ void MotorSetProc(int index, byte minimum = 0, byte maximum=255)// nastavení Mo
 }
 
 
+
 void MotorBegin(int Platch, int Pdata, int Pclock, int piny[Mpocet])//inicializace potřebných zaležitostí k motorům
 {
   MlatchPin =Platch;
@@ -222,8 +264,8 @@ void MotorBegin(int Platch, int Pdata, int Pclock, int piny[Mpocet])//inicializa
   for (int i = 0; i < Mpocet; i++)
   {
     Mpiny[i] = piny[i];
-    ledcSetup(i, Mfreq, Mresolution);
-    ledcWrite(i, 255);
+    ledcSetup(MathKanalu i, Mfreq, Mresolution);
+    ledcWrite(MathKanalu i, 255);
   }
   pinMode(MlatchPin,OUTPUT);
   pinMode(MdataPin,OUTPUT);
@@ -234,7 +276,7 @@ void MotorBegin(int Platch, int Pdata, int Pclock, int piny[Mpocet])//inicializa
   for (int i = 0; i < Mpocet; i++)
   {
     pinMode(Mpiny[i],OUTPUT);
-    ledcAttachPin(Mpiny[i], i);
+    ledcAttachPin(Mpiny[i], MathKanalu i);
   }
     for (int i = 0; i < Mpocet; i++)
   {
@@ -267,22 +309,22 @@ void MotorRunRaw(int index, int mod=MStop, int rychlost =0)
   
   if (mod == MStopLow)
   {
-    ledcWrite(index, 0);
+    ledcWrite( MathKanalu index, 0);
     PosRegIndex(index, 0);
   }
   else if (mod == MStopHight)
   {
-    ledcWrite(index, 255);
+    ledcWrite( MathKanalu index, 255);
     PosRegIndex(index, 1);
   }
   else if (mod == Mvpred)
   {
-    ledcWrite(index, rychlost);
+    ledcWrite( MathKanalu index, rychlost);
     PosRegIndex(index, 0 );
   }
   else if (mod == Mvzad)
   {
-    ledcWrite(index,255- rychlost);
+    ledcWrite( MathKanalu index,255- rychlost);
     PosRegIndex(index, 1);
   }
 }
@@ -359,12 +401,24 @@ initFS();
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
+
+
+  MotorSetProc(0,105,255);
+  MotorSetProc(1,105,255);
+  MotorSetProc(4,0,100);
 }
 
 
 void loop(void) 
 {
-MotorRunProc(1,MC1);
+MotorRunProc(0,MC1);
+MotorRunProc(1,MC2);
+MotorRunProc(2,MC3);
+MotorRunProc(3,MC4);
+MotorRunProc(4,MC5);
+MotorRunProc(5,MC6);
+MotorRunProc(6,MC7);
+MotorRunProc(7,MC8);
 ws.cleanupClients();
 
   //delay(1);
