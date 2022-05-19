@@ -398,6 +398,9 @@ MotorBegin(18,17,16,Mpiny);
 void loop(void) 
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 46fecb9ffd800c449089d72d8c6300f0a5a4a358
 MotorRunProc(0,MC0);
 MotorRunProc(1,MC1);
 MotorRunProc(2,MC2);
