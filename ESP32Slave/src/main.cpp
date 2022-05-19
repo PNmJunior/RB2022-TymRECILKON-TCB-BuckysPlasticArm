@@ -12,6 +12,7 @@ const char* password = wifiHeslo;
 //WebServer server(80);
 AsyncWebServer server(80);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 AsyncWebSocket ws("/ws");
 
@@ -141,6 +142,8 @@ void initWebSocket() {
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 }
+=======
+>>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
 =======
 >>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
 /*
@@ -399,6 +402,7 @@ void loop(void)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 46fecb9ffd800c449089d72d8c6300f0a5a4a358
 MotorRunProc(0,MC0);
@@ -414,6 +418,9 @@ MotorRunProc(7,MC7);
 ws.cleanupClients();
 
   //delay(1);
+=======
+  delay(1);
+>>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
 =======
   delay(1);
 >>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
