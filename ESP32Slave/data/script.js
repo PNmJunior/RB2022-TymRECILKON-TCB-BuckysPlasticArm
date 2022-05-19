@@ -31,7 +31,7 @@ function onClose(event) {
 }
 
 function updateSliderPWM(element) {
-    var sliderNumber = element.id.charAt(element.id.length-1);
+    var sliderNumber = element.id.charAt(element.id.length);
     var sliderValue = document.getElementById(element.id).value;
     document.getElementById("sliderValue"+sliderNumber).innerHTML = sliderValue;
     console.log(sliderValue);
@@ -46,6 +46,6 @@ function onMessage(event) {
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];
         document.getElementById(key).innerHTML = myObj[key];
-        document.getElementById("slider"+ (i+1).toString()).value = myObj[key];
+        document.getElementById("slider"+ (i).toString()).value = myObj[key];
     }
 }

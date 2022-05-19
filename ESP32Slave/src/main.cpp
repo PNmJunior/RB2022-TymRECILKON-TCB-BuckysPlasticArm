@@ -17,9 +17,14 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
 String message = "";
+String sliderValue0 = "0";
 String sliderValue1 = "0";
 String sliderValue2 = "0";
 String sliderValue3 = "0";
+String sliderValue4 = "0";
+String sliderValue5 = "0";
+String sliderValue6 = "0";
+String sliderValue7 = "0";
 
 
 //Json Variable to Hold Slider Values
@@ -27,10 +32,14 @@ JSONVar sliderValues;
 
 //Get Slider Values
 String getSliderValues(){
-  sliderValues["sliderValue1"] = String(sliderValue1);
+  sliderValues["sliderValue0"] = String(sliderValue0);
+    sliderValues["sliderValue1"] = String(sliderValue1);
   sliderValues["sliderValue2"] = String(sliderValue2);
   sliderValues["sliderValue3"] = String(sliderValue3);
-
+    sliderValues["sliderValue4"] = String(sliderValue4);
+  sliderValues["sliderValue5"] = String(sliderValue5);
+  sliderValues["sliderValue6"] = String(sliderValue6);
+  sliderValues["sliderValue7"] = String(sliderValue7);
   String jsonString = JSON.stringify(sliderValues);
   return jsonString;
 }
@@ -59,23 +68,53 @@ float MC6;
 float MC7;
 
 
+float MotProcNow[8];
+float MotProcOld[8];
+
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     data[len] = 0;
     message = (char*)data;
+    if (message.indexOf("0s") >= 0) {
+      sliderValue0 = message.substring(2);
+      notifyClients(getSliderValues());
+      MC0 = sliderValue0.toFloat();
+    }
     if (message.indexOf("1s") >= 0) {
       sliderValue1 = message.substring(2);
       notifyClients(getSliderValues());
       MC1 = sliderValue1.toFloat();
-    }
+    }    
     if (message.indexOf("2s") >= 0) {
       sliderValue2 = message.substring(2);
       notifyClients(getSliderValues());
-    }    
+      MC2 = sliderValue2.toFloat();
+    }
     if (message.indexOf("3s") >= 0) {
       sliderValue3 = message.substring(2);
       notifyClients(getSliderValues());
+      MC3 = sliderValue0.toFloat();
+    }
+    if (message.indexOf("4s") >= 0) {
+      sliderValue4 = message.substring(2);
+      notifyClients(getSliderValues());
+      MC4 = sliderValue1.toFloat();
+    }    
+    if (message.indexOf("5s") >= 0) {
+      sliderValue5 = message.substring(2);
+      notifyClients(getSliderValues());
+      MC5 = sliderValue2.toFloat();
+    }
+    if (message.indexOf("6s") >= 0) {
+      sliderValue6 = message.substring(2);
+      notifyClients(getSliderValues());
+      MC6 = sliderValue0.toFloat();
+    }
+    if (message.indexOf("7s") >= 0) {
+      sliderValue7 = message.substring(2);
+      notifyClients(getSliderValues());
+      MC7 = sliderValue1.toFloat();
     }
     if (strcmp((char*)data, "getValues") == 0) {
       notifyClients(getSliderValues());
@@ -364,7 +403,16 @@ initFS();
 
 void loop(void) 
 {
+MotorRunProc(0,MC0);
 MotorRunProc(1,MC1);
+MotorRunProc(2,MC2);
+MotorRunProc(3,MC3);
+MotorRunProc(4,MC4);
+MotorRunProc(5,MC5);
+MotorRunProc(6,MC6);
+MotorRunProc(7,MC7);
+//MotorRunRaw(0,Mvpred, 255);
+//MotorRunProc(1,100);
 ws.cleanupClients();
 
   //delay(1);
