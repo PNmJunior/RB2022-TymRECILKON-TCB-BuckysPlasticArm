@@ -4,8 +4,6 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 #include <tajnosti.h>//Jsou zde definované jmého a heslo wifi
-#include "SPIFFS.h"
-#include <Arduino_JSON.h>
 
 const char* host = "BuckysPlasticArm";
 const char* ssid = wifiName;
@@ -13,6 +11,7 @@ const char* password = wifiHeslo;
 
 //WebServer server(80);
 AsyncWebServer server(80);
+<<<<<<< HEAD
 
 AsyncWebSocket ws("/ws");
 
@@ -142,6 +141,8 @@ void initWebSocket() {
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 }
+=======
+>>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
 /*
  * setup function
  */
@@ -243,12 +244,12 @@ void MotorStopAll()//Vždy zastaví chod robota. Automaticky posílá data posuv
 }
 
 
-void MotorSetProc(int index, byte minimum = 0, byte maximum=255)// nastavení MotorRunProc
+void MotorSetProc(int index, byte minimum, byte maximum)// nastavení MotorRunProc
 {
   MprocDataIn[index][0] = minimum;
   MprocDataIn[index][1] = maximum;
   MprocDataWork[index][0] = MprocDataIn[index][0] ;
-  MprocDataWork[index][1] = (MprocDataIn[index][1]  -MprocDataIn[index][0])/100.0 ;
+  MprocDataWork[index][1] = MprocDataIn[index][1]  -MprocDataIn[index][0] ;
 }
 
 
@@ -335,7 +336,7 @@ void MotorRunProc(int index, float proc)//Možnost nastavení procent výkonu, k
   }
   else
   {
-    float o  =(abs(proc)*MprocDataWork[index][1])+MprocDataWork[index][0];
+    float o  =(abs(proc)*MprocDataWork[index][1]/100.0)+MprocDataWork[index][0];
     int u = o;
     if (u >255)
     {
@@ -367,7 +368,7 @@ MotorBegin(18,17,16,Mpiny);
   touchRead(3);
 
   Serial.begin(9600);
-initFS();
+
    WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("");
@@ -383,17 +384,10 @@ initFS();
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   
- initWebSocket();
- /*
+
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/plain", "Hi! I am ESP32.");
   });
-*/
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html", "text/html");
-  });
-  
-  server.serveStatic("/", SPIFFS, "/");
 
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
@@ -403,6 +397,7 @@ initFS();
 
 void loop(void) 
 {
+<<<<<<< HEAD
 MotorRunProc(0,MC0);
 MotorRunProc(1,MC1);
 MotorRunProc(2,MC2);
@@ -416,6 +411,9 @@ MotorRunProc(7,MC7);
 ws.cleanupClients();
 
   //delay(1);
+=======
+  delay(1);
+>>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
   timeTest1 ++;
   //byte mmm=0;
   //test
