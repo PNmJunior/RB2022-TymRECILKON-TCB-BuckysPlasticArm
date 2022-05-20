@@ -38,13 +38,23 @@ function updateSliderPWM(element) {
     websocket.send(sliderNumber+"s"+sliderValue.toString());
 }
 
+function stisknuto()
+{    
+    for(var i = 1; i < 9; i++)
+    {        
+        document.getElementById("slider"+i.toString()).innerHTML = 0;
+        console.log("4564");
+        websocket.send(i.toString()+"s0");
+        console.log("000000000");
+    }
+}
+
 function onMessage(event) {
     console.log(event.data);
     var myObj = JSON.parse(event.data);
     var keys = Object.keys(myObj);
 
-    for (var i = 0; i < keys.length; i++)
-    {
+    for (var i = 0; i < keys.length; i++){
         var key = keys[i];
         document.getElementById(key).innerHTML = myObj[key];
         document.getElementById("slider"+ (i+1).toString()).value = myObj[key];

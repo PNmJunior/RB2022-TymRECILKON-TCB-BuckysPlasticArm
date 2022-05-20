@@ -5,43 +5,68 @@ html {
     display: inline-block;
     text-align: center;
   }
-  h1 {
+
+  .h1 {
     font-size: 1.8rem;
-    color: white;
+    color: rgb(55, 26, 144);
+    background-color: red;
+    min-width: 100px;
+    min-height: 100px;
+    
   }
+  
   p {
     font-size: 1.4rem;
   }
+  
   .topnav {
     overflow: hidden;
     background-color: #0A1128;
   }
+  
   body {
     margin: 0;
   }
+  
   .content {
     padding: 30px;
   }
+  
   .card-grid {
-    max-width: 700px;
-    margin: 0 auto;
+    /*   display: grid;
+    max-width: auto;
+margin: 0 auto;
     display: grid;
     grid-gap: 2rem;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  */
   }
+ 
   .card {
     background-color: white;
     box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
   }
+
+  .card2{
+    
+    background-color: white;
+    box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
+  }
+
+  
   .card-title {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #034078
+    color: #034078;
+    text-align: left;
   }
+  
   .state {
     font-size: 1.2rem;
     color:#1282A2;
+    text-align: left;
   }
+  
   .slider {
     -webkit-appearance: none;
     margin: 0 auto;
@@ -51,6 +76,7 @@ html {
     background: #FFD65C;
     outline: none;
   }
+  
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -60,6 +86,7 @@ html {
     background: #034078;
     cursor: pointer;
   }
+  
   .slider::-moz-range-thumb {
     width: 30px;
     height: 30px;
@@ -67,7 +94,40 @@ html {
     background: #034078;
     cursor: pointer;
   }
+  
   .switch {
     padding-left: 5%;
     padding-right: 5%;
+  }
+
+  .slider2 {
+    -webkit-appearance: none;
+    margin: 0 auto;
+    min-width: 300px;
+    border-radius: 10px;
+    background: #FFD65C;
+    outline: none;
+    transform:rotate(7deg);
+    -ms-transform:rotate(270deg); /* IE 9 */
+    -moz-transform:rotate(270deg); /* Firefox */
+    -webkit-transform:rotate(270deg); /* Safari and Chrome */
+    -o-transform:rotate(270deg); /* Opera */
+  }
+
+  .slider2::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #783003;
+    cursor: pointer;
+  }
+
+  .slider2::-moz-range-thumb {
+    width: 30px;
+    height: 30px;
+    border-radius: 50% ;
+    background: #037805;
+    cursor: pointer;
   }

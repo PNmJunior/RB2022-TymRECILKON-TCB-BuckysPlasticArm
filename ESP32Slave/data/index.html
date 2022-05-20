@@ -9,67 +9,93 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <div class="topnav">
-        <h1>Multiple Sliders</h1>
-    </div>
     <div class="content">
-        <div class="card-grid">
-            <div class="card">
-                <p class="card-title">Fader 1</p>
-                <p class="switch">
-                    <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="-100" max="100" step="10" value ="0" class="slider">
-                </p>
-                <p class="state">Brightness: <span id="sliderValue1"></span> &percnt;</p>
-            </div>
-            <div class="card">
-                <p class="card-title"> Fader 2</p>
-                <p class="switch">
-                    <input type="range" onchange="updateSliderPWM(this)" id="slider2" min="-100" max="100" step="10" value ="0" class="slider">
-                </p>
-                <p class="state">Brightness: <span id="sliderValue2"></span> &percnt;</p>
-            </div>
-            <div class="card">
-                <p class="card-title"> Fader 3</p>
-                <p class="switch">
-                    <input type="range" onchange="updateSliderPWM(this)" id="slider3" min="-100" max="100" step="100" value ="0" class="slider">
-                </p>
-                <p class="state">Brightness: <span id="sliderValue3"></span> &percnt;</p>
-            </div>
-            <div class="card">
-                <p class="card-title"> Fader 4</p>
-                <p class="switch">
-                    <input type="range" onchange="updateSliderPWM(this)" id="slider4" min="-100" max="100" step="100" value ="0" class="slider">
-                </p>
-                <p class="state">Brightness: <span id="sliderValue4"></span> &percnt;</p>
-            </div>
-            <div class="card">
-                <p class="card-title"> Fader 5</p>
-                <p class="switch">
-                    <input type="range" onchange="updateSliderPWM(this)" id="slider5" min="-100" max="100" step="100" value ="0" class="slider">
-                </p>
-                <p class="state">Brightness: <span id="sliderValue5"></span> &percnt;</p>
-            </div>
-            <div class="card">
-                <p class="card-title"> Fader 6</p>
-                <p class="switch">
-                    <input type="range" onchange="updateSliderPWM(this)" id="slider6" min="-100" max="100" step="100" value ="0" class="slider">
-                </p>
-                <p class="state">Brightness: <span id="sliderValue6"></span> &percnt;</p>
-            </div>
-            <div class="card">
-                <p class="card-title"> Fader 7</p>
-                <p class="switch">
-                    <input type="range" onchange="updateSliderPWM(this)" id="slider7" min="-100" max="100" step="100" value ="0" class="slider">
-                </p>
-                <p class="state">Brightness: <span id="sliderValue7"></span> &percnt;</p>
-            </div>
-            <div class="card">
-                <p class="card-title"> Fader 8</p>
-                <p class="switch">
-                    <input type="range" onchange="updateSliderPWM(this)" id="slider8" min="0" max="100" step="10" value ="0" class="slider">
-                </p>
-                <p class="state">Brightness: <span id="sliderValue8"></span> &percnt;</p>
-            </div>
+        <div class="card-grid"> 
+            <table>
+                <tr>
+                    <td colspan=3>
+                        <div class="card">
+                            <p class="card-title"> LED</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider8" min="0" max="100" step="10" value ="0" class="slider">
+                            </p>
+                            <p class="state"> <span id="sliderValue8"></span> &percnt;</p>
+                        </div> 
+                    </td>
+                    <td>
+                        <input type="button"  value="STOP" onclick="stisknuto()" class="h1">
+                    </td>
+                </tr>
+                <tr height="350px" >
+                    <td>
+                        <div class="card2">
+                            <p class="card-title"> Kleste</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider6" min="-100" max="100" step="100" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sliderValue6"></span> &percnt;</p>
+                        </div>   
+                    </td>
+                    <td>
+                        <div class="card2">
+                            <p class="card-title"> M4</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider5" min="-100" max="100" step="100" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sliderValue5"></span> &percnt;</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="card2">
+                            <p class="card-title"> M3</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider4" min="-100" max="100" step="100" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sliderValue4"></span> &percnt;</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="card2">
+                            <p class="card-title"> M2</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider3" min="-100" max="100" step="100" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sliderValue3"></span> &percnt;</p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan=4>
+                        <div class="card">
+                            <p class="card-title"> M1</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider7" min="-100" max="100" step="100" value ="0" class="slider">
+                            </p>
+                            <p class="state"> <span id="sliderValue7"></span> &percnt;</p>
+                        </div>
+                    </td>
+                </tr>
+                <tr height="350px">
+                    <td colspan=2>
+                        <div class="card2">
+                            <p class="card-title"> Leva</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider2" min="-100" max="100" step="10" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sliderValue2"></span> &percnt;</p>
+                        </div>
+                    </td>
+                    <td colspan=2>
+                        <div class="card2">
+                            <p class="card-title">Prava</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="-100" max="100" step="10" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sliderValue1"></span> &percnt;</p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
     <script src="script.js"></script>

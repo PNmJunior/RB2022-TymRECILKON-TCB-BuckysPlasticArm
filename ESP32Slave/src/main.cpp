@@ -173,21 +173,21 @@ float MprocDataWork[8][2];
 #define Mot1 6
 #define Mot2 2
 #define Mot3 3
-#define Mot4 5
-#define MotKleste 4
-#define LEDka 7
+#define Mot4 4
+#define MotKleste 7
+#define LEDka 5
 
 //Negace směru motorů
 #define MotNegPodLivi 0
 #define MotNegPodPravi 1
 #define MotNeg1 0
-#define MotNeg2 1
+#define MotNeg2 0
 #define MotNeg3 0
-#define MotNeg4 1
-#define MotNegKleste 0
-#define LEDkaNeg 0
+#define MotNeg4 0
+#define MotNegKleste 1
+#define LEDkaNeg 1
 
-int MotorNegace[8] = {MotNegPodPravi,MotNegPodLivi, MotNeg2,MotNeg3,MotNegKleste, MotNeg4, MotNeg1,LEDkaNeg };
+int MotorNegace[8] = {MotNegPodPravi,MotNegPodLivi, MotNeg2,MotNeg3,MotNeg4,LEDkaNeg, MotNeg1,MotNegKleste };
 
 //Ostatní definice k motorům
 #define LEDmod Mvpred
@@ -359,10 +359,52 @@ void MotorRunProc(int index, float proc)//Možnost nastavení procent výkonu, k
   }
 }
 
+void TestM()
+{
+  timeTest1 ++;
+  if (timeTest1 == 500)
+  {
+    MotorRunRaw(mmm,Mvpred,(int)150);
+  }
+    if (timeTest1 == 1000)
+  {
+    MotorRunRaw(mmm,MStopLow,(int)150);
+  }
+    if (timeTest1 == 1500)
+  {
+    MotorRunRaw(mmm,Mvzad,(int)150);
+  }
+    if (timeTest1 == 2000)
+  {
+    MotorRunRaw(mmm,MStopHight,(int)150);  
+    if (mmm == 7)
+    {
+      mmm=0;
+    }
+    else
+    {
+      mmm++;
+    }
+    timeTest1=0;
+  }
+}
+
+void blikblik(int pocet = 1)
+{
+  for (int i = 0; i < pocet; i++)
+  {
+    MotorRunRaw(LEDka,LEDmod,255);
+    delay(100);
+    MotorRunRaw(LEDka,MStop);
+    delay(100);
+  }
+  
+}
+
 
 void setup() {
   // put your setup code here, to run once:
-MotorBegin(18,17,16,Mpiny);
+  MotorBegin(18,17,16,Mpiny);
 
   MotorStopAll();
   //dotykový senzor
@@ -370,7 +412,7 @@ MotorBegin(18,17,16,Mpiny);
   touchRead(3);
 
   Serial.begin(9600);
-initFS();
+  initFS();
    WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("");
@@ -387,11 +429,7 @@ initFS();
   Serial.println(WiFi.localIP());
   
  initWebSocket();
- /*
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "Hi! I am ESP32.");
-  });
-*/
+
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/index.html", "text/html");
   });
@@ -402,56 +440,108 @@ initFS();
   server.begin();
   Serial.println("HTTP server started");
 
+  //Nasvení procentní nastavení
+  MotorSetProc(0,155,255);
+  MotorSetProc(1,155,255);
+  MotorSetProc(2,0,255);
+  MotorSetProc(3,0,255);
+  MotorSetProc(4,0,255);
+  MotorSetProc(5,0,255);
+  MotorSetProc(6,0,255);
+  MotorSetProc(7,0,255);
 
-  MotorSetProc(0,105,255);
-  MotorSetProc(1,105,255);
-  MotorSetProc(4,0,100);
+
+    String ip100 = WiFi.localIP().toString();
+  for (int i = 0; i < ip100.length(); i++)
+  {
+    
+    switch (ip100.charAt(i))
+    {
+    case '0':
+      blikblik();
+    case '9':
+      blikblik();
+    case '8':
+      blikblik();
+    case '7':
+      blikblik();
+    case '6':
+      blikblik();
+    case '5':
+      blikblik();
+    case '4':
+      blikblik();
+    case '3':
+      blikblik();
+    case '2':
+      blikblik();
+    case '1':
+      blikblik();
+      delay(300);
+    break;
+    default:
+    delay(800);
+      break;
+    }
+  }
 }
 
-
+float MC6odl;
+unsigned long MC6time;
+#define MC6timeSpeed 500
 void loop(void) 
 {
-MotorRunProc(0,MC1);
-MotorRunProc(1,MC2);
-MotorRunProc(2,MC3);
-MotorRunProc(3,MC4);
-MotorRunProc(4,MC5);
-MotorRunProc(5,MC6);
-MotorRunProc(6,MC7);
-MotorRunProc(7,MC8);
-ws.cleanupClients();
-
-  //delay(1);
-  timeTest1 ++;
-  //byte mmm=0;
-  //test
-  /*
-  if (timeTest1 == 500)
+  if(MC1 == 0 &&MC1 == 0 &&MC2 == 0 &&MC3 == 0 &&MC4 == 0 &&MC5 == 0 &&MC5 == 0 &&MC6 == 0 &&MC7 == 0 &&MC8 == 0)
   {
-    MotorRunRaw(mmm,Mvpred,(int)150);
+    MotorStopAll();
   }
-    if (timeTest1 == 1000)
+  else
   {
-    MotorRunRaw(mmm,MStopLow,(int)150);
+ MotorRunProc(MotPodPravi,MC1);
+  MotorRunProc(MotPodLivi,MC2);
+  MotorRunProc(Mot2,MC3);
+  MotorRunProc(Mot3,MC4);
+  MotorRunProc(Mot4,MC5);
+  if (MC6odl != MC6)
+  {
+    MC6odl = MC6;
+    MC6time= millis() + MC6timeSpeed ;
   }
-    if (timeTest1 == 1500)
-  {
-    MotorRunRaw(mmm,Mvzad,(int)150);
-  }
-    if (timeTest1 == 2000)
-  {
-    MotorRunRaw(mmm,MStopHight,(int)150);
   
-    if (mmm == 7)
+  if (MC6 ==100.0)
+  {
+    if (MC6time > millis())
     {
-      mmm=0;
+      MotorRunRaw(MotKleste,Mvpred, 200);
     }
     else
     {
-      mmm++;
+      MotorRunRaw(MotKleste,Mvpred, 50);
     }
-    timeTest1=0;
     
-  }*/
+    
+  }
+  else if (MC6 ==-100.0)
+  {
+    if (MC6time > millis())
+    {
+    MotorRunRaw(MotKleste,Mvzad, 200);
+    }
+    else
+    {
+      MotorRunRaw(MotKleste,Mvzad, 70);
+    }
+  }
+  else
+  {
+    MotorRunRaw(MotKleste,MStop);
+  }
+  //MotorRunProc(MotKleste,MC6);
+  MotorRunProc(Mot1,MC7);
+  MotorRunProc(LEDka,MC8);
+  }
+ 
+  ws.cleanupClients();
 
+  
 }
