@@ -15,6 +15,27 @@ html {
     
   }
   
+
+  .buttonActive
+  {
+    min-width: 100px;
+    min-height: 100px;
+    
+      background-color: #1E78AB;
+      border: 1px solid #1E78AB;
+      color: #fff;
+  }
+  .buttonInactive
+  {
+    min-width: 100px;
+    min-height: 100px;
+      background-color: #fff;
+      border: 1px solid #1E78AB;
+      color: #1E78AB;
+
+  }
+
+
   p {
     font-size: 1.4rem;
   }
@@ -33,13 +54,14 @@ html {
   }
   
   .card-grid {
-    /*   display: grid;
     max-width: auto;
+    max-height: auto;
 margin: 0 auto;
     display: grid;
     grid-gap: 2rem;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /*grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   */
+  width: 100%;
   }
  
   .card {
@@ -52,7 +74,11 @@ margin: 0 auto;
     background-color: white;
     box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
   }
-
+  .card3{
+    
+    background-color: white;
+    box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
+  }
   
   .card-title {
     font-size: 1.2rem;
@@ -79,6 +105,7 @@ margin: 0 auto;
   
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
+    
     appearance: none;
     width: 30px;
     height: 30px;
@@ -96,22 +123,28 @@ margin: 0 auto;
   }
   
   .switch {
-    padding-left: 5%;
-    padding-right: 5%;
+    margin:  auto;
+    position:relative;
+  }
+  .switch2 {
+    margin:  auto;
+    position:relative;
+  }
+  .switch3 {
+    margin:  auto;
+    position:relative;
   }
 
   .slider2 {
-    -webkit-appearance: none;
     margin: 0 auto;
-    min-width: 300px;
-    border-radius: 10px;
+    width: 8px;
+    min-height: 100px;
+    padding: 0 5px;
     background: #FFD65C;
     outline: none;
-    transform:rotate(7deg);
-    -ms-transform:rotate(270deg); /* IE 9 */
-    -moz-transform:rotate(270deg); /* Firefox */
-    -webkit-transform:rotate(270deg); /* Safari and Chrome */
-    -o-transform:rotate(270deg); /* Opera */
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* Chromium */
+
   }
 
   .slider2::-webkit-slider-thumb {
@@ -129,5 +162,46 @@ margin: 0 auto;
     height: 30px;
     border-radius: 50% ;
     background: #037805;
+    cursor: pointer;
+  }
+
+
+  .slider3 {
+    margin: 0 auto;
+    width: 8px;
+    min-height: 500px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background: #FFD65C;
+    outline: none;
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* Chromium */
+
+  }
+
+  input[type=range][orient=vertical]
+{
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* Chromium */
+    width: 8px;
+    height: 175px;
+    padding: 0 5px;
+}
+
+  .slider3::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #783003;
+    cursor: pointer;
+  }
+
+  .slider3::-moz-range-thumb {
+    width: 30px;
+    height: 30px;
+    border-radius: 50% ;
+    background: #ff0404;
     cursor: pointer;
   }

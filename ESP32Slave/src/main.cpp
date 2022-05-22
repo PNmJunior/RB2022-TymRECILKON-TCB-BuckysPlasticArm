@@ -6,7 +6,19 @@
 #include <tajnosti.h>//Jsou zde definované jmého a heslo wifi
 #include "SPIFFS.h"
 #include <Arduino_JSON.h>
+/*
+#include "soc/dport_reg.h"
+#include "soc/ledc_reg.h"
+#include "soc/ledc_struct.h"
+#include "esp32-hal-ledc.h"
+#include "esp32-hal-ledc.C"
 
+
+ /   #define LEDC_CHAN(g,c) LEDC.channel_group[(g)].channel[(c)]
+    #define LEDC_TIMER(g,t) LEDC.timer_group[(g)].timer[(t)]
+
+
+*/
 const char* host = "BuckysPlasticArm";
 const char* ssid = wifiName;
 const char* password = wifiHeslo;
@@ -204,9 +216,11 @@ byte mmm=0;
 
 void PosunReg()//odešle data k posuvnému registru
 {
+    
     digitalWrite(MlatchPin, LOW);
     shiftOut(MdataPin, MclockPin, MSBFIRST, Mdata);
     digitalWrite(MlatchPin, HIGH);  
+    
 }
 
 
@@ -234,14 +248,55 @@ void PosRegIndex(int index, bool A_N)//Vyrobení změny ve výstupu pos. registr
 }
 
 
+void IRAM_ATTR myledcWrite(uint8_t chan, uint32_t duty)
+{
+  ledcWrite(chan,duty);
+  /*
+    if (chan > 15)
+    {
+        return;
+    }
+    uint8_t group = (chan / 8), channel = (chan % 8);
+    LEDC_CHAN(group, channel).duty.duty = duty << 4; //25 bit (21.4)
+    if (duty)
+    {
+        LEDC_CHAN(group, channel).conf0.sig_out_en = 1; //This is the output enable control bit for channel
+        LEDC_CHAN(group, channel).conf1.duty_start = 1; //When duty_num duty_cycle and duty_scale has been configured. these register won't take effect until set duty_start. this bit is automatically cleared by hardware.
+        if (group)
+        {
+            LEDC_CHAN(group, channel).conf0.low_speed_update = 1;
+        }
+        else
+        {
+            LEDC_CHAN(group, channel).conf0.clk_en = 1;
+        }
+    }
+    else
+    {
+        LEDC_CHAN(group, channel).conf0.sig_out_en = 0; //This is the output enable control bit for channel
+        LEDC_CHAN(group, channel).conf1.duty_start = 0; //When duty_num duty_cycle and duty_scale has been configured. these register won't take effect until set duty_start. this bit is automatically cleared by hardware.
+        if (group)
+        {
+            LEDC_CHAN(group, channel).conf0.low_speed_update = 1;
+        }
+        else
+        {
+            LEDC_CHAN(group, channel).conf0.clk_en = 0;
+        }
+    }
+    */
+}
+
 void MotorStopAll()//Vždy zastaví chod robota. Automaticky posílá data posuvnému registru.
 {
   Mdata = 0;
+  //portDISABLE_INTERRUPTS();
   PosunReg();
   for (int i = 0; i < Mpocet; i++)
   {
-    ledcWrite( MathKanalu i, 0);
+    myledcWrite( MathKanalu i, 0);
   }
+  //portENABLE_INTERRUPTS();
 }
 
 
@@ -306,27 +361,28 @@ void MotorRunRaw(int index, int mod=MStop, int rychlost =0)
       mod = Mvpred;
     }
   }
-  
+  //portDISABLE_INTERRUPTS();
   if (mod == MStopLow)
   {
-    ledcWrite( MathKanalu index, 0);
+    myledcWrite( MathKanalu index, 0);
     PosRegIndex(index, 0);
   }
   else if (mod == MStopHight)
   {
-    ledcWrite( MathKanalu index, 255);
+    myledcWrite( MathKanalu index, 255);
     PosRegIndex(index, 1);
   }
   else if (mod == Mvpred)
   {
-    ledcWrite( MathKanalu index, rychlost);
+    myledcWrite( MathKanalu index, rychlost);
     PosRegIndex(index, 0 );
   }
   else if (mod == Mvzad)
   {
-    ledcWrite( MathKanalu index,255- rychlost);
+    myledcWrite( MathKanalu index,255- rychlost);
     PosRegIndex(index, 1);
   }
+  //portENABLE_INTERRUPTS();
 }
 
 
@@ -432,6 +488,10 @@ void setup() {
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/index.html", "text/html");
+  });
+
+      server.on("/2", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/index2.html", "text/html");
   });
   
   server.serveStatic("/", SPIFFS, "/");
