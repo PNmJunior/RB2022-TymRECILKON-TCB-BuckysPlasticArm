@@ -38,21 +38,35 @@ function updateSliderPWM(element) {
     websocket.send(sliderNumber+"s"+sliderValue.toString());
 }
 
+function reset123()
+{
+    location.href = "/reset";
+    setTimeout(function(){ console.log("After 0.5 seconds!"); }, 500);
+    location.href = "/";
+    stisknuto();
+}
+
 function stisknuto()
 {    
+    var a = window.open("/stop");
+    a.close();
     for(var i = 1; i < 9; i++)
     {        
         document.getElementById("slider"+i.toString()).innerHTML = 0;
-        console.log("4564");
+        console.log("a");
         websocket.send(i.toString()+"s0");
-        console.log("000000000");
+        console.log("b");
     }
+    var b = window.open("/stop");
+    b.close();
 }
 
 function onMessage(event) {
     console.log(event.data);
     var myObj = JSON.parse(event.data);
     var keys = Object.keys(myObj);
+    console.log(myObj);
+    console.log(keys)
 
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];

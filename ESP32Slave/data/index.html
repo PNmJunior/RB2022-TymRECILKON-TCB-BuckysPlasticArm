@@ -1,3 +1,4 @@
+
 <!-- Complete project details: https://randomnerdtutorials.com/esp32-web-server-websocket-sliders/ -->
 
 <!DOCTYPE html>
@@ -12,8 +13,9 @@
     <div class="content">
         <div class="card-grid"> 
             <table id="mytable">
+                <col width="25%"><col width="25%"><col width="25%"><col width="25%">
                 <tr style="max-height: 25%;min-height: 25%;">
-                    <td tyle="min-width: 25%;max-width: 25%;">
+                    <td>
                         <div class="card">
                             <p class="card-title"> LED</p>
                             <p class="switch">
@@ -22,14 +24,15 @@
                             <p class="state"> <span id="sliderValue8"></span> &percnt;</p>
                         </div> 
                     </td>
-                    <td tyle="min-width: 25%;max-width: 25%;">
+                    <td>
                         <button id="btn1" type="button" class="buttonInactive">
                             Rameno</button>
-                    </td>
-                    <td tyle="min-width: 25%;max-width: 25%;">
                         <button id="btn2" type="button" class="buttonInactive">
                             Podvozek</button>
-                    </td tyle="min-width: 25%;max-width: 25%;">
+                    </td>
+                    <td>
+                        <input type="button"  value="Reset" onclick="reset123()" class="h1">
+                    </td>
                     <td>
                         <input type="button"  value="STOP" onclick="stisknuto()" class="h1">
                     </td>
@@ -114,26 +117,30 @@
         $("#tr2").hide();
         $("#tr0").hide();
         $("#btn1").click(function () {
-            $('.buttonInactive').not(this).removeClass('buttonInactive');
-            $(this).toggleClass('buttonActive');
             if ($(this).hasClass("buttonActive")) {
                 $("#tr1").show();
                 $("#tr0").show();
-                
+                $("#btn1").removeClass("buttonActive");
+                $("#btn1").addClass("buttonInactive");
             }
             else {
                 $("#tr1").hide();
                 $("#tr0").hide();
+                $("#btn1").removeClass("buttonInactive");
+                $("#btn1").addClass("buttonActive");
+
             }
         });
         $("#btn2").click(function () {
-            $('.buttonInactive').not(this).removeClass('buttonInactive');
-            $(this).toggleClass('buttonActive');
             if ($(this).hasClass("buttonActive")) {
                 $("#tr2").show();
+                $("#btn2").removeClass("buttonActive");
+                $("#btn2").addClass("buttonInactive");
             }
             else {
                 $("#tr2").hide();
+                $("#btn2").removeClass("buttonInactive");
+                $("#btn2").addClass("buttonActive");
             }
         });
     });

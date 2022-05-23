@@ -80,6 +80,24 @@ float MC5;
 float MC6;
 float MC7;
 
+#define ContrSendDataVolno 0
+#define ContrSendDataRow 1
+#define ContrSendDataStopAll 2
+int ContrSendData =0;
+unsigned long ContrSendDataTime =0;
+bool ContrSendDataRemove = false;
+int  ContrSendDataPocet = 0;
+
+void WaitContrSendData(int cekat, int zmena)
+{
+  while (cekat != ContrSendData)
+  {
+    delay(1);
+  }
+  ContrSendData = zmena;
+}
+
+
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
@@ -287,8 +305,10 @@ void IRAM_ATTR myledcWrite(uint8_t chan, uint32_t duty)
     */
 }
 
-void MotorStopAll()//Vždy zastaví chod robota. Automaticky posílá data posuvnému registru.
+void MotorStopAll(unsigned long cekani = 0, bool mazZac = false, bool mazKonec= false)//Vždy zastaví chod robota. Automaticky posílá data posuvnému registru.
 {
+  ContrSendDataRemove = mazZac;
+WaitContrSendData(ContrSendDataVolno,ContrSendDataStopAll);
   Mdata = 0;
   //portDISABLE_INTERRUPTS();
   PosunReg();
@@ -296,6 +316,22 @@ void MotorStopAll()//Vždy zastaví chod robota. Automaticky posílá data posuv
   {
     myledcWrite( MathKanalu i, 0);
   }
+
+  if (cekani != 0)
+  {
+    unsigned long abn = cekani + millis();
+    while (abn >=micros())
+    {
+      ContrSendDataTime = abn - millis();
+      delay(1);
+      
+    }
+    
+  }
+  ContrSendDataTime = 0;
+
+  ContrSendData = ContrSendDataVolno;
+  ContrSendDataRemove = mazKonec;
   //portENABLE_INTERRUPTS();
 }
 
@@ -342,6 +378,11 @@ void MotorBegin(int Platch, int Pdata, int Pclock, int piny[Mpocet])//inicializa
 
 void MotorRunRaw(int index, int mod=MStop, int rychlost =0)
 {
+  if (ContrSendDataRemove == true)
+  {
+    return;
+  }
+  
   if (rychlost < 0)
   {
     rychlost = 0;
@@ -362,6 +403,7 @@ void MotorRunRaw(int index, int mod=MStop, int rychlost =0)
     }
   }
   //portDISABLE_INTERRUPTS();
+  WaitContrSendData(ContrSendDataVolno, ContrSendDataRow);
   if (mod == MStopLow)
   {
     myledcWrite( MathKanalu index, 0);
@@ -383,6 +425,7 @@ void MotorRunRaw(int index, int mod=MStop, int rychlost =0)
     PosRegIndex(index, 1);
   }
   //portENABLE_INTERRUPTS();
+  ContrSendData =0;
 }
 
 
@@ -490,8 +533,16 @@ void setup() {
     request->send(SPIFFS, "/index.html", "text/html");
   });
 
-      server.on("/2", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index2.html", "text/html");
+        server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request){
+    MotorStopAll(0, true, true);
+    ContrSendDataPocet = 0;
+    server.reset();
+    MotorStopAll(100, true, false);
+    
+  });
+
+          server.on("/stop", HTTP_GET, [](AsyncWebServerRequest *request){
+    MotorStopAll(100,true,false);
   });
   
   server.serveStatic("/", SPIFFS, "/");
@@ -551,9 +602,14 @@ unsigned long MC6time;
 #define MC6timeSpeed 500
 void loop(void) 
 {
-  if(MC1 == 0 &&MC1 == 0 &&MC2 == 0 &&MC3 == 0 &&MC4 == 0 &&MC5 == 0 &&MC5 == 0 &&MC6 == 0 &&MC7 == 0 &&MC8 == 0)
+  if(ContrSendData == ContrSendDataStopAll)
+  {
+    delayMicroseconds(100);
+  }
+  else if(MC1 == 0 &&MC1 == 0 &&MC2 == 0 &&MC3 == 0 &&MC4 == 0 &&MC5 == 0 &&MC5 == 0 &&MC6 == 0 &&MC7 == 0 &&MC8 == 0)
   {
     MotorStopAll();
+    delayMicroseconds(10);
   }
   else
   {
