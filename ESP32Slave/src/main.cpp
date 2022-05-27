@@ -6,19 +6,7 @@
 #include <tajnosti.h>//Jsou zde definované jmého a heslo wifi
 #include "SPIFFS.h"
 #include <Arduino_JSON.h>
-/*
-#include "soc/dport_reg.h"
-#include "soc/ledc_reg.h"
-#include "soc/ledc_struct.h"
-#include "esp32-hal-ledc.h"
-#include "esp32-hal-ledc.C"
 
-
- /   #define LEDC_CHAN(g,c) LEDC.channel_group[(g)].channel[(c)]
-    #define LEDC_TIMER(g,t) LEDC.timer_group[(g)].timer[(t)]
-
-
-*/
 const char* host = "BuckysPlasticArm";
 const char* ssid = wifiName;
 const char* password = wifiHeslo;
@@ -44,14 +32,14 @@ JSONVar sliderValues;
 
 //Get Slider Values
 String getSliderValues(){
-  sliderValues["sliderValue1"] = String(sliderValue1);
-  sliderValues["sliderValue2"] = String(sliderValue2);
-  sliderValues["sliderValue3"] = String(sliderValue3);
-  sliderValues["sliderValue4"] = String(sliderValue4);
-  sliderValues["sliderValue5"] = String(sliderValue5);
-  sliderValues["sliderValue6"] = String(sliderValue6);
-  sliderValues["sliderValue7"] = String(sliderValue7);
-  sliderValues["sliderValue8"] = String(sliderValue8);
+  sliderValues["sV1"] = String(sliderValue1);
+  sliderValues["sV2"] = String(sliderValue2);
+  sliderValues["sV3"] = String(sliderValue3);
+  sliderValues["sV4"] = String(sliderValue4);
+  sliderValues["sV5"] = String(sliderValue5);
+  sliderValues["sV6"] = String(sliderValue6);
+  sliderValues["sV7"] = String(sliderValue7);
+  sliderValues["sV8"] = String(sliderValue8);
 
   String jsonString = JSON.stringify(sliderValues);
   return jsonString;
@@ -71,6 +59,7 @@ void notifyClients(String sliderValues) {
 }
 
 float MC8;
+float MC8old;
 float MC1;
 float MC2;
 float MC3;
@@ -194,33 +183,46 @@ int Mresolution = 8;
 int MlatchPin = 18;
 int MdataPin = 17;
 int MclockPin = 16;
-float MprocDataIn[8][2];
-float MprocDataWork[8][2];
+float MprocDataIn[9][2];
+float MprocDataWork[9][2];
 
 //definice indexu motorů
-#define MotPodLivi 1
-#define MotPodPravi 0
-#define Mot1 6
-#define Mot2 2
-#define Mot3 3
-#define Mot4 4
-#define MotKleste 7
-#define LEDka 5
+#define M0 0
+#define M1 1 
+#define M2 2 
+#define M3 3
+#define M4 4
+#define M5 5
+#define M6 6
+#define M7 7
+#define Mled 8
+
+//definice Motoru
+#define MotPodLivy M1
+#define MotPodPravy M0
+#define Mot1 M6
+#define Mot2 M5
+#define Mot3 M7
+#define Mot4 M4
+#define MotKleste M3
+#define LEDka Mled
+#define MotZaloha M2
 
 //Negace směru motorů
-#define MotNegPodLivi 0
-#define MotNegPodPravi 1
+#define MotNegPodLivi 1
+#define MotNegPodPravi 0
 #define MotNeg1 0
 #define MotNeg2 0
-#define MotNeg3 0
-#define MotNeg4 0
-#define MotNegKleste 1
-#define LEDkaNeg 1
+#define MotNeg3 1
+#define MotNeg4 1
+#define MotNegKleste 0
+#define MotNegZaloha 0
 
-int MotorNegace[8] = {MotNegPodPravi,MotNegPodLivi, MotNeg2,MotNeg3,MotNeg4,LEDkaNeg, MotNeg1,MotNegKleste };
+int MotorNegace[8] = {MotNegPodPravi,MotNegPodLivi,MotNegZaloha ,MotNegKleste,MotNeg4,MotNeg2, MotNeg1,MotNeg3 };
 
 //Ostatní definice k motorům
-#define LEDmod Mvpred
+#define LEDzelena Mvpred
+#define LEDcervena Mvzad
 #define KlesSevrit Mvzad
 #define KlesRozevrit Mvpred
 #define Mot1Vlevo Mvzad
@@ -269,40 +271,6 @@ void PosRegIndex(int index, bool A_N)//Vyrobení změny ve výstupu pos. registr
 void IRAM_ATTR myledcWrite(uint8_t chan, uint32_t duty)
 {
   ledcWrite(chan,duty);
-  /*
-    if (chan > 15)
-    {
-        return;
-    }
-    uint8_t group = (chan / 8), channel = (chan % 8);
-    LEDC_CHAN(group, channel).duty.duty = duty << 4; //25 bit (21.4)
-    if (duty)
-    {
-        LEDC_CHAN(group, channel).conf0.sig_out_en = 1; //This is the output enable control bit for channel
-        LEDC_CHAN(group, channel).conf1.duty_start = 1; //When duty_num duty_cycle and duty_scale has been configured. these register won't take effect until set duty_start. this bit is automatically cleared by hardware.
-        if (group)
-        {
-            LEDC_CHAN(group, channel).conf0.low_speed_update = 1;
-        }
-        else
-        {
-            LEDC_CHAN(group, channel).conf0.clk_en = 1;
-        }
-    }
-    else
-    {
-        LEDC_CHAN(group, channel).conf0.sig_out_en = 0; //This is the output enable control bit for channel
-        LEDC_CHAN(group, channel).conf1.duty_start = 0; //When duty_num duty_cycle and duty_scale has been configured. these register won't take effect until set duty_start. this bit is automatically cleared by hardware.
-        if (group)
-        {
-            LEDC_CHAN(group, channel).conf0.low_speed_update = 1;
-        }
-        else
-        {
-            LEDC_CHAN(group, channel).conf0.clk_en = 0;
-        }
-    }
-    */
 }
 
 void MotorStopAll(unsigned long cekani = 0, bool mazZac = false, bool mazKonec= false)//Vždy zastaví chod robota. Automaticky posílá data posuvnému registru.
@@ -373,23 +341,77 @@ void MotorBegin(int Platch, int Pdata, int Pclock, int piny[Mpocet])//inicializa
   {
     MotorSetProc(i,0,255);
   }
+MotorSetProc(LEDka,0,255);
+
+  pinMode(15,OUTPUT);
+  pinMode(2,OUTPUT);
+  ledcSetup(5, Mfreq, Mresolution);
+    ledcWrite(5, 255);
+    ledcAttachPin(15, 5);
+      ledcSetup(7, Mfreq, Mresolution);
+    ledcWrite(7, 255);
+    ledcAttachPin(2,7);
+  
+}
+
+
+void KompenzaceIn(int index)
+{
+  int dvojiceA = index>>1;
+  int dvojiceB;
+  dvojiceA << 1;
+  if (dvojiceA != index)
+  {
+    dvojiceB = dvojiceA +1;
+  }
+  else
+  {
+    dvojiceB = dvojiceA;
+  }
+  
+
+  
+}
+void KompenzaceWork()
+{
+
 }
 
 
 void MotorRunRaw(int index, int mod=MStop, int rychlost =0)
 {
-  if (ContrSendDataRemove == true)
-  {
-    return;
-  }
-  
-  if (rychlost < 0)
+    if (rychlost < 0)
   {
     rychlost = 0;
   }
   else if (rychlost > 255)
   {
     rychlost = 255;
+  }
+
+  if(index == LEDka)
+  {
+    if (mod == LEDzelena)
+    {
+      myledcWrite( 5, rychlost);
+      myledcWrite( 7,0);
+    }
+    else if (mod ==LEDcervena)
+    {
+      myledcWrite( 7, rychlost);
+      myledcWrite( 5,0);
+    }
+    else
+    {
+      myledcWrite( 5,0);
+      myledcWrite( 7,0);
+    }
+  return;
+  }
+
+  if (ContrSendDataRemove == true)
+  {
+    return;
   }
   if (MotorNegace[index]==1)
   {
@@ -435,6 +457,7 @@ void MotorRunProc(int index, float proc)//Možnost nastavení procent výkonu, k
   {
     MotorRunRaw(index,MStop);
   }
+  
   else
   {
     float o  =(abs(proc)*MprocDataWork[index][1])+MprocDataWork[index][0];
@@ -488,14 +511,14 @@ void TestM()
   }
 }
 
-void blikblik(int pocet = 1)
+void blikblik(int mod=LEDcervena,int pocet = 1, int cas=100)
 {
   for (int i = 0; i < pocet; i++)
   {
-    MotorRunRaw(LEDka,LEDmod,255);
-    delay(100);
+    MotorRunRaw(LEDka,mod,255);
+    delay(cas);
     MotorRunRaw(LEDka,MStop);
-    delay(100);
+    delay(cas);
   }
   
 }
@@ -506,15 +529,12 @@ void setup() {
   MotorBegin(18,17,16,Mpiny);
 
   MotorStopAll();
-  //dotykový senzor
-  touchRead(2);
-  touchRead(3);
 
   Serial.begin(9600);
   initFS();
    WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.println("");
+  Serial.println("aHOJ SVETE 123");
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
@@ -588,10 +608,10 @@ void setup() {
       blikblik();
     case '1':
       blikblik();
-      delay(300);
+      blikblik(LEDzelena);
     break;
     default:
-    delay(800);
+    blikblik(LEDzelena,2);
       break;
     }
   }
@@ -606,15 +626,16 @@ void loop(void)
   {
     delayMicroseconds(100);
   }
-  else if(MC1 == 0 &&MC1 == 0 &&MC2 == 0 &&MC3 == 0 &&MC4 == 0 &&MC5 == 0 &&MC5 == 0 &&MC6 == 0 &&MC7 == 0 &&MC8 == 0)
+  else if(MC1 == 0 &&MC1 == 0 &&MC2 == 0 &&MC3 == 0 &&MC4 == 0 &&MC5 == 0 &&MC5 == 0 &&MC6 == 0 &&MC7 == 0)
   {
+
     MotorStopAll();
     delayMicroseconds(10);
   }
   else
   {
- MotorRunProc(MotPodPravi,MC1);
-  MotorRunProc(MotPodLivi,MC2);
+ MotorRunProc(MotPodPravy,MC1);
+  MotorRunProc(MotPodLivy,MC2);
   MotorRunProc(Mot2,MC3);
   MotorRunProc(Mot3,MC4);
   MotorRunProc(Mot4,MC5);
@@ -654,9 +675,14 @@ void loop(void)
   }
   //MotorRunProc(MotKleste,MC6);
   MotorRunProc(Mot1,MC7);
-  MotorRunProc(LEDka,MC8);
+  
   }
- 
+  if(MC8 != MC8old)
+  {
+    MotorRunProc(LEDka,MC8);
+    MC8old = MC8;
+  }
+  
   ws.cleanupClients();
 
   

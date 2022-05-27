@@ -33,7 +33,7 @@ function onClose(event) {
 function updateSliderPWM(element) {
     var sliderNumber = element.id.charAt(element.id.length-1);
     var sliderValue = document.getElementById(element.id).value;
-    document.getElementById("sliderValue"+sliderNumber).innerHTML = sliderValue;
+    document.getElementById("sV"+sliderNumber).innerHTML = sliderValue;
     console.log(sliderValue);
     websocket.send(sliderNumber+"s"+sliderValue.toString());
 }
