@@ -14,7 +14,7 @@
         <div class="card-grid"> 
             <table id="mytable">
                 <col width="25%"><col width="25%"><col width="25%"><col width="25%">
-                <tr>
+                <tr style="max-height: 25%;min-height: 25%;">
                     <td>
                         <div class="card">
                             <p class="card-title"> LED</p>
@@ -91,7 +91,7 @@
                         <div class="card3">
                             <p class="card-title"> Leva</p>
                             <p class="switch3">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider2" min="-100" max="100" step="5" value ="0" class="slider3">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider2" min="-100" max="100" step="10" value ="0" class="slider3">
                             </p>
                             <p class="state"> <span id="sV2"></span> &percnt;</p>
                         </div>
@@ -100,7 +100,7 @@
                         <div class="card3">
                             <p class="card-title">Prava</p>
                             <p class="switch3">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="-100" max="100" step="5" value ="0" class="slider3">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="-100" max="100" step="10" value ="0" class="slider3">
                             </p>
                             <p class="state"> <span id="sV1"></span> &percnt;</p>
                         </div>

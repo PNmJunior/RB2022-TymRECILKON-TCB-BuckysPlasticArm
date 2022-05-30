@@ -267,7 +267,7 @@ float MprocDataWork[9][2];
 #define MotNegPodLivi 1
 #define MotNegPodPravi 0
 #define MotNeg1 0
-#define MotNeg2 1
+#define MotNeg2 0
 #define MotNeg3 1
 #define MotNeg4 1
 #define MotNegKleste 0
@@ -627,8 +627,8 @@ void setup() {
   Serial.println("HTTP server started");
 
   //Nasvení procentní nastavení
-  MotorSetProc(0,122,255);
-  MotorSetProc(1,122,255);
+  MotorSetProc(0,155,255);
+  MotorSetProc(1,155,255);
   MotorSetProc(2,0,255);
   MotorSetProc(3,0,255);
   MotorSetProc(4,0,255);
@@ -708,7 +708,7 @@ void loop(void)
     }
     else
     {
-      MotorRunRaw(MotKleste,Mvpred, 70);
+      MotorRunRaw(MotKleste,Mvpred, 50);
     }
     
     
@@ -721,7 +721,7 @@ void loop(void)
     }
     else
     {
-      MotorRunRaw(MotKleste,Mvzad, 80);
+      MotorRunRaw(MotKleste,Mvzad, 70);
     }
   }
   else
