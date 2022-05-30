@@ -4,155 +4,10 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 #include <tajnosti.h>//Jsou zde definované jmého a heslo wifi
-
-<<<<<<< HEAD
-const char* host = "BuckysPlasticArm";
-const char* ssid = wifiName;
-const char* password = wifiHeslo;
-
-//WebServer server(80);
-AsyncWebServer server(80);
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-AsyncWebSocket ws("/ws");
-
-String message = "";
-String sliderValue0 = "0";
-String sliderValue1 = "0";
-String sliderValue2 = "0";
-String sliderValue3 = "0";
-String sliderValue4 = "0";
-String sliderValue5 = "0";
-String sliderValue6 = "0";
-String sliderValue7 = "0";
+#include "SPIFFS.h"
+#include <Arduino_JSON.h>
 
 
-//Json Variable to Hold Slider Values
-JSONVar sliderValues;
-
-//Get Slider Values
-String getSliderValues(){
-  sliderValues["sliderValue0"] = String(sliderValue0);
-    sliderValues["sliderValue1"] = String(sliderValue1);
-  sliderValues["sliderValue2"] = String(sliderValue2);
-  sliderValues["sliderValue3"] = String(sliderValue3);
-    sliderValues["sliderValue4"] = String(sliderValue4);
-  sliderValues["sliderValue5"] = String(sliderValue5);
-  sliderValues["sliderValue6"] = String(sliderValue6);
-  sliderValues["sliderValue7"] = String(sliderValue7);
-  String jsonString = JSON.stringify(sliderValues);
-  return jsonString;
-}
-
-void initFS() {
-  if (!SPIFFS.begin()) {
-    Serial.println("An error has occurred while mounting SPIFFS");
-  }
-  else{
-   Serial.println("SPIFFS mounted successfully");
-  }
-}
-
-void notifyClients(String sliderValues) {
-  ws.textAll(sliderValues);
-}
-
-float MC0;
-float MC1;
-float MC2;
-float MC3;
-float MC4;
-float MC5;
-
-float MC6;
-float MC7;
-
-
-float MotProcNow[8];
-float MotProcOld[8];
-
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
-  AwsFrameInfo *info = (AwsFrameInfo*)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-    data[len] = 0;
-    message = (char*)data;
-    if (message.indexOf("0s") >= 0) {
-      sliderValue0 = message.substring(2);
-      notifyClients(getSliderValues());
-      MC0 = sliderValue0.toFloat();
-    }
-    if (message.indexOf("1s") >= 0) {
-      sliderValue1 = message.substring(2);
-      notifyClients(getSliderValues());
-      MC1 = sliderValue1.toFloat();
-    }    
-    if (message.indexOf("2s") >= 0) {
-      sliderValue2 = message.substring(2);
-      notifyClients(getSliderValues());
-      MC2 = sliderValue2.toFloat();
-    }
-    if (message.indexOf("3s") >= 0) {
-      sliderValue3 = message.substring(2);
-      notifyClients(getSliderValues());
-      MC3 = sliderValue0.toFloat();
-    }
-    if (message.indexOf("4s") >= 0) {
-      sliderValue4 = message.substring(2);
-      notifyClients(getSliderValues());
-      MC4 = sliderValue1.toFloat();
-    }    
-    if (message.indexOf("5s") >= 0) {
-      sliderValue5 = message.substring(2);
-      notifyClients(getSliderValues());
-      MC5 = sliderValue2.toFloat();
-    }
-    if (message.indexOf("6s") >= 0) {
-      sliderValue6 = message.substring(2);
-      notifyClients(getSliderValues());
-      MC6 = sliderValue0.toFloat();
-    }
-    if (message.indexOf("7s") >= 0) {
-      sliderValue7 = message.substring(2);
-      notifyClients(getSliderValues());
-      MC7 = sliderValue1.toFloat();
-    }
-    if (strcmp((char*)data, "getValues") == 0) {
-      notifyClients(getSliderValues());
-    }
-  }
-}
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  switch (type) {
-    case WS_EVT_CONNECT:
-      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.printf("WebSocket client #%u disconnected\n", client->id());
-      break;
-    case WS_EVT_DATA:
-      handleWebSocketMessage(arg, data, len);
-      break;
-    case WS_EVT_PONG:
-    case WS_EVT_ERROR:
-      break;
-  }
-}
-
-void initWebSocket() {
-  ws.onEvent(onEvent);
-  server.addHandler(&ws);
-}
-=======
->>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
-=======
->>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
-/*
- * setup function
- */
-=======
-
->>>>>>> main3
 
 //Motor definice
 #define Mpocet 8
@@ -311,12 +166,12 @@ WaitContrSendData(ContrSendDataVolno,ContrSendDataStopAll);
 }
 
 
-void MotorSetProc(int index, byte minimum, byte maximum)// nastavení MotorRunProc
+void MotorSetProc(int index, byte minimum = 0, byte maximum=255)// nastavení MotorRunProc
 {
   MprocDataIn[index][0] = minimum;
   MprocDataIn[index][1] = maximum;
   MprocDataWork[index][0] = MprocDataIn[index][0] ;
-  MprocDataWork[index][1] = MprocDataIn[index][1]  -MprocDataIn[index][0] ;
+  MprocDataWork[index][1] = (MprocDataIn[index][1]  -MprocDataIn[index][0])/100.0 ;
 }
 
 
@@ -692,7 +547,7 @@ void MotorRunProc(int index, float proc)//Možnost nastavení procent výkonu, k
   
   else
   {
-    float o  =(abs(proc)*MprocDataWork[index][1]/100.0)+MprocDataWork[index][0];
+    float o  =(abs(proc)*MprocDataWork[index][1])+MprocDataWork[index][0];
     int u = o;
     if (u >255)
     {
@@ -763,11 +618,7 @@ void setup() {
   MotorStopAll();
 
   Serial.begin(9600);
-<<<<<<< HEAD
-
-=======
   initFS();
->>>>>>> main3
    WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("aHOJ SVETE 123");
@@ -783,12 +634,6 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   
-<<<<<<< HEAD
-
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "Hi! I am ESP32.");
-  });
-=======
  initWebSocket();
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -808,7 +653,6 @@ void setup() {
   });
   
   server.serveStatic("/", SPIFFS, "/");
->>>>>>> main3
 
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
@@ -824,43 +668,9 @@ void setup() {
   MotorSetProc(6,0,255);
   MotorSetProc(7,0,255);
 
-<<<<<<< HEAD
-void loop(void) 
-{
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 46fecb9ffd800c449089d72d8c6300f0a5a4a358
-MotorRunProc(0,MC0);
-MotorRunProc(1,MC1);
-MotorRunProc(2,MC2);
-MotorRunProc(3,MC3);
-MotorRunProc(4,MC4);
-MotorRunProc(5,MC5);
-MotorRunProc(6,MC6);
-MotorRunProc(7,MC7);
-//MotorRunRaw(0,Mvpred, 255);
-//MotorRunProc(1,100);
-ws.cleanupClients();
-
-  //delay(1);
-=======
-  delay(1);
->>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
-=======
-  delay(1);
->>>>>>> parent of cd38d66 (Funkční ovladani prvního motoru....)
-  timeTest1 ++;
-  //byte mmm=0;
-  //test
-  /*
-  if (timeTest1 == 500)
-=======
 
     String ip100 = WiFi.localIP().toString();
   for (int i = 0; i < ip100.length(); i++)
->>>>>>> main3
   {
     
     switch (ip100.charAt(i))
