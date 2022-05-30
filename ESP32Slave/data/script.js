@@ -47,9 +47,11 @@ function reset123()
 }
 
 function stisknuto()
-{    
+{   
+    websocket.send("9s0"); 
     var a = window.open("/stop");
     a.close();
+    
     for(var i = 1; i < 9; i++)
     {        
         document.getElementById("slider"+i.toString()).innerHTML = 0;
@@ -57,6 +59,7 @@ function stisknuto()
         websocket.send(i.toString()+"s0");
         console.log("b");
     }
+    websocket.send("9s0");
     var b = window.open("/stop");
     b.close();
 }

@@ -7,164 +7,7 @@
 #include "SPIFFS.h"
 #include <Arduino_JSON.h>
 
-const char* host = "BuckysPlasticArm";
-const char* ssid = wifiName;
-const char* password = wifiHeslo;
 
-//WebServer server(80);
-AsyncWebServer server(80);
-
-AsyncWebSocket ws("/ws");
-
-String message = "";
-String sliderValue1 = "0";
-String sliderValue2 = "0";
-String sliderValue3 = "0";
-String sliderValue4 = "0";
-String sliderValue5 = "0";
-String sliderValue6 = "0";
-String sliderValue7 = "0";
-String sliderValue8 = "0";
-
-
-//Json Variable to Hold Slider Values
-JSONVar sliderValues;
-
-//Get Slider Values
-String getSliderValues(){
-  sliderValues["sV1"] = String(sliderValue1);
-  sliderValues["sV2"] = String(sliderValue2);
-  sliderValues["sV3"] = String(sliderValue3);
-  sliderValues["sV4"] = String(sliderValue4);
-  sliderValues["sV5"] = String(sliderValue5);
-  sliderValues["sV6"] = String(sliderValue6);
-  sliderValues["sV7"] = String(sliderValue7);
-  sliderValues["sV8"] = String(sliderValue8);
-
-  String jsonString = JSON.stringify(sliderValues);
-  return jsonString;
-}
-
-void initFS() {
-  if (!SPIFFS.begin()) {
-    Serial.println("An error has occurred while mounting SPIFFS");
-  }
-  else{
-   Serial.println("SPIFFS mounted successfully");
-  }
-}
-
-void notifyClients(String sliderValues) {
-  ws.textAll(sliderValues);
-}
-
-float MC8;
-float MC8old;
-float MC1;
-float MC2;
-float MC3;
-float MC4;
-float MC5;
-
-float MC6;
-float MC7;
-
-#define ContrSendDataVolno 0
-#define ContrSendDataRow 1
-#define ContrSendDataStopAll 2
-int ContrSendData =0;
-unsigned long ContrSendDataTime =0;
-bool ContrSendDataRemove = false;
-int  ContrSendDataPocet = 0;
-
-void WaitContrSendData(int cekat, int zmena)
-{
-  while (cekat != ContrSendData)
-  {
-    delay(1);
-  }
-  ContrSendData = zmena;
-}
-
-
-
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
-  AwsFrameInfo *info = (AwsFrameInfo*)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-    data[len] = 0;
-    message = (char*)data;
-    if (message.indexOf("1s") >= 0) {
-      sliderValue1 = message.substring(2);
-      MC1 = sliderValue1.toFloat();
-      notifyClients(getSliderValues());
-      
-    }
-    if (message.indexOf("2s") >= 0) {
-      sliderValue2 = message.substring(2);
-      MC2 = sliderValue2.toFloat();
-      notifyClients(getSliderValues());
-      
-    }    
-    if (message.indexOf("3s") >= 0) {
-      sliderValue3 = message.substring(2);
-      MC3 = sliderValue3.toFloat();
-      notifyClients(getSliderValues());
-    }
-        if (message.indexOf("4s") >= 0) {
-      sliderValue4 = message.substring(2);
-      MC4 = sliderValue4.toFloat();
-      notifyClients(getSliderValues());
-    }
-        if (message.indexOf("5s") >= 0) {
-      sliderValue5 = message.substring(2);
-      MC5 = sliderValue5.toFloat();
-      notifyClients(getSliderValues());
-    }
-        if (message.indexOf("6s") >= 0) {
-      sliderValue6 = message.substring(2);
-      MC6 = sliderValue6.toFloat();
-      notifyClients(getSliderValues());
-    }
-        if (message.indexOf("7s") >= 0) {
-      sliderValue7 = message.substring(2);
-      MC7 = sliderValue7.toFloat();
-      notifyClients(getSliderValues());
-    }
-        if (message.indexOf("8s") >= 0) {
-      sliderValue8 = message.substring(2);
-      MC8 = sliderValue8.toFloat();
-      notifyClients(getSliderValues());
-    }
-    if (strcmp((char*)data, "getValues") == 0) {
-      notifyClients(getSliderValues());
-      
-    }
-  }
-}
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  switch (type) {
-    case WS_EVT_CONNECT:
-      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.printf("WebSocket client #%u disconnected\n", client->id());
-      break;
-    case WS_EVT_DATA:
-      handleWebSocketMessage(arg, data, len);
-      break;
-    case WS_EVT_PONG:
-    case WS_EVT_ERROR:
-      break;
-  }
-}
-
-void initWebSocket() {
-  ws.onEvent(onEvent);
-  server.addHandler(&ws);
-}
-/*
- * setup function
- */
 
 //Motor definice
 #define Mpocet 8
@@ -268,6 +111,25 @@ void PosRegIndex(int index, bool A_N)//Vyrobení změny ve výstupu pos. registr
 }
 
 
+#define ContrSendDataVolno 0
+#define ContrSendDataRow 1
+#define ContrSendDataStopAll 2
+int ContrSendData =0;
+unsigned long ContrSendDataTime =0;
+bool ContrSendDataRemove = false;
+int  ContrSendDataPocet = 0;
+
+void WaitContrSendData(int cekat, int zmena)
+{
+  while (cekat != ContrSendData)
+  {
+    delay(1);
+  }
+  ContrSendData = zmena;
+}
+
+
+
 void IRAM_ATTR myledcWrite(uint8_t chan, uint32_t duty)
 {
   ledcWrite(chan,duty);
@@ -353,6 +215,231 @@ MotorSetProc(LEDka,0,255);
     ledcAttachPin(2,7);
   
 }
+
+
+
+
+
+
+
+const char* host = "BuckysPlasticArm";
+const char* ssid = wifiName;
+const char* password = wifiHeslo;
+
+
+
+//WebServer server(80);
+AsyncWebServer server(80);
+
+AsyncWebSocket ws("/ws");
+
+String message = "";
+String sliderValue1 = "0";
+String sliderValue2 = "0";
+String sliderValue3 = "0";
+String sliderValue4 = "0";
+String sliderValue5 = "0";
+String sliderValue6 = "0";
+String sliderValue7 = "0";
+String sliderValue8 = "0";
+
+
+//Json Variable to Hold Slider Values
+JSONVar sliderValues;
+JSONVar slider1Values;
+JSONVar slider2Values;
+JSONVar slider3Values;
+JSONVar slider4Values;
+JSONVar slider5Values;
+JSONVar slider6Values;
+JSONVar slider7Values;
+JSONVar slider8Values;
+
+//Get Slider Values
+String getSliderValues (int a =100){
+  String jsonString;
+
+  switch (a)
+  {
+  case 100:
+      sliderValues["sV1"] = String(sliderValue1);
+  sliderValues["sV2"] = String(sliderValue2);
+  sliderValues["sV3"] = String(sliderValue3);
+  sliderValues["sV4"] = String(sliderValue4);
+  sliderValues["sV5"] = String(sliderValue5);
+  sliderValues["sV6"] = String(sliderValue6);
+  sliderValues["sV7"] = String(sliderValue7);
+  sliderValues["sV8"] = String(sliderValue8);
+    jsonString = JSON.stringify(sliderValues);
+    break;
+    case 1:
+    slider1Values["sV1"] = String(sliderValue1);
+    jsonString = JSON.stringify(slider1Values);
+    break;
+    case 2:
+    slider2Values["sV2"] = String(sliderValue2);
+    jsonString = JSON.stringify(slider2Values);
+    break;
+    case 3:
+    slider3Values["sV3"] = String(sliderValue3);
+    jsonString = JSON.stringify(slider3Values);
+    break;
+    case 4:
+    slider4Values["sV4"] = String(sliderValue4);
+    jsonString = JSON.stringify(slider4Values);
+    break;
+    case 5:
+    slider5Values["sV5"] = String(sliderValue5);
+    jsonString = JSON.stringify(slider5Values);
+    break;
+    case 6:
+    slider6Values["sV6"] = String(sliderValue6);
+    jsonString = JSON.stringify(slider6Values);
+    break;
+    case 7:
+    slider7Values["sV7"] = String(sliderValue7);
+    jsonString = JSON.stringify(slider7Values);
+    break;
+    case 8:
+    slider8Values["sV8"] = String(sliderValue8);
+    jsonString = JSON.stringify(slider8Values);
+    break;
+    
+  default:
+    break;
+  }
+  
+  //jsonString = JSON.stringify(sliderValues);
+  return jsonString;
+}
+
+
+void initFS() {
+  if (!SPIFFS.begin()) {
+    Serial.println("An error has occurred while mounting SPIFFS");
+  }
+  else{
+   Serial.println("SPIFFS mounted successfully");
+  }
+}
+
+void notifyClients(String sliderValues) {
+  ws.textAll(sliderValues);
+}
+
+float MC8;
+float MC8old;
+float MC1;
+float MC2;
+float MC3;
+float MC4;
+float MC5;
+
+float MC6;
+float MC7;
+
+
+
+
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
+  AwsFrameInfo *info = (AwsFrameInfo*)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
+    data[len] = 0;
+    message = (char*)data;
+    if (message.indexOf("1s") >= 0) {
+      sliderValue1 = message.substring(2);
+      MC1 = sliderValue1.toFloat();
+      notifyClients(getSliderValues(1));
+      
+    }
+    if (message.indexOf("2s") >= 0) {
+      sliderValue2 = message.substring(2);
+      MC2 = sliderValue2.toFloat();
+      notifyClients(getSliderValues(2));
+      
+    }    
+    if (message.indexOf("3s") >= 0) {
+      sliderValue3 = message.substring(2);
+      MC3 = sliderValue3.toFloat();
+      notifyClients(getSliderValues(3));
+    }
+        if (message.indexOf("4s") >= 0) {
+      sliderValue4 = message.substring(2);
+      MC4 = sliderValue4.toFloat();
+      notifyClients(getSliderValues(4));
+    }
+        if (message.indexOf("5s") >= 0) {
+      sliderValue5 = message.substring(2);
+      MC5 = sliderValue5.toFloat();
+      notifyClients(getSliderValues(5));
+    }
+        if (message.indexOf("6s") >= 0) {
+      sliderValue6 = message.substring(2);
+      MC6 = sliderValue6.toFloat();
+      notifyClients(getSliderValues(6));
+    }
+        if (message.indexOf("7s") >= 0) {
+      sliderValue7 = message.substring(2);
+      MC7 = sliderValue7.toFloat();
+      notifyClients(getSliderValues(7));
+    }
+        if (message.indexOf("8s") >= 0) {
+      sliderValue8 = message.substring(2);
+      MC8 = sliderValue8.toFloat();
+      notifyClients(getSliderValues(8));
+        }
+
+        if (message.indexOf("9s") >= 0) {
+      sliderValue1 = "0";
+               MC1=0;
+      sliderValue2 = "0";
+               MC2=0;
+      sliderValue3 = "0";
+               MC3=0;
+      sliderValue4 = "0";
+               MC4=0;
+      sliderValue5 = "0";
+               MC5=0;
+      sliderValue6 = "0";
+               MC6=0;
+      sliderValue7 = "0";
+               MC7=0;
+      sliderValue8 = "0";
+               MC8=0;
+      //MotorStopAll();
+      notifyClients(getSliderValues());
+        }
+    if (strcmp((char*)data, "getValues") == 0) {
+      notifyClients(getSliderValues());
+      
+    }
+  }
+}
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  switch (type) {
+    case WS_EVT_CONNECT:
+      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+      break;
+    case WS_EVT_DISCONNECT:
+      Serial.printf("WebSocket client #%u disconnected\n", client->id());
+      break;
+    case WS_EVT_DATA:
+      handleWebSocketMessage(arg, data, len);
+      break;
+    case WS_EVT_PONG:
+    case WS_EVT_ERROR:
+      break;
+  }
+}
+
+void initWebSocket() {
+  ws.onEvent(onEvent);
+  server.addHandler(&ws);
+}
+/*
+ * setup function
+ */
+
 
 
 void KompenzaceIn(int index)
