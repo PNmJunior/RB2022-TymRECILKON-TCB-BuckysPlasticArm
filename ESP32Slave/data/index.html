@@ -1,3 +1,4 @@
+
 <!-- Complete project details: https://randomnerdtutorials.com/esp32-web-server-websocket-sliders/ -->
 
 <!DOCTYPE html>
@@ -9,10 +10,8 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <div class="topnav">
-        <h1>Multiple Sliders</h1>
-    </div>
     <div class="content">
+<<<<<<< HEAD
         <div class="card-grid">
             <div class="card">
                 <p class="card-title">Fader 0</p>
@@ -70,8 +69,141 @@
                 </p>
                 <p class="state">Brightness: <span id="sliderValue7"></span> &percnt;</p>
             </div>
+=======
+        <div class="card-grid"> 
+            <table id="mytable">
+                <col width="25%"><col width="25%"><col width="25%"><col width="25%">
+                <tr>
+                    <td>
+                        <div class="card">
+                            <p class="card-title"> LED</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider8" min="-100" max="100" step="20" value ="0" class="slider">
+                            </p>
+                            <p class="state"> <span id="sV8"></span> &percnt;</p>
+                        </div> 
+                    </td>
+                    <td>
+                        <button id="btn1" type="button" class="buttonInactive">
+                            Rameno</button>
+                        <button id="btn2" type="button" class="buttonInactive">
+                            Podvozek</button>
+                    </td>
+                    <td>
+                        <input type="button"  value="Reset" onclick="reset123()" class="h1">
+                    </td>
+                    <td>
+                        <input type="button"  value="STOP" onclick="stisknuto()" class="h1">
+                    </td>
+                </tr>
+                <tr id="tr1" style="max-height: 50%;min-height: 50%;">
+                    <td>
+                        <div class="card2">
+                            <p class="card-title"> Kleste</p>
+                            <p class="switch2">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider6" min="-100" max="100" step="100" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sV6"></span> &percnt;</p>
+                        </div>   
+                    </td>
+                    <td>
+                        <div class="card2">
+                            <p class="card-title"> M4</p>
+                            <p class="switch2">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider5" min="-100" max="100" step="100" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sV5"></span> &percnt;</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="card2">
+                            <p class="card-title"> M3</p>
+                            <p class="switch2">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider4" min="-100" max="100" step="100" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sV4"></span> &percnt;</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="card2">
+                            <p class="card-title"> M2</p>
+                            <p class="switch2">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider3" min="-100" max="100" step="100" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sV3"></span> &percnt;</p>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="tr0" style="max-height: 25%;min-height: 25%;" >
+                    <td colspan=4>
+                        <div class="card">
+                            <p class="card-title"> M1</p>
+                            <p class="switch">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider7" min="-100" max="100" step="100" value ="0" class="slider">
+                            </p>
+                            <p class="state"> <span id="sV7"></span> &percnt;</p>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="tr2" style="max-height: 25%;min-height: 25%;">
+                    <td colspan=2>
+                        <div class="card3">
+                            <p class="card-title"> Leva</p>
+                            <p class="switch3">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider2" min="-100" max="100" step="5" value ="0" class="slider3">
+                            </p>
+                            <p class="state"> <span id="sV2"></span> &percnt;</p>
+                        </div>
+                    </td>
+                    <td colspan=2>
+                        <div class="card3">
+                            <p class="card-title">Prava</p>
+                            <p class="switch3">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="-100" max="100" step="5" value ="0" class="slider3">
+                            </p>
+                            <p class="state"> <span id="sV1"></span> &percnt;</p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+>>>>>>> main3
         </div>
     </div>
     <script src="script.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $("#tr1").hide();
+        $("#tr2").hide();
+        $("#tr0").hide();
+        $("#btn1").click(function () {
+            if ($(this).hasClass("buttonActive")) {
+                $("#tr1").show();
+                $("#tr0").show();
+                $("#btn1").removeClass("buttonActive");
+                $("#btn1").addClass("buttonInactive");
+            }
+            else {
+                $("#tr1").hide();
+                $("#tr0").hide();
+                $("#btn1").removeClass("buttonInactive");
+                $("#btn1").addClass("buttonActive");
+
+            }
+        });
+        $("#btn2").click(function () {
+            if ($(this).hasClass("buttonActive")) {
+                $("#tr2").show();
+                $("#btn2").removeClass("buttonActive");
+                $("#btn2").addClass("buttonInactive");
+            }
+            else {
+                $("#tr2").hide();
+                $("#btn2").removeClass("buttonInactive");
+                $("#btn2").addClass("buttonActive");
+            }
+        });
+    });
+</script>
 </body>
 </html>

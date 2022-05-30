@@ -16,3 +16,11 @@
  ## Popis motorů
 
  <img src = "PohybMotoru.jpg">
+
+  ## Podvozek 28.5.2022
+
+ <img src = "Podvozek28_5a.jpg">
+
+ Přidaní otočných koulích.
+
+  <img src = "Podvozek28_5b.jpg">

@@ -33,15 +33,43 @@ function onClose(event) {
 function updateSliderPWM(element) {
     var sliderNumber = element.id.charAt(element.id.length);
     var sliderValue = document.getElementById(element.id).value;
-    document.getElementById("sliderValue"+sliderNumber).innerHTML = sliderValue;
+    document.getElementById("sV"+sliderNumber).innerHTML = sliderValue;
     console.log(sliderValue);
     websocket.send(sliderNumber+"s"+sliderValue.toString());
+}
+
+function reset123()
+{
+    location.href = "/reset";
+    setTimeout(function(){ console.log("After 0.5 seconds!"); }, 500);
+    location.href = "/";
+    stisknuto();
+}
+
+function stisknuto()
+{   
+    websocket.send("9s0"); 
+    var a = window.open("/stop");
+    a.close();
+    
+    for(var i = 1; i < 9; i++)
+    {        
+        document.getElementById("slider"+i.toString()).innerHTML = 0;
+        console.log("a");
+        websocket.send(i.toString()+"s0");
+        console.log("b");
+    }
+    websocket.send("9s0");
+    var b = window.open("/stop");
+    b.close();
 }
 
 function onMessage(event) {
     console.log(event.data);
     var myObj = JSON.parse(event.data);
     var keys = Object.keys(myObj);
+    console.log(myObj);
+    console.log(keys)
 
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];
