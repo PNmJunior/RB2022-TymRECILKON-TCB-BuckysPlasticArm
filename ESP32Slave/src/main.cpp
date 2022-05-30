@@ -29,9 +29,22 @@ String sliderValue8 = "0";
 
 //Json Variable to Hold Slider Values
 JSONVar sliderValues;
+JSONVar sliderValuesOne1;
+JSONVar sliderValuesOne2;
+JSONVar sliderValuesOne3;
+JSONVar sliderValuesOne4;
+JSONVar sliderValuesOne5;
+JSONVar sliderValuesOne6;
+JSONVar sliderValuesOne7;
+JSONVar sliderValuesOne8;
 
 //Get Slider Values
-String getSliderValues(){
+String getSliderValues(int a=10)
+{
+  String jsonString;
+switch (a)
+{
+case 10:
   sliderValues["sV1"] = String(sliderValue1);
   sliderValues["sV2"] = String(sliderValue2);
   sliderValues["sV3"] = String(sliderValue3);
@@ -41,8 +54,50 @@ String getSliderValues(){
   sliderValues["sV7"] = String(sliderValue7);
   sliderValues["sV8"] = String(sliderValue8);
 
-  String jsonString = JSON.stringify(sliderValues);
+  jsonString = JSON.stringify(sliderValues);
+  
+  break;
+  case 1:
+  sliderValuesOne1["sV1"] = String(sliderValue1);
+  jsonString = JSON.stringify(sliderValuesOne1);
+  break;
+  case 2:
+  sliderValuesOne2["sV2"] = String(sliderValue2);
+  jsonString = JSON.stringify(sliderValuesOne2);
+  break;
+  case 3:
+  sliderValuesOne3["sV3"] = String(sliderValue3);
+  jsonString = JSON.stringify(sliderValuesOne1);
+  break;
+  case 4:
+  sliderValuesOne4["sV4"] = String(sliderValue4);
+  jsonString = JSON.stringify(sliderValuesOne4);
+  break;
+  case 5:
+  sliderValuesOne5["sV5"] = String(sliderValue5);
+  jsonString = JSON.stringify(sliderValuesOne5);
+  break;
+  case 6:
+  sliderValuesOne6["sV6"] = String(sliderValue6);
+  jsonString = JSON.stringify(sliderValuesOne6);
+  break;
+  case 7:
+  sliderValuesOne7["sV7"] = String(sliderValue7);
+  jsonString = JSON.stringify(sliderValuesOne7);
+  break;
+  case 8:
+  sliderValuesOne8["sV8"] = String(sliderValue8);
+  jsonString = JSON.stringify(sliderValuesOne8);
+  break;
+default:
+  break;
+
   return jsonString;
+}
+  
+
+
+
 }
 
 void initFS() {
@@ -96,44 +151,44 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     if (message.indexOf("1s") >= 0) {
       sliderValue1 = message.substring(2);
       MC1 = sliderValue1.toFloat();
-      notifyClients(getSliderValues());
+      notifyClients(getSliderValues(1));
       
     }
     if (message.indexOf("2s") >= 0) {
       sliderValue2 = message.substring(2);
       MC2 = sliderValue2.toFloat();
-      notifyClients(getSliderValues());
+      notifyClients(getSliderValues(2));
       
     }    
     if (message.indexOf("3s") >= 0) {
       sliderValue3 = message.substring(2);
       MC3 = sliderValue3.toFloat();
-      notifyClients(getSliderValues());
+      notifyClients(getSliderValues(3));
     }
         if (message.indexOf("4s") >= 0) {
       sliderValue4 = message.substring(2);
       MC4 = sliderValue4.toFloat();
-      notifyClients(getSliderValues());
+      notifyClients(getSliderValues(4));
     }
         if (message.indexOf("5s") >= 0) {
       sliderValue5 = message.substring(2);
       MC5 = sliderValue5.toFloat();
-      notifyClients(getSliderValues());
+      notifyClients(getSliderValues(5));
     }
         if (message.indexOf("6s") >= 0) {
       sliderValue6 = message.substring(2);
       MC6 = sliderValue6.toFloat();
-      notifyClients(getSliderValues());
+      notifyClients(getSliderValues(6));
     }
         if (message.indexOf("7s") >= 0) {
       sliderValue7 = message.substring(2);
       MC7 = sliderValue7.toFloat();
-      notifyClients(getSliderValues());
+      notifyClients(getSliderValues(7));
     }
         if (message.indexOf("8s") >= 0) {
       sliderValue8 = message.substring(2);
       MC8 = sliderValue8.toFloat();
-      notifyClients(getSliderValues());
+      notifyClients(getSliderValues(8));
     }
     if (strcmp((char*)data, "getValues") == 0) {
       notifyClients(getSliderValues());

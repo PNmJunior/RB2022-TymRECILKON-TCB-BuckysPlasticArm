@@ -62,12 +62,13 @@ function stisknuto()
 }
 
 function onMessage(event) {
+    console.log("ffffff");
     console.log(event.data);
     var myObj = JSON.parse(event.data);
     var keys = Object.keys(myObj);
     console.log(myObj);
-    console.log(keys)
-
+    console.log(keys);
+console.log(keys.length);
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];
         document.getElementById(key).innerHTML = myObj[key];
