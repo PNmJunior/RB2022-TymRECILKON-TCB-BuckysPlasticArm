@@ -18,8 +18,8 @@ html {
 
   .buttonActive
   {
-    min-width: 100px;
-    min-height: 50px;
+    min-width: 75px;
+    min-height: 49px;
     
       background-color: #1E78AB;
       border: 1px solid #1E78AB;
@@ -27,8 +27,8 @@ html {
   }
   .buttonInactive
   {
-    min-width: 100px;
-    min-height: 50px;
+    min-width: 75px;
+    min-height: 49px;
       background-color: #fff;
       border: 1px solid #1E78AB;
       color: #1E78AB;
@@ -50,7 +50,6 @@ html {
   }
   
   .content {
-    padding: 30px;
   }
   
   .card-grid {
@@ -172,7 +171,7 @@ margin: 0 auto;
   .slider3 {
     margin: 0 auto;
     width: 8px;
-    min-height: 500px;
+    min-height: 350px;
     padding: 0 5px;
     border-radius: 10px;
     background: #FFD65C;
