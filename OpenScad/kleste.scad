@@ -59,23 +59,27 @@ module Kleste()
     {
   translate([0,0,0]) sphere(d= dd);
     translate([0,0,0]) rotate([90,0,0]) cylinder(h=v,d=bb,center = false);
+        translate([0,0,0]) rotate([0,180,0]) cylinder(h=12,d1=dd,d2=0,center = false);
     }
         translate([j,0,0])
     {
     translate([0,0,0]) sphere(d= dd);
     translate([0,0,0]) rotate([90,0,0]) cylinder(h=v,d=bb,center = false);
+        translate([0,0,0]) rotate([0,180,0]) cylinder(h=12,d1=dd,d2=0,center = false);
     }
             translate([-j,0,0])
     {
     translate([0,0,0]) sphere(d= dd);
     translate([0,0,0]) rotate([90,0,0]) cylinder(h=v,d=bb,center = false);
         translate([0,0,0]) rotate([0,-90,0]) cylinder(h=15,d1=dd,d2=0,center = false);
+        translate([0,0,0]) rotate([0,180,0]) cylinder(h=12,d1=dd,d2=0,center = false);
     }
             translate([2*j,0,0])
     {
     translate([0,0,0]) sphere(d= dd);
     translate([0,0,0]) rotate([90,0,0]) cylinder(h=v,d=bb,center = false);
     translate([0,0,0]) rotate([0,90,0]) cylinder(h=15,d1=dd,d2=0,center = false);
+        translate([0,0,0]) rotate([0,180,0]) cylinder(h=12,d1=dd,d2=0,center = false);
     }
 }
 translate([j+j+bb/2,-v,0]) rotate([0,-90,0]) cylinder(h=bb+3*j,d=bb,center = false);
