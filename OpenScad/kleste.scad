@@ -4,7 +4,7 @@
 //KlestePrava();
 //Simul();
 
-Print4();
+//Print4();
 module Print4()
 {
     difference()
@@ -19,16 +19,20 @@ translate([0,-40,0]) KlestePrava();
 }
 
 
-//Print3();
+Print5();
 
 
-module Print3()
+module Print5()
 {
-    translate([0,0,0]) rotate([0,0,0])
+    difference()
+    {
+    translate([0,0,22]) rotate([0,0,0])
     {
  translate([0,0,0]) rotate([-90,0,0]) KlesteLeva();
 translate([0,-40,0]) rotate([90,0,0]) KlestePrava(); 
-    }  
+    } 
+   translate([-100,-100,-200]) cube(200); 
+}
 }
 
 //Print2();
@@ -138,7 +142,7 @@ module Redukce()
         {
             translate([3,0,0]) cylinder(h=2.5+1,d=6,center=false,$fn=64);
             translate([3,0,-1]) cylinder(h=1,d=5,center=false,$fn=64);   
-            translate([0,-3,0]) cube([30,15,2.5]);
+            translate([0,-3,0]) cube([30,40,2.5]);
             translate([19,0,-0.5]) cylinder(h=3.5,d=6,center=false,$fn=64);
             translate([19,0,-1]) cylinder(h=4.5,d=5,center=false,$fn=64);
         }
