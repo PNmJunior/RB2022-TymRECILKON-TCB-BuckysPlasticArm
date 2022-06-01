@@ -4,8 +4,22 @@
 //KlestePrava();
 //Simul();
 
+Print4();
+module Print4()
+{
+    difference()
+    {
+    translate([0,0,00]) rotate([0,270,0]) 
+    {
+ KlesteLeva();
+translate([0,-40,0]) KlestePrava(); 
+    } 
+    translate([-50,-70,-128]) cube(100);
+} 
+}
 
-Print3();
+
+//Print3();
 
 
 module Print3()
@@ -79,7 +93,7 @@ module Kleste()
     
     j=20+b/3;
     v = 20;
-    translate([0,0,0])
+    translate([-2,0,0])
     {
     translate([0,0,0])
     {
@@ -108,7 +122,7 @@ module Kleste()
         translate([0,0,0]) rotate([0,180,0]) cylinder(h=12,d1=dd,d2=0,center = false);
     }
 }
-translate([j+j+bb/2,-v,0]) rotate([0,-90,0]) cylinder(h=bb+3*j,d=bb,center = false);
+translate([j+j+bb/2-2,-v,0]) rotate([0,-90,0]) cylinder(h=bb+3*j,d=bb,center = false);
 
 alfa=15;
     translate([0,-v,-4])  cylinder(h=40,d=10,center = false);
