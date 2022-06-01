@@ -406,7 +406,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
                MC7=0;
       sliderValue8 = "0";
                MC8=0;
-      //MotorStopAll();
+      MotorStopAll();
       notifyClients(getSliderValues());
         }
     if (strcmp((char*)data, "getValues") == 0) {
@@ -621,8 +621,6 @@ void setup() {
   initFS();
    WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.println("aHOJ SVETE 123");
-
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -632,6 +630,7 @@ void setup() {
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
+
   Serial.println(WiFi.localIP());
   
  initWebSocket();
