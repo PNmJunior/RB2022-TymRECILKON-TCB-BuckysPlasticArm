@@ -4,7 +4,33 @@
 //KlestePrava();
 //Simul();
 
-Print();
+
+Print3();
+
+
+module Print3()
+{
+    translate([0,0,0]) rotate([0,0,0])
+    {
+ translate([0,0,0]) rotate([-90,0,0]) KlesteLeva();
+translate([0,-40,0]) rotate([90,0,0]) KlestePrava(); 
+    }  
+}
+
+//Print2();
+
+
+module Print2()
+{
+    translate([0,0,0]) rotate([0,0,0])
+    {
+ KlesteLeva();
+translate([0,-40,0]) KlestePrava(); 
+    }  
+}
+
+
+//Print();
 
 
 module Print()
