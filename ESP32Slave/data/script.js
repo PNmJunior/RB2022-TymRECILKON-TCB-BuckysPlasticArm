@@ -69,11 +69,17 @@ function onMessage(event) {
     var myObj = JSON.parse(event.data);
     var keys = Object.keys(myObj);
     console.log(myObj);
-    console.log(keys)
+    console.log(keys);
 
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];
+        var keyB = key.toString().charAt(2);
+        console.log("kiijonikn");
+        console.log(key);
         document.getElementById(key).innerHTML = myObj[key];
-        document.getElementById("slider"+ (i+1).toString()).value = myObj[key];
+        console.log(myObj[key]);
+        console.log("slider"+ key.toString()+"="+myObj[key].toString());
+        document.getElementById("slider"+ keyB.toString()).value = myObj[key];
+        
     }
 }
