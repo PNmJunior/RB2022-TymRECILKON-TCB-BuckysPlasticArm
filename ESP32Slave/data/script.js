@@ -38,6 +38,14 @@ function updateSliderPWM(element) {
     websocket.send(sliderNumber+"s"+sliderValue.toString());
 }
 
+function updateSliderPWMnullLevy() {
+    websocket.send("2s0");
+}
+
+function updateSliderPWMnullPravy() {
+    websocket.send("1s0");
+}
+
 function reset123()
 {
     location.href = "/reset";
