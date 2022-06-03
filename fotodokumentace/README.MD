@@ -1,4 +1,12 @@
 # Fotodokumentace
+## Aktualní podoba
+<img src = "3_6_podobaA.jpg">
+<img src = "3_6_podobaB.jpg">
+
+## Kleště
+<img src = "NoveKleste.jpg">
+
+
 ## Robot
 <img src = "RobotZleva.jpg">
 <img src = "RobotZprava.jpg">

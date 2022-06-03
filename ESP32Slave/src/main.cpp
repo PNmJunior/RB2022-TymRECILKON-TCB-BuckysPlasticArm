@@ -262,7 +262,7 @@ String getSliderValues (int a =100){
   switch (a)
   {
   case 100:
-      sliderValues["sV1"] = String(sliderValue1);
+  sliderValues["sV1"] = String(sliderValue1);
   sliderValues["sV2"] = String(sliderValue2);
   sliderValues["sV3"] = String(sliderValue3);
   sliderValues["sV4"] = String(sliderValue4);
@@ -705,7 +705,7 @@ void setup() {
 
 float MC6odl;
 unsigned long MC6time;
-#define MC6timeSpeed 500
+#define MC6timeSpeed 650
 void loop(void) 
 {
   if(ContrSendData == ContrSendDataStopAll)
@@ -735,11 +735,11 @@ void loop(void)
   {
     if (MC6time > millis())
     {
-      MotorRunRaw(MotKleste,Mvpred, 200);
+      MotorRunRaw(MotKleste,Mvpred, 255);
     }
     else
     {
-      MotorRunRaw(MotKleste,Mvpred, 70);
+      MotorRunRaw(MotKleste,Mvpred,100);
     }
     
     
@@ -748,11 +748,11 @@ void loop(void)
   {
     if (MC6time > millis())
     {
-    MotorRunRaw(MotKleste,Mvzad, 200);
+    MotorRunRaw(MotKleste,Mvzad, 255);
     }
     else
     {
-      MotorRunRaw(MotKleste,Mvzad, 80);
+      MotorRunRaw(MotKleste,Mvzad, 115);
     }
   }
   else
