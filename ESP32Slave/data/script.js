@@ -38,6 +38,27 @@ function updateSliderPWM(element) {
     websocket.send(sliderNumber+"s"+sliderValue.toString());
 }
 
+
+function delay(delayInms) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(2);
+      }, delayInms);
+    });
+  }
+  
+  async function sample() {
+    console.log('a');
+    console.log('waiting...')
+    let delayres = await delay(3000);
+    console.log('b');
+  }
+
+
+function updateSliderPWM2(a,b) {
+    websocket.send(a.toString()+"s"+b.toString());
+}
+
 function updateSliderPWMnullLevy() {
     websocket.send("2s0");
 }

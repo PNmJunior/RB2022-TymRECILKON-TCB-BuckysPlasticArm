@@ -78,8 +78,7 @@ long timeTest1=0;
 byte mmm=0;
 
 void PosunReg()//odešle data k posuvnému registru
-{
-    
+{ 
     digitalWrite(MlatchPin, LOW);
     shiftOut(MdataPin, MclockPin, MSBFIRST, Mdata);
     digitalWrite(MlatchPin, HIGH);  
@@ -349,43 +348,90 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     if (message.indexOf("1s") >= 0) {
       sliderValue1 = message.substring(2);
       MC1 = sliderValue1.toFloat();
+      if(MC1 <= 20.00 && MC1 >= -20.00)
+      {
+        MC1 = 0.0;
+        sliderValue1 = "0";
+      }
       notifyClients(getSliderValues(1));
       
     }
     if (message.indexOf("2s") >= 0) {
       sliderValue2 = message.substring(2);
       MC2 = sliderValue2.toFloat();
+      if(MC2 == 5.00 || MC2 == -5.00)
+      {
+        MC2 = 0.0;
+        sliderValue2 = "0";
+      }
       notifyClients(getSliderValues(2));
       
     }    
     if (message.indexOf("3s") >= 0) {
       sliderValue3 = message.substring(2);
       MC3 = sliderValue3.toFloat();
+      if(MC4 != 0.0)
+      {
+        MC4 = 0.0;
+        sliderValue4 = "0";
+        notifyClients(getSliderValues(4));
+      }
       notifyClients(getSliderValues(3));
     }
         if (message.indexOf("4s") >= 0) {
       sliderValue4 = message.substring(2);
       MC4 = sliderValue4.toFloat();
+      if(MC3 != 0.0)
+      {
+        MC3 = 0.0;
+        sliderValue3 = "0";
+        notifyClients(getSliderValues(3));
+      }
       notifyClients(getSliderValues(4));
+
     }
         if (message.indexOf("5s") >= 0) {
       sliderValue5 = message.substring(2);
       MC5 = sliderValue5.toFloat();
+      if(MC6 != 0.0)
+      {
+        MC6 = 0.0;
+        sliderValue6 = "0";
+        notifyClients(getSliderValues(6));
+      }
       notifyClients(getSliderValues(5));
     }
         if (message.indexOf("6s") >= 0) {
       sliderValue6 = message.substring(2);
       MC6 = sliderValue6.toFloat();
+      if(MC5 != 0.0)
+      {
+        MC5 = 0.0;
+        sliderValue5 = "0";
+        notifyClients(getSliderValues(5));
+      }
       notifyClients(getSliderValues(6));
     }
         if (message.indexOf("7s") >= 0) {
       sliderValue7 = message.substring(2);
       MC7 = sliderValue7.toFloat();
+      if(MC8 != 0.0)
+      {
+        MC8 = 0.0;
+        sliderValue8 = "0";
+        notifyClients(getSliderValues(8));
+      }
       notifyClients(getSliderValues(7));
     }
         if (message.indexOf("8s") >= 0) {
       sliderValue8 = message.substring(2);
       MC8 = sliderValue8.toFloat();
+      if(MC7 != 0.0)
+      {
+        MC7 = 0.0;
+        sliderValue7 = "0";
+        notifyClients(getSliderValues(7));
+      }
       notifyClients(getSliderValues(8));
         }
 
@@ -650,6 +696,10 @@ void setup() {
           server.on("/stop", HTTP_GET, [](AsyncWebServerRequest *request){
     MotorStopAll(100,true,false);
   });
+
+   server.on("/test", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/joy.html", "text/html");
+  });
   
   server.serveStatic("/", SPIFFS, "/");
 
@@ -658,8 +708,8 @@ void setup() {
   Serial.println("HTTP server started");
 
   //Nasvení procentní nastavení
-  MotorSetProc(0,122,255);
-  MotorSetProc(1,122,255);
+  MotorSetProc(0,100,200);
+  MotorSetProc(1,100,200);
   MotorSetProc(2,0,255);
   MotorSetProc(3,0,255);
   MotorSetProc(4,0,255);

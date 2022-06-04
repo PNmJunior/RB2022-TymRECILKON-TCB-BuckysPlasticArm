@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="joy.js"></script>
 </head>
 <body>
     <div class="content">
@@ -29,6 +30,8 @@
                             Rameno</button>
                         <button id="btn2" type="button" class="buttonInactive">
                             Podvozek</button>
+                            <button id="btn3" type="button" class="buttonInactive">
+                                Joistik</button>
                     </td>
                     <td>
                         <input type="button"  value="Reset" onclick="reset123()" class="h1">
@@ -108,12 +111,29 @@
                             </p>
                             <p class="state"> <span id="sV1"></span> &percnt;</p>
                         </div>
+                </tr>
+                <tr id="tr3">
+                    <td>
+                    <div class="columnLateral">
+                        <div id="joy1Div"  style="width:200px;height:200px"></div>
+                        Posizione X:<input id="joy1PosizioneX" type="text" /><br />
+                        Posizione Y:<input id="joy1PosizioneY" type="text" /><br />
+                        Direzione:<input id="joy1Direzione" type="text" /><br />
+                        X :<input id="joy1X" type="text" /></br>
+                        Y :<input id="joy1Y" type="text" />
                     </td>
+                    </div>
+
+
                 </tr>
             </table>
+
+
+
         </div>
     </div>
     <script src="script.js"></script>
+    <script src="joy.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(function () {
@@ -147,7 +167,106 @@
                 $("#btn2").addClass("buttonActive");
             }
         });
+        $("#btn3").click(function () {
+            if ($(this).hasClass("buttonActive")) {
+                $("#tr3").show();
+                $("#btn3").removeClass("buttonActive");
+                $("#btn3").addClass("buttonInactive");
+            }
+            else {
+                $("#tr3").hide();
+                $("#btn3").removeClass("buttonInactive");
+                $("#btn3").addClass("buttonActive");
+            }
+        });
     });
+    var joy1IinputPosX = document.getElementById("joy1PosizioneX");
+var joy1InputPosY = document.getElementById("joy1PosizioneY");
+var joy1Direzione = document.getElementById("joy1Direzione");
+var joy1X = document.getElementById("joy1X");
+var joy1Y = document.getElementById("joy1Y");
+/*
+setInterval(function(){ joy1IinputPosX.value=Joy1.GetPosX(); }, 50);
+setInterval(function(){ joy1InputPosY.value=Joy1.GetPosY(); }, 50);
+setInterval(function(){ joy1Direzione.value=Joy1.GetDir(); }, 50);
+setInterval(function(){ joy1X.value=Joy1.GetX(); }, 50);
+setInterval(function(){ joy1Y.value=Joy1.GetY(); }, 50);
+*/
+// Create JoyStick object into the DIV 'joy1Div'
+var Joy1 = new JoyStick('joy1Div', {}, function(stickData) {
+    joy1IinputPosX.value = stickData.xPosition;
+    joy1InputPosY.value = stickData.yPosition;
+    joy1Direzione.value = stickData.cardinalDirection;
+    joy1X.value = stickData.x;
+    joy1Y.value = stickData.y;
+    setTimeout(myGreeting, 500);
+});
+/*
+const myTimeout = setTimeout(myGreeting, 500, document.getElementById("joy1X"), document.getElementById("joy1Y"));
+var LevaJ=0;
+var PravaJ = 0; 
+function myGreeting(abcx,abcy) {
+    console.log("abcx");
+    console.log(abcx);
+    console.log(abcy);
+    var Leva = 0;
+    var Prava =0;
+    if(abcx<0)
+    {
+        Leva = abcy+abcx;
+    Prava =abcy;
+    }
+    else
+    {
+        Leva = abcy;
+    Prava = abcy-abcx;
+    }
+    console.log(Leva);
+    console.log(Prava);
+    console.log(LevaJ);
+    console.log(PravaJ);
+
+    if(LevaJ != Leva || PravaJ != Prava)
+    {
+    updateSliderPWM2(1, Leva);
+    updateSliderPWM2(2,Prava);
+    PravaJ = Prava;
+    LevaJ = Leva;
+    }
+}
+*/
+
+
+// Create JoyStick object into the DIV 'joy2Div'
+var joy2Param = { "title": "joystick2", "autoReturnToCenter": false };
+var Joy2 = new JoyStick('joy2Div', joy2Param);
+
+var joy2IinputPosX = document.getElementById("joy2PosizioneX");
+var joy2InputPosY = document.getElementById("joy2PosizioneY");
+var joy2Direzione = document.getElementById("joy2Direzione");
+var joy2X = document.getElementById("joy2X");
+var joy2Y = document.getElementById("joy2Y");
+
+setInterval(function(){ joy2IinputPosX.value=Joy2.GetPosX(); }, 50);
+setInterval(function(){ joy2InputPosY.value=Joy2.GetPosY(); }, 50);
+setInterval(function(){ joy2Direzione.value=Joy2.GetDir(); }, 50);
+setInterval(function(){ joy2X.value=Joy2.GetX(); }, 50);
+setInterval(function(){ joy2Y.value=Joy2.GetY(); }, 50);
+
+var joy3Param = { "title": "joystick3" };
+var Joy3 = new JoyStick('joy3Div', joy3Param);
+
+var joy3IinputPosX = document.getElementById("joy3PosizioneX");
+var joy3InputPosY = document.getElementById("joy3PosizioneY");
+var joy3Direzione = document.getElementById("joy3Direzione");
+var joy3X = document.getElementById("joy3X");
+var joy3Y = document.getElementById("joy3Y");
+
+setInterval(function(){ joy3IinputPosX.value=Joy3.GetPosX(); }, 50);
+setInterval(function(){ joy3InputPosY.value=Joy3.GetPosY(); }, 50);
+setInterval(function(){ joy3Direzione.value=Joy3.GetDir(); }, 50);
+setInterval(function(){ joy3X.value=Joy3.GetX(); }, 50);
+setInterval(function(){ joy3Y.value=Joy3.GetY(); }, 50);
 </script>
 </body>
 </html>
