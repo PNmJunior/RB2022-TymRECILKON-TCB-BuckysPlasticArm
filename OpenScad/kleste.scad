@@ -143,10 +143,10 @@ module Redukce()
             translate([3,0,0]) cylinder(h=2.5+1,d=6,center=false,$fn=64);
             translate([3,0,-1]) cylinder(h=1,d=5,center=false,$fn=64);   
             translate([0,-3,0]) cube([30,40,2.5]);
-            translate([19,0,-0.5]) cylinder(h=3.5,d=6,center=false,$fn=64);
-            translate([19,0,-1]) cylinder(h=4.5,d=5,center=false,$fn=64);
+            translate([20,0,-0.5]) cylinder(h=3.5,d=6,center=false,$fn=64);
+            translate([20,0,-1]) cylinder(h=4.5,d=5,center=false,$fn=64);
         }
         translate([3,0,-1.5]) cylinder(h=10,d=3,center=false,$fn=64);
-        translate([19,0,-1.5]) cylinder(h=10,d=3,center=false,$fn=64);   
+        translate([20,0,-1.5]) cylinder(h=10,d=3,center=false,$fn=64);   
     }
 }
