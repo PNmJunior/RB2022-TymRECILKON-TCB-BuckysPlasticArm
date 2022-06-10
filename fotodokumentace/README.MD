@@ -1,5 +1,10 @@
 # Fotodokumentace
-## Aktualní podoba
+
+# Soutěžní podoba
+<img src = "5_6_2022ZBoku.jpg">
+<img src = "5_6_2022ZePredu.jpg">
+
+## Podoba 3.6.
 <img src = "3_6_podobaA.jpg">
 <img src = "3_6_podobaB.jpg">
 
