@@ -1,3 +1,6 @@
+#ifndef kn_motor
+#define kn_motor
+
 #include <Arduino.h>
 #include <binary.h>
 #include <Arduino_JSON.h>
@@ -5,12 +8,12 @@
 #include "esp32-hal.h"
 #include "soc/soc_caps.h"
 #include "driver/ledc.h"
+#include <komunBasic.h>
 typedef byte resDuty;
 
 
 
 #define LEDC_mTIMER              LEDC_TIMER_3
-#define LEDC_mMODE               LEDC_LOW_SPEED_MODE
 #define LEDC_mFrec              5000
 
 #define pohonMaxHod 255
@@ -37,6 +40,8 @@ struct pohon
 #define mStopHigh 2
 #define mStop mStopLow
 #define mBrzda 3
+#define rychModLow 0
+#define rychModHigh 1
 
 class motor
 {
@@ -48,27 +53,31 @@ private:
     bool setDefTimer = 0;
 
 
-    bool inputGo(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,int minSpead  =0);
+    bool inputGo(byte mot, char smer ,int spead ,int maxSpead ,int minSpead);
     
 public:
     void zmenaEdd(byte mot);
     bool zmenaIs(byte mot);
     byte vystup();
     void beginStart();
-    esp_err_t beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER ,ledc_mode_t _speadmode = LEDC_mMODE);
-    bool begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _neg, byte _max, byte _min, ledc_timer_config_t *ledc_timer = null);
+    bool beginTimer(uint32_t frek ,ledc_timer_t _tim  ,bool rychMod );
+    bool begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _neg, byte _max, byte _min, ledc_timer_config_t *ledc_timer );
     bool beginEnd();
     void updatePWM(int i);
     void updatePWM();
     
-    void vystupEx();
+    
     bool inputProc(byte mot, char proc);
-    bool input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,int minSpead  =0, int cas = 0);
-    void vystupEx();
+    bool input(byte mot, char smer ,int spead,int maxSpead ,int minSpead , int cas );
+    long TStop(byte mot);
     //motor();
     //~motor();
 };
 
+long motor::TStop(byte mot)
+{
+    return m[mot].timeStop;
+}
 
 
 /*
@@ -115,32 +124,31 @@ void motor::beginStart()
     setDefTimer = false;
 }
 
-esp_err_t motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER ,ledc_mode_t _speadmode = LEDC_mMODE)
+
+//LEDC_LOW_SPEED_MODE
+bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER ,bool rychMod = rychModLow)
 {
-    if (_speadmode != LEDC_LOW_SPEED_MODE || _speadmode != LEDC_HIGH_SPEED_MODE)
-    {
-        return true;
-    }
-    if(_tim < LEDC_CHANNEL_MAX)
-    {
-        return true;
-    }
-        
-        
         ledc_timer_config_t ledc_timer = {
-        .speed_mode       = _speadmode,
+        //.speed_mode       = _speadmode,
         .duty_resolution  = LEDC_TIMER_8_BIT,
         .timer_num        = _tim,
         .freq_hz          = frek,  // Set output frequency at 5 kHz
         .clk_cfg          = LEDC_AUTO_CLK
     };
-    esp_err_t a = ledc_timer_config(&ledc_timer);
-    if (a == ESP_OK)
+    if (rychMod == rychModLow)
     {
-        defTim = ledc_timer;
-        setDefTimer = true;
+        /* code */
     }
-    return a;
+    
+    esp_err_t a = ledc_timer_config(&ledc_timer);
+    if (a != ESP_OK)
+    {
+        
+return false;
+    }
+    defTim = ledc_timer;
+        setDefTimer = true;
+    return true;
 }
 
 
@@ -179,6 +187,20 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
         return false;
     }
     
+    for (int i = 0; i < 8; i++)
+    {
+        if (set &(1<<i))
+        {
+            if (m[i].ledc_channel.gpio_num == _pin || m[i].ledc_channel.channel == channel)
+            {
+                return false;
+            }
+            
+        }
+        
+    }
+    pinMode(_pin, OUTPUT);
+    
     
     m[mot].ledc_timer = ledc_timer;
     if(_inverz){
@@ -204,6 +226,9 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     m[mot].index = B10000000 >> mot;
     m[mot].smer = mStop;
     m[mot].timeStop = 0;
+
+
+    
 
         ledc_channel_config_t ledc_channel = {
         .gpio_num       = _pin,
@@ -305,6 +330,8 @@ bool motor::input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,i
     return true;
 }
 
+
+
 bool motor::inputProc(byte mot, char proc)
 {
     if (proc == 0)
@@ -347,20 +374,6 @@ void motor::updatePWM()
     }
 }
 
-void motor::vystupEx()
-{
-    for (int i = 0; i < 8; i++)
-    {
-        if (m[i].timeStop != 0)
-        {
-            if (m[i].timeStop < millis())
-            {
-                input(i,mStop);
-            }
-        }
-    }
-}
-
 /*
 motor::motor()
 {
@@ -372,3 +385,5 @@ motor::~motor()
 {
 }
 */
+
+#endif 

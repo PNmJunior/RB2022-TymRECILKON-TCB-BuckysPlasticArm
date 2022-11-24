@@ -1,3 +1,7 @@
+#ifndef kn_disp
+#define kn_disp
+
+
 #include <Arduino.h>
 #include <binary.h>
 
@@ -20,6 +24,7 @@
 #define HP B1
 #define DP HP
 #define mWork 10
+/// @brief 
 struct textik
 {
     long nextTime;
@@ -84,8 +89,9 @@ public:
     void begin(byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, byte sH);
     byte toSegment(char znak);
     byte toReal(byte segm);
-    void addText4(char z0, char z1, char z2, char z3, long dobaTrvani, byte tecky =0,byte neg = 0);
-    byte addText4(String text, long dobaTrvani, long tecky =0,long neg = 0);
+    //void addText4(char z0, char z1, char z2, char z3, long dobaTrvani, byte tecky =0,byte neg = 0);
+    void addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani , byte tecky ,byte neg );
+    byte addText4(String text, long dobaTrvani, long tecky ,long neg );
     byte vystup();
     void vystupEX();
     byte index();
@@ -94,6 +100,38 @@ public:
     //    disp();
     //~disp();
 };
+
+
+void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani = 0, byte tecky =0,byte neg = 0)
+{
+    byte maxWork2 = maxWork;
+    maxWork2 ++;
+    if (maxWork2 == mWork)
+    {
+        maxWork2 = 0;
+    }
+    
+    work[maxWork2].textNow[0] = z0;
+    work[maxWork2].textNow[1] = z1;
+    work[maxWork2].textNow[2] = z2;
+    work[maxWork2].textNow[3] = z3;
+    work[maxWork2].timeTrvani = dobaTrvani;
+    for (int i = 0; i < 4; i++)
+    {
+        work[maxWork2].Aline[i] = toSegment(work->textNow[i]);
+        if ((tecky & (B1000 > i))!=0)
+        {
+            work[maxWork2].Aline[i] |= DP;
+        }
+        if ((neg & (B1000 > i))!=0)
+        {
+            work[maxWork2].Aline[i] = ~work[maxWork2].Aline[i];
+        }        
+        work[maxWork2].vystup[i]= toReal(work->Aline[i]);
+    }
+    maxWork = maxWork2;
+
+}
 
 void disp::begin(byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, byte sH)//Posuvny registr
 {
@@ -108,7 +146,7 @@ void disp::begin(byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, b
     
     vystupWork = 0;
     maxWork = 0;
-    addText4('i','n','i','t');
+    addText4Char((char)'i',(char)'n',(char)'i',(char)'t');
 }
 
 byte disp::toSegment(char znak)
@@ -239,36 +277,6 @@ byte disp::toReal(byte segm)
     return alfa;
 }
 
-void disp::addText4(char z0 = ' ', char z1 = ' ', char z2 = ' ', char z3 = ' ', long dobaTrvani = 0, byte tecky =0,byte neg = 0)
-{
-    byte maxWork2 = maxWork;
-    maxWork2 ++;
-    if (maxWork2 == mWork)
-    {
-        maxWork2 = 0;
-    }
-    
-    work[maxWork2].textNow[0] = z0;
-    work[maxWork2].textNow[1] = z1;
-    work[maxWork2].textNow[2] = z2;
-    work[maxWork2].textNow[3] = z3;
-    work[maxWork2].timeTrvani = dobaTrvani;
-    for (int i = 0; i < 4; i++)
-    {
-        work[maxWork2].Aline[i] = toSegment(work->textNow[i]);
-        if ((tecky & (B1000 > i))!=0)
-        {
-            work[maxWork2].Aline[i] |= DP;
-        }
-        if ((neg & (B1000 > i))!=0)
-        {
-            work[maxWork2].Aline[i] = ~work[maxWork2].Aline[i];
-        }        
-        work[maxWork2].vystup[i]= toReal(work->Aline[i]);
-    }
-    maxWork = maxWork2;
-
-}
 
 long disp::BitSet(byte index)
 {
@@ -296,7 +304,7 @@ byte disp::addText4(String text = "    ", long dobaTrvani = 0, long tecky =0,lon
     for (int i = 0; i < nasob; i++)
     {
         u = 4*i;
-        addText4(text.charAt(u+0),text.charAt(u+1),text.charAt(u+2),text.charAt(u+3), doba,(tecky & jedna>>u)>>((nasob-1-i)*4),(neg & jedna>>u)>>((nasob-1-i)*4));
+        addText4Char(text.charAt(u+0),text.charAt(u+1),text.charAt(u+2),text.charAt(u+3), doba,(tecky & jedna>>u)>>((nasob-1-i)*4),(neg & jedna>>u)>>((nasob-1-i)*4));
     }
     return nasob ;
 }
@@ -346,3 +354,4 @@ disp::disp()
 disp::~disp()
 {
 */
+#endif

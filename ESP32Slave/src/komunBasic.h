@@ -1,7 +1,7 @@
 
 
 //PLATFORMIO
-#ifdef ffccx
+#ifdef PLATFORMIO
 #define charAtPNm charAt
 #define concatPNm concat
 #define StringPNm String
@@ -533,6 +533,8 @@ typedef std::string String;
 #endif
 
 
+
+
 #define Amask                       B11000000
 #define Amotor                      B00000000
 
@@ -564,6 +566,17 @@ typedef std::string String;
 #define whatMotNum 2
 
 
+#define mVpred 1
+#define mVzad -1
+#define mStopLow 0
+#define mStopHigh 2
+#define mStop mStopLow
+#define mBrzda 3
+
+
+
+#ifndef kn_komBasic
+#define kn_komBasic
 /*
 1 => na pozice je 1
 0 => na pozici je 0
@@ -653,6 +666,15 @@ struct dataSend
   uint8_t *data;
   size_t leng;
 };
+/*
+struct dataMotor
+{
+    byte rych;
+    byte index;
+    char smer;
+    bool brzda;
+};
+*/
 
 dataSend ADDdataRow(dataSend a, dataSend b)
 {
@@ -687,7 +709,47 @@ dataSend dataRow(dataFace in)
   }
   return a;
 }
+/*
+dataSend motorSendDataMotor(dataMotor m)
+{
 
+    dataSend u;
+    if ( m.index >= 8)
+    {
+        u.leng = 0;
+        return u;
+    }
+    
+    u.leng = 2;
+    u.data =(byte*) malloc(u.leng);
+    u.data[0] = Amotor | (INDEXmask & m.index) ;
+
+    u.data[1] = m.rych;
+
+    if (m.smer == mVpred)
+    {
+        u.data[0] = u.data[0] | BsMax_smerVpred_tMess;
+    }
+    else if(m.smer == mVzad)
+    {
+        u.data[0] = u.data[0] | BsMin_smerVzad_tSet;
+    }
+    else
+    {
+        u.data[0] = u.data[0] | BsMax_smerVpred_tMess;
+        u.data[1] = 0;
+    }
+
+    if (m.brzda == true)
+    {
+        u.data[0] = u.data[0] | Cano_brzda_mChat_sRead;
+    }
+    else
+    {
+        u.data[0] = u.data[0] | Cne_brzda_mInfo_sWrite;
+    }
+    return u;
+}*/
 
 dataSend motorSend(byte index,  int16_t rychlost, byte brzda)
 {
@@ -720,6 +782,31 @@ dataSend motorSend(byte index,  int16_t rychlost, byte brzda)
     return u;
 }
 
+/*
+dataSend motorMulti4SendDataMotor(dataMotor *m0= 0,dataMotor *m1= 0, dataMotor *m2 =0, dataMotor *m3 =0)
+{
+    dataSend d;
+    d.leng = 0;
+    if(m0 != 0)
+    {
+        d = ADDdataRow(d, motorSendDataMotor(*m0));
+    }
+    if(m1 != 0)
+    {
+        d = ADDdataRow(d, motorSendDataMotor(*m1));
+    }
+    if(m2 != 0)
+    {
+        d = ADDdataRow(d, motorSendDataMotor(*m2));
+    }
+    if(m3 != 0)
+    {
+        d = ADDdataRow(d, motorSendDataMotor(*m3));
+    }
+    return d;
+}
+*/
+
 
 dataSend motorMulti4Send( int16_t index0,  int16_t rychlost0, byte brzda0, int16_t index1,  int16_t rychlost1, byte brzda1, int16_t index2,  int16_t rychlost2, byte brzda2, int16_t index3,  int16_t rychlost3, byte brzda3)
 {
@@ -748,6 +835,31 @@ dataSend motorMulti4Send( int16_t index0,  int16_t rychlost0, byte brzda0, int16
 dataSend motorMulti8Send( int16_t index0,  int16_t rychlost0, byte brzda0, int16_t index1,  int16_t rychlost1, byte brzda1, int16_t index2,  int16_t rychlost2, byte brzda2, int16_t index3,  int16_t rychlost3, byte brzda3, int16_t index4,  int16_t rychlost4, byte brzda4, int16_t index5,  int16_t rychlost5, byte brzda5, int16_t index6,  int16_t rychlost6, byte brzda6, int16_t index7,  int16_t rychlost7, byte brzda7)
 {
     return ADDdataRow(motorMulti4Send(index0,rychlost0,brzda0,index1,rychlost1,brzda1,index2,rychlost2,brzda2,index3,rychlost3,brzda3), motorMulti4Send(index4,rychlost4,brzda4,index5,rychlost5,brzda5,index6,rychlost6,brzda6,index7,rychlost7,brzda7));
+}
+/*
+dataSend motorMulti8SendDataMotor( dataMotor *m0= 0,dataMotor *m1= 0, dataMotor *m2 =0, dataMotor *m3 =0,dataMotor *m4= 0,dataMotor *m5= 0, dataMotor *m6 =0, dataMotor *m7 =0)
+{
+    return ADDdataRow(motorMulti4SendDataMotor(m0,m1,m2,m3), motorMulti4SendDataMotor(m4,m5,m6,m7));
+}
+
+dataMotor motorOut(dataFace o)
+{
+    dataMotor a;
+    a.index = o.Index;
+    a.brzda = o.CtypeBool;
+    a.smer = o.BtypeBool;
+    a.rych = o.Data;
+    return a;
+}*/
+
+bool isMotorInDataFace(dataFace o)
+{
+    if (o.AtypeNum == motorNum)
+    {
+        return true;
+    }
+    return false;
+    
 }
 
 
@@ -897,3 +1009,4 @@ dataSend makeOutput(uint8_t *data, size_t len, dataSend work(dataFace ))
     return zaloha;
 }
 
+#endif

@@ -1,3 +1,8 @@
+#ifndef kn_kom
+#define kn_kom
+
+
+
 #include <disp.h>
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
@@ -22,10 +27,20 @@ private:
 public:
     void begin(AsyncWebSocket *WS,AsyncWebServer *Server, dataSend (*_Work)(dataFace));
     void go(void *arg, uint8_t *data, size_t len);
+    void send(dataSend a);
     //void send(dataFace in, bool fronta = true);
     //dataSend ADDdataRow(dataSend *a, dataSend *b);
     //dataSend dataRow(dataFace in);
 };
+
+void komun::send(dataSend a)
+{
+  if (a.leng != 0)
+  {
+    ws->binaryAll(a.data,a.leng);
+    free(a.data);
+  }
+}
 
 
 void komun::go(void *arg, uint8_t *data, size_t len)
@@ -33,18 +48,13 @@ void komun::go(void *arg, uint8_t *data, size_t len)
   dataSend zaloha;
   zaloha.leng = 0;
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
-  void *work2 = work;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
-    zaloha= makeOutput(data,len,work);
+    zaloha = makeOutput(data,len,work);
 
   }
 
-  if (zaloha.leng != 0)
-  {
-    ws->binaryAll(zaloha.data,zaloha.leng);
-    free(zaloha.data);
-  }  
+  send(zaloha);
 }
 
 
@@ -54,3 +64,6 @@ void komun::begin(AsyncWebSocket *WS,AsyncWebServer *Server, dataSend (*_Work)(d
   server  = Server;
   work = _Work;
 }
+
+
+#endif

@@ -4,218 +4,118 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 #include <tajnosti.h>//Jsou zde definované jmého a heslo wifi
+#include <disp.h>
+#include <motor.h>
+#include <komun.h>
+#include <komunBasic.h>
 #include "SPIFFS.h"
 #include <Arduino_JSON.h>
 
+//nove definice
+#define pin_PR_Clock 16
+#define pin_PR_Data1 18
+#define pin_PR_Data2 4
+#define pin_PR_Latch 17
+#define pin_Servo2 22
+#define pin_Servo3 23
+#define pin_Servo1 2
+#define pin_m0 32
+#define pin_m1 33
+#define pin_m2 25
+#define pin_m3 23
+#define pin_m4 19
+#define pin_m5 13
+#define pin_m6 12
+#define pin_m7 26
+#define pin_LedD1 5 
+#define pin_LedD2 15
+#define pin_LedD3 27
+#define pin_LedD4 14
+#define pin_Tlac 35
+#define pin_EnkA 39
+#define pin_EnkB 34
+#define pin_EnkDP 36
+
+disp segDisp;
+motor mot;
+komun kom;
 
 
-//Motor definice
-#define Mpocet 8
-int Mpiny[Mpocet] = {32,33,23,19,27,13,26,25};//bila-modra,cerv-fial,zel-bila,zlut-seda,fial-bila,mod-fial,fial-bila,seda-cerv,
-byte Mdata = 0;
-//32-bila-modra,33-cerv-fial,23-zel-bila,19-zlut-seda,27-fial-bila,13-mod-fial,26-seda-cerv,25-bila-zel
-#define MStopLow 0
-#define MStopHight 10
-#define MStop MStopLow
-#define Mvpred 1
-#define Mvzad -1
-#define MEindex -1
-#define MEmod -2
-int Mfreq = 2000; 
-int Mresolution = 8; 
-int MlatchPin = 18;
-int MdataPin = 17;
-int MclockPin = 16;
-float MprocDataIn[9][2];
-float MprocDataWork[9][2];
+void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val) {
+    uint8_t i;
 
-//definice indexu motorů
-#define M0 0
-#define M1 1 
-#define M2 2 
-#define M3 3
-#define M4 4
-#define M5 5
-#define M6 6
-#define M7 7
-#define Mled 8
+    for(i = 0; i < 8; i++) {
+        if(bitOrder == LSBFIRST)
+            digitalWrite(dataPin, !!(val & (1 << i)));
+        else
+            digitalWrite(dataPin, !!(val & (1 << (7 - i))));
 
-//definice Motoru
-#define MotPodLivy M1
-#define MotPodPravy M0
-#define Mot1 M6
-#define Mot2 M5
-#define Mot3 M7
-#define Mot4 M4
-#define MotKleste M3
-#define LEDka Mled
-#define MotZaloha M2
-
-//Negace směru motorů
-#define MotNegPodLivi 1
-#define MotNegPodPravi 0
-#define MotNeg1 0
-#define MotNeg2 1
-#define MotNeg3 1
-#define MotNeg4 1
-#define MotNegKleste 0
-#define MotNegZaloha 0
-
-int MotorNegace[8] = {MotNegPodPravi,MotNegPodLivi,MotNegZaloha ,MotNegKleste,MotNeg4,MotNeg2, MotNeg1,MotNeg3 };
-
-//Ostatní definice k motorům
-#define LEDzelena Mvpred
-#define LEDcervena Mvzad
-#define KlesSevrit Mvzad
-#define KlesRozevrit Mvpred
-#define Mot1Vlevo Mvzad
-#define Mot1Vprevo Mvpred
-#define Dolu Mvpred
-#define Nahoru Mvzad
-
-//test2 motorů
-long timeTest1=0;
-byte mmm=0;
-
-void PosunReg()//odešle data k posuvnému registru
-{ 
-    digitalWrite(MlatchPin, LOW);
-    shiftOut(MdataPin, MclockPin, MSBFIRST, Mdata);
-    digitalWrite(MlatchPin, HIGH);  
-    
-}
-
-
-void PosunReg(byte dataNov )//Pokud nastane změna výstupu posuvného registru, pošlou se data
-{
-  if (dataNov != Mdata)
-  {
-    Mdata = dataNov;
-    PosunReg();
-  }
-}
-
-#define MathKanalu 2*
-
-void PosRegIndex(int index, bool A_N)//Vyrobení změny ve výstupu pos. registru
-{
-  if (A_N)
-  {
-    PosunReg((int)(Mdata | (1 << index)));
-  }
-  else
-  {
-    PosunReg(Mdata & (~(1 << index)));
-  }
-}
-
-
-#define ContrSendDataVolno 0
-#define ContrSendDataRow 1
-#define ContrSendDataStopAll 2
-int ContrSendData =0;
-unsigned long ContrSendDataTime =0;
-bool ContrSendDataRemove = false;
-int  ContrSendDataPocet = 0;
-
-void WaitContrSendData(int cekat, int zmena)
-{
-  while (cekat != ContrSendData)
-  {
-    delay(1);
-  }
-  ContrSendData = zmena;
-}
-
-
-
-void IRAM_ATTR myledcWrite(uint8_t chan, uint32_t duty)
-{
-  ledcWrite(chan,duty);
-}
-
-void MotorStopAll(unsigned long cekani = 0, bool mazZac = false, bool mazKonec= false)//Vždy zastaví chod robota. Automaticky posílá data posuvnému registru.
-{
-  ContrSendDataRemove = mazZac;
-WaitContrSendData(ContrSendDataVolno,ContrSendDataStopAll);
-  Mdata = 0;
-  //portDISABLE_INTERRUPTS();
-  PosunReg();
-  for (int i = 0; i < Mpocet; i++)
-  {
-    myledcWrite( MathKanalu i, 0);
-  }
-
-  if (cekani != 0)
-  {
-    unsigned long abn = cekani + millis();
-    while (abn >=micros())
-    {
-      ContrSendDataTime = abn - millis();
-      delay(1);
-      
+        digitalWrite(clockPin, HIGH);
+        digitalWrite(clockPin, LOW);
     }
-    
-  }
-  ContrSendDataTime = 0;
-
-  ContrSendData = ContrSendDataVolno;
-  ContrSendDataRemove = mazKonec;
-  //portENABLE_INTERRUPTS();
 }
 
-
-void MotorSetProc(int index, byte minimum = 0, byte maximum=255)// nastavení MotorRunProc
+void MotorStopAll()//Vždy zastaví chod robota. Automaticky posílá data posuvnému registru.
 {
-  MprocDataIn[index][0] = minimum;
-  MprocDataIn[index][1] = maximum;
-  MprocDataWork[index][0] = MprocDataIn[index][0] ;
-  MprocDataWork[index][1] = (MprocDataIn[index][1]  -MprocDataIn[index][0])/100.0 ;
+  for (int i = 0; i < 8; i++)
+  {
+    mot.input(i);
+  }
+
 }
 
 
 
-void MotorBegin(int Platch, int Pdata, int Pclock, int piny[Mpocet])//inicializace potřebných zaležitostí k motorům
+void IRAM_ATTR HlavniPreruseni()
 {
-  MlatchPin =Platch;
-  MdataPin = Pdata;
-  MclockPin = Pclock;
-
-  for (int i = 0; i < Mpocet; i++)
+  byte d1 = mot.vystup();
+  byte d2 = segDisp.vystup();
+  byte d3 = segDisp.index();
+  digitalWrite(pin_PR_Latch, LOW);
+  for(uint8_t i = 0; i < 8; i++)
   {
-    Mpiny[i] = piny[i];
-    ledcSetup(MathKanalu i, Mfreq, Mresolution);
-    ledcWrite(MathKanalu i, 255);
+    //digitalWrite(pin_PR_Data1, !!(val & (1 << i)));//LSBFIRST
+    digitalWrite(pin_PR_Data1, !!(d1 & (1 << (7 - i))));//MSBFIRST
+        //digitalWrite(pin_PR_Data2, !!(val & (1 << i)));//LSBFIRST
+    digitalWrite(pin_PR_Data2, !!(d2 & (1 << (7 - i))));//MSBFIRST
+    digitalWrite(pin_PR_Clock, HIGH);
+    digitalWrite(pin_PR_Clock, LOW);
   }
-  pinMode(MlatchPin,OUTPUT);
-  pinMode(MdataPin,OUTPUT);
-  pinMode(Pclock,OUTPUT);
 
-  Mdata = B11111111;
-  PosunReg();
-  for (int i = 0; i < Mpocet; i++)
-  {
-    pinMode(Mpiny[i],OUTPUT);
-    ledcAttachPin(Mpiny[i], MathKanalu i);
-  }
-    for (int i = 0; i < Mpocet; i++)
-  {
-    MotorSetProc(i,0,255);
-  }
-MotorSetProc(LEDka,0,255);
+  mot.updatePWM();
 
-  pinMode(15,OUTPUT);
-  pinMode(2,OUTPUT);
-  ledcSetup(5, Mfreq, Mresolution);
-    ledcWrite(5, 255);
-    ledcAttachPin(15, 5);
-      ledcSetup(7, Mfreq, Mresolution);
-    ledcWrite(7, 255);
-    ledcAttachPin(2,7);
+  switch (d3)
+  {
+  case 0:
+    digitalWrite(pin_LedD4,1);
+    digitalWrite(pin_LedD1,0);
+    break;
+  case 1:
+    digitalWrite(pin_LedD1,1);
+    digitalWrite(pin_LedD2,0);
+    break;
+  case 2:
+    digitalWrite(pin_LedD2,1);
+    digitalWrite(pin_LedD3,0);
+    break;
+  case 3:
+    digitalWrite(pin_LedD3,1);
+    digitalWrite(pin_LedD4,0);
+    break;
   
+  default:
+    digitalWrite(pin_LedD1,1);
+    digitalWrite(pin_LedD2,1);
+    digitalWrite(pin_LedD3,1);
+    digitalWrite(pin_LedD4,1);
+    break;
+  }
+
+  digitalWrite(pin_PR_Latch, HIGH); 
+  segDisp.vystupEX();
+
+
 }
-
-
 
 
 
@@ -461,10 +361,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     }
   }
 }
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+
+
+void onEvent2(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
   switch (type) {
     case WS_EVT_CONNECT:
       Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+
       break;
     case WS_EVT_DISCONNECT:
       Serial.printf("WebSocket client #%u disconnected\n", client->id());
@@ -479,187 +382,44 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 }
 
 void initWebSocket() {
-  ws.onEvent(onEvent);
+  ws.onEvent(onEvent2);
   server.addHandler(&ws);
-}
-/*
- * setup function
- */
-
-
-
-void KompenzaceIn(int index)
-{
-  int dvojiceA = index>>1;
-  int dvojiceB;
-  dvojiceA << 1;
-  if (dvojiceA != index)
-  {
-    dvojiceB = dvojiceA +1;
-  }
-  else
-  {
-    dvojiceB = dvojiceA;
-  }
-  
-
-  
-}
-void KompenzaceWork()
-{
-
-}
-
-
-void MotorRunRaw(int index, int mod=MStop, int rychlost =0)
-{
-    if (rychlost < 0)
-  {
-    rychlost = 0;
-  }
-  else if (rychlost > 255)
-  {
-    rychlost = 255;
-  }
-
-  if(index == LEDka)
-  {
-    if (mod == LEDzelena)
-    {
-      myledcWrite( 5, rychlost);
-      myledcWrite( 7,0);
-    }
-    else if (mod ==LEDcervena)
-    {
-      myledcWrite( 7, rychlost);
-      myledcWrite( 5,0);
-    }
-    else
-    {
-      myledcWrite( 5,0);
-      myledcWrite( 7,0);
-    }
-  return;
-  }
-
-  if (ContrSendDataRemove == true)
-  {
-    return;
-  }
-  if (MotorNegace[index]==1)
-  {
-    if (mod == Mvpred)
-    {
-      mod = Mvzad;
-    }
-    else if (mod == Mvzad)
-    {
-      mod = Mvpred;
-    }
-  }
-  //portDISABLE_INTERRUPTS();
-  WaitContrSendData(ContrSendDataVolno, ContrSendDataRow);
-  if (mod == MStopLow)
-  {
-    myledcWrite( MathKanalu index, 0);
-    PosRegIndex(index, 0);
-  }
-  else if (mod == MStopHight)
-  {
-    myledcWrite( MathKanalu index, 255);
-    PosRegIndex(index, 1);
-  }
-  else if (mod == Mvpred)
-  {
-    myledcWrite( MathKanalu index, rychlost);
-    PosRegIndex(index, 0 );
-  }
-  else if (mod == Mvzad)
-  {
-    myledcWrite( MathKanalu index,255- rychlost);
-    PosRegIndex(index, 1);
-  }
-  //portENABLE_INTERRUPTS();
-  ContrSendData =0;
-}
-
-
-void MotorRunProc(int index, float proc)//Možnost nastavení procent výkonu, kde je ovládaný reálný výkon motoru...
-{
-  if(proc == 0.0)
-  {
-    MotorRunRaw(index,MStop);
-  }
-  
-  else
-  {
-    float o  =(abs(proc)*MprocDataWork[index][1])+MprocDataWork[index][0];
-    int u = o;
-    if (u >255)
-    {
-      u = 255;
-    }
-    else if (u < 0)
-    {
-      u = 0;
-    }
-    if (proc < 0.0)
-    {
-      MotorRunRaw(index,Mvzad, u);
-    }
-    else
-    {
-      MotorRunRaw(index, Mvpred, u);
-    }
-  }
-}
-
-void TestM()
-{
-  timeTest1 ++;
-  if (timeTest1 == 500)
-  {
-    MotorRunRaw(mmm,Mvpred,(int)150);
-  }
-    if (timeTest1 == 1000)
-  {
-    MotorRunRaw(mmm,MStopLow,(int)150);
-  }
-    if (timeTest1 == 1500)
-  {
-    MotorRunRaw(mmm,Mvzad,(int)150);
-  }
-    if (timeTest1 == 2000)
-  {
-    MotorRunRaw(mmm,MStopHight,(int)150);  
-    if (mmm == 7)
-    {
-      mmm=0;
-    }
-    else
-    {
-      mmm++;
-    }
-    timeTest1=0;
-  }
-}
-
-void blikblik(int mod=LEDcervena,int pocet = 1, int cas=100)
-{
-  for (int i = 0; i < pocet; i++)
-  {
-    MotorRunRaw(LEDka,mod,255);
-    delay(cas);
-    MotorRunRaw(LEDka,MStop);
-    delay(cas);
-  }
-  
 }
 
 
 void setup() {
   // put your setup code here, to run once:
-  MotorBegin(18,17,16,Mpiny);
+
+  mot.beginStart();
+    pinMode(pin_LedD1,OUTPUT);
+  pinMode(pin_LedD2,OUTPUT);
+  pinMode(pin_LedD3,OUTPUT);
+  pinMode(pin_LedD4,OUTPUT);
+    digitalWrite(pin_LedD1,1);
+    digitalWrite(pin_LedD2,1);
+    digitalWrite(pin_LedD3,1);
+    digitalWrite(pin_LedD4,1);
+  segDisp.begin(DP,D,E,C,G,B,F,A);//zmenit
+
+
+//zahajeni ...
+
+  mot.beginTimer();
+  
+  mot.begin(0,0,LEDC_CHANNEL_0,false,false,255,0);
+  mot.begin(1,0,LEDC_CHANNEL_0,false,false,255,0);
+  mot.begin(2,0,LEDC_CHANNEL_0,false,false,255,0);
+  mot.begin(3,0,LEDC_CHANNEL_0,false,false,255,0);
+  mot.begin(4,0,LEDC_CHANNEL_0,false,false,255,0);
+  mot.begin(5,0,LEDC_CHANNEL_0,false,false,255,0);
+  mot.begin(6,0,LEDC_CHANNEL_0,false,false,255,0);
+  mot.begin(7,0,LEDC_CHANNEL_0,false,false,255,0);
+
+  if (mot.beginEnd() == 0)
+  {
+    segDisp.addText4("Err1");
+  }
+  //Nas vstupu pro led segment
 
   MotorStopAll();
 
@@ -686,15 +446,14 @@ void setup() {
   });
 
         server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request){
-    MotorStopAll(0, true, true);
-    ContrSendDataPocet = 0;
+    MotorStopAll();
     server.reset();
-    MotorStopAll(100, true, false);
+    MotorStopAll();
     
   });
 
           server.on("/stop", HTTP_GET, [](AsyncWebServerRequest *request){
-    MotorStopAll(100,true,false);
+    MotorStopAll();
   });
 
    server.on("/test", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -707,119 +466,26 @@ void setup() {
   server.begin();
   Serial.println("HTTP server started");
 
-  //Nasvení procentní nastavení
-  MotorSetProc(0,100,200);
-  MotorSetProc(1,100,200);
-  MotorSetProc(2,0,255);
-  MotorSetProc(3,0,255);
-  MotorSetProc(4,0,255);
-  MotorSetProc(5,0,255);
-  MotorSetProc(6,0,255);
-  MotorSetProc(7,0,255);
-
 
     String ip100 = WiFi.localIP().toString();
-  for (int i = 0; i < ip100.length(); i++)
-  {
-    
-    switch (ip100.charAt(i))
-    {
-    case '0':
-      blikblik();
-    case '9':
-      blikblik();
-    case '8':
-      blikblik();
-    case '7':
-      blikblik();
-    case '6':
-      blikblik();
-    case '5':
-      blikblik();
-    case '4':
-      blikblik();
-    case '3':
-      blikblik();
-    case '2':
-      blikblik();
-    case '1':
-      blikblik();
-      blikblik(LEDzelena);
-    break;
-    default:
-    blikblik(LEDzelena,2);
-      break;
-    }
-  }
 }
 
-float MC6odl;
-unsigned long MC6time;
-#define MC6timeSpeed 650
 void loop(void) 
 {
-  if(ContrSendData == ContrSendDataStopAll)
-  {
-    delayMicroseconds(100);
-  }
-  else if(MC1 == 0 &&MC1 == 0 &&MC2 == 0 &&MC3 == 0 &&MC4 == 0 &&MC5 == 0 &&MC5 == 0 &&MC6 == 0 &&MC7 == 0)
-  {
+  dataSend p;
+  p.leng = 0;
 
-    MotorStopAll();
-    delayMicroseconds(10);
-  }
-  else
-  {
- MotorRunProc(MotPodPravy,MC1);
-  MotorRunProc(MotPodLivy,MC2);
-  MotorRunProc(Mot2,MC3);
-  MotorRunProc(Mot3,MC4);
-  MotorRunProc(Mot4,MC5);
-  if (MC6odl != MC6)
-  {
-    MC6odl = MC6;
-    MC6time= millis() + MC6timeSpeed ;
-  }
-  
-  if (MC6 ==100.0)
-  {
-    if (MC6time > millis())
+    for (int i = 0; i < 8; i++)
     {
-      MotorRunRaw(MotKleste,Mvpred, 255);
+        if (mot.TStop(i) != 0)
+        {
+            if (mot.TStop(i) < millis())
+            {
+                mot.input(i,mStop);
+                p = ADDdataRow(p,motorSend(i,0,0));
+            }
+        }
     }
-    else
-    {
-      MotorRunRaw(MotKleste,Mvpred,100);
-    }
-    
-    
-  }
-  else if (MC6 ==-100.0)
-  {
-    if (MC6time > millis())
-    {
-    MotorRunRaw(MotKleste,Mvzad, 255);
-    }
-    else
-    {
-      MotorRunRaw(MotKleste,Mvzad, 115);
-    }
-  }
-  else
-  {
-    MotorRunRaw(MotKleste,MStop);
-  }
-  //MotorRunProc(MotKleste,MC6);
-  MotorRunProc(Mot1,MC7);
-  
-  }
-  if(MC8 != MC8old)
-  {
-    MotorRunProc(LEDka,MC8);
-    MC8old = MC8;
-  }
-  
+    kom.send(p);
   ws.cleanupClients();
-
-  
 }
