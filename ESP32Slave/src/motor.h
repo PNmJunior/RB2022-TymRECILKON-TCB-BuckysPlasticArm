@@ -8,7 +8,7 @@
 #include "esp32-hal.h"
 #include "soc/soc_caps.h"
 #include "driver/ledc.h"
-#include <komunBasic.h>
+//#include <komunBasic.h>
 typedef byte resDuty;
 
 
@@ -60,11 +60,13 @@ public:
     bool zmenaIs(byte mot);
     byte vystup();
     void beginStart();
-    bool beginTimer(uint32_t frek ,ledc_timer_t _tim  ,bool rychMod );
+    bool beginTimer(uint32_t frek ,ledc_timer_t _tim  ,ledc_mode_t _speadmode );
     bool begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _neg, byte _max, byte _min, ledc_timer_config_t *ledc_timer );
     bool beginEnd();
     void updatePWM(int i);
     void updatePWM();
+    byte numToPosun(byte i);
+    byte posunToNum(byte i);
     
     
     bool inputProc(byte mot, char proc);
@@ -73,6 +75,45 @@ public:
     //motor();
     //~motor();
 };
+
+byte motor::numToPosun(byte i)
+{
+    return B10000000 >> i;
+}
+byte motor::posunToNum(byte i)
+{
+    switch (i)
+    {
+    case B10000000:
+        return 0;
+        break;
+    case B1000000:
+        return 1;
+        break;
+    case B100000:
+        return 2;
+        break;
+    case B10000:
+        return 3;
+        break;
+    case B1000:
+        return 4;
+        break;
+    case B100:
+        return 5;
+        break;
+    case B10:
+        return 6;
+        break;
+    case B1:
+        return 7;
+        break;
+            
+    default:
+        break;
+    }
+    return 0;
+}
 
 long motor::TStop(byte mot)
 {
@@ -126,19 +167,23 @@ void motor::beginStart()
 
 
 //LEDC_LOW_SPEED_MODE
-bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER ,bool rychMod = rychModLow)
+bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER ,ledc_mode_t _speadmode = LEDC_LOW_SPEED_MODE)
 {
+        if (_speadmode != LEDC_LOW_SPEED_MODE || _speadmode != LEDC_HIGH_SPEED_MODE)
+    {
+        return true;
+    }
+    if(_tim < LEDC_CHANNEL_MAX)
+    {
+        return true;
+    }
         ledc_timer_config_t ledc_timer = {
-        //.speed_mode       = _speadmode,
+        .speed_mode       = _speadmode,
         .duty_resolution  = LEDC_TIMER_8_BIT,
         .timer_num        = _tim,
         .freq_hz          = frek,  // Set output frequency at 5 kHz
         .clk_cfg          = LEDC_AUTO_CLK
     };
-    if (rychMod == rychModLow)
-    {
-        /* code */
-    }
     
     esp_err_t a = ledc_timer_config(&ledc_timer);
     if (a != ESP_OK)
@@ -189,7 +234,7 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     
     for (int i = 0; i < 8; i++)
     {
-        if (set &(1<<i))
+        if (set &numToPosun(i) != 0)
         {
             if (m[i].ledc_channel.gpio_num == _pin || m[i].ledc_channel.channel == channel)
             {
@@ -223,12 +268,9 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     m[mot].duty = 0;
     m[mot].zmena1 = 0;
     m[mot].zmena2 = 0;
-    m[mot].index = B10000000 >> mot;
+    m[mot].index = numToPosun(mot);
     m[mot].smer = mStop;
     m[mot].timeStop = 0;
-
-
-    
 
         ledc_channel_config_t ledc_channel = {
         .gpio_num       = _pin,
@@ -315,7 +357,7 @@ bool motor::input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,i
             m[mot].duty = a;
             vyst &= ~m[mot].index;
         }
-        else if (smer == mVzad)
+        else if (b == mVzad)
         {
             vyst |= m[mot].index;
             m[mot].duty = ~a;
