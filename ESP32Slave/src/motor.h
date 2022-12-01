@@ -76,10 +76,18 @@ public:
     //~motor();
 };
 
+byte motor::vystup()
+{
+    return vyst;
+}
+
+
 byte motor::numToPosun(byte i)
 {
     return B10000000 >> i;
 }
+
+
 byte motor::posunToNum(byte i)
 {
     switch (i)
@@ -170,10 +178,6 @@ void motor::beginStart()
 bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER ,ledc_mode_t _speadmode = LEDC_LOW_SPEED_MODE)
 {
         if (_speadmode != LEDC_LOW_SPEED_MODE || _speadmode != LEDC_HIGH_SPEED_MODE)
-    {
-        return true;
-    }
-    if(_tim < LEDC_CHANNEL_MAX)
     {
         return true;
     }

@@ -5,6 +5,7 @@
 #define charAtPNm charAt
 #define concatPNm concat
 #define StringPNm String
+#define charAddPNm +=
     #include <Arduino.h>
 #else
 #include <stdio.h>
@@ -647,7 +648,8 @@ struct dataFace
     byte Index;
     byte Data; 
     String text;
-     int16_t len;
+    int16_t len;
+    int16_t sizeText;
 };
 
 
@@ -877,14 +879,23 @@ dataSend wtahMotorSend(byte index)
 dataSend textSend(byte prvniByte,String t)
 {
     dataSend u;
+    
+    for (int16_t i = 0; t.length()%8 != 0; i++)
+    {
+        t charAddPNm(' ');
+    }
+    
+    
     u.leng = 2 + t.length();
     u.data =(byte*) malloc(u.leng);
+    int16_t kklklk = t.length()/8;
+    u.data[1] = kklklk;
     u.data[0] = prvniByte ; 
-    u.data[1] = t.length(); 
     for ( int16_t i = 0; i < t.length(); i++)
     {
         u.data[i + 2] = t.charAtPNm(i);
     }
+    
     return u;
 }
 
@@ -956,7 +967,7 @@ bool isTextStringOut(dataFace a)
 String textStringOut(dataFace a)
 {
     String uu;
-    for ( int16_t i = 0; i < a.Data; i++)
+    for ( int16_t i = 0; i < a.sizeText; i++)
     {
         uu.concatPNm(StringPNm(a.text[i]));
     }
@@ -986,11 +997,13 @@ dataSend makeOutput(uint8_t *data, size_t len, dataSend work(dataFace ))
         a.data.Data = a.row[1];
         i += 2;
         a.data.len = 2;
+        a.data.sizeText = 0;
         if (a.Atype == Atext)
         {
             if ((len-i)<=a.data.Data)
             {
-                for ( int16_t u = 0; u < a.data.Data; u++)
+                a.data.sizeText = (a.data.Data) * 8;
+                for ( int16_t u = 0; u < a.data.sizeText; u++)
                 {
                 a.data.text += data[i];
                 i++;

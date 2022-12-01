@@ -4,26 +4,7 @@
 #include <Arduino.h>
 #include <binary.h>
 #include <WiFi.h>
-
-#define BezOmezeniDoby 0
-#define RealA B10000000
-#define RealB B1000000
-#define RealC B100000
-#define RealD B10000
-#define RealE B1000
-#define RealF B100
-#define RealG B10
-#define RealHP B1
-#define A B10000000
-#define B B1000000
-#define C B100000
-#define D B10000
-#define E B1000
-#define F B100
-#define G B10
-#define HP B1
-#define DP HP
-#define mWork 100
+#define mWork 250
 
 
 struct textik
@@ -33,8 +14,6 @@ struct textik
     char textNow[4];
     byte Aline[4];
     byte vystup[4] = {0,0,0,0};
-    byte vystupInd = 0;
-    byte pocetCislic = 4;
 };
 
 
@@ -45,64 +24,97 @@ private:
     byte vystupWork;
     byte maxWork;
     byte segReal[8];
+    byte vystupInd = 0;
+    HardwareSerial *ser;
 
     const byte segNumber[10] = {
-        A|B|C|D|E|F,   //0
-        E|F,               //1
-        A|B|D|E|G,      //2
-        A|B|C|D|E,      //3
-        B|C|F|G,         //4
-        A|B|C|F|G,      //5
-        A|B|C|F|G|E,   //6
-        A|B|C,            //7
-        A|B|C|D|E|F|G,//8
-        A|B|C|F|G,      //9
+        a|b|c|d|e|f,   //0
+        e|f,               //1
+        a|b|d|e|g,      //2
+        a|b|c|d|e,      //3
+        b|c|f|g,         //4
+        a|b|c|f|g,      //5
+        a|b|c|f|g|e,   //6
+        a|b|c,            //7
+        a|b|c|d|e|f|g,//8
+        a|b|c|f|g,      //9
         };
 
     const byte segAbc[26] = {
-        A|B|C|E|F|G,   //A
-        C|D|E|F|G,      //B
-        D|E|G,            //C
-        B|C|D|E|G,      //D
-        A|D|E|F|G,      //E
-        A|E|F|G,         //F
-        A|B|C|D|F|G,   //G
-        C|E|F|G,         //H
-        E,                  //I
-        B|C|D|E,         //J
-        E|F|G,            //K
-        D|E|F,            //L
-        A|B|C|E|F,      //M
-        C|E|G,            //N
-        C|D|E|G,         //O
-        A|B|E|F|G,      //P
-        A|B|C|F,         //Q
-        E|G,               //R
-        A|C|D|F|G,      //S
-        A|E|F,            //T
-        B|C|D|E|F,      //U
-        B|E|F,            //V
-        B|C|E|F,         //W
-        B|C|E|F|G,      //X
-        B|E|F|G,         //Y
-        A|B|D|E,         //Z
+        a|b|c|e|f|g,   //A
+        c|d|e|f|g,      //B
+        d|e|g,            //C
+        b|c|d|e|g,      //D
+        a|d|e|f|g,      //E
+        a|e|f|g,         //F
+        a|b|c|d|f|g,   //G
+        c|e|f|g,         //H
+        e,                  //I
+        b|c|d|e,         //J
+        e|f|g,            //K
+        d|e|f,            //L
+        a|b|c|e|f,      //M
+        c|e|g,            //N
+        c|d|e|g,         //O
+        a|b|e|f|g,      //P
+        a|b|c|f,         //Q
+        e|g,               //R
+        a|c|d|f|g,      //S
+        a|e|f,            //T
+        b|c|d|e|f,      //U
+        b|e|f,            //V
+        b|c|e|f,         //W
+        b|c|e|f|g,      //X
+        b|e|f|g,         //Y
+        a|b|d|e,         //Z
     };
 
+    void nextTimeSet(byte vW, bool vynulovat);
+    bool nextTimeIs(byte vW);
+
 public:
-    void begin(byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, byte sH);
+    void begin(HardwareSerial *_ser,byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, byte sH,char show0,char show1,char show2, char show3);
     byte toSegment(char znak);
     byte toReal(byte segm);
     //void addText4(char z0, char z1, char z2, char z3, long dobaTrvani, byte tecky =0,byte neg = 0);
     void addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani , byte tecky ,byte neg );
     byte addText4(String text, long dobaTrvani, long tecky ,long neg );
-    void addText4IP(IPAddress a, long dobaTrvani);
+    void addText4IP(IPAddress ip, long dobaTrvani);
     byte vystup();
     void vystupEX();
     byte index();
     long BitSet(byte index);
     void dell();
+    const byte a  = B10000000;
+    const byte b  = B1000000;
+    const byte c  = B100000;
+    const byte d  = B10000;
+    const byte e  = B1000;
+    const byte f  = B100;
+    const byte g  = B10;
+    const byte hp  = B1;
+    const byte dp  = hp;
 };
 
+
+void disp::nextTimeSet(byte vW, bool vynulovat = false)
+{
+    if (vynulovat)
+    {
+        work[vW].nextTime = 0;
+    }
+    else{
+    work[vW].nextTime = work[vW].timeTrvani + millis();
+    }
+}
+bool disp::nextTimeIs(byte vW)
+{
+    if (work[vystupWork].nextTime < millis())
+    {
+        return true;
+    }
+    return false;    
+}
 
 void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani = 0, byte tecky =0,byte neg = 0)
 {
@@ -117,27 +129,34 @@ void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani 
     work[maxWork2].textNow[2] = z2;
     work[maxWork2].textNow[3] = z3;
     work[maxWork2].timeTrvani = dobaTrvani;
+    String m   ="                index:";
     for (int i = 0; i < 4; i++)
     {
         work[maxWork2].Aline[i] = toSegment(work->textNow[i]);
+        m[i*4] = work->textNow[i];
         if ((tecky & (B1000 > i))!=0)
         {
-            work[maxWork2].Aline[i] |= DP;
+            work[maxWork2].Aline[i] |= dp;
+            m[i*4 +1] = '.';
         }
         if ((neg & (B1000 > i))!=0)
         {
             work[maxWork2].Aline[i] = ~work[maxWork2].Aline[i];
+            m[i*4 +2] = 'n';
         }        
         work[maxWork2].vystup[i]= toReal(work->Aline[i]);
     }
-    maxWork = maxWork2;
+    maxWork = maxWork2;//vložení textu do fronty
+    m += String(maxWork2) + " cas:" + String(dobaTrvani);
+    ser->println(m);
 }
 
 
 
 
-void disp::begin(byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, byte sH)//Posuvny registr
+void disp::begin(HardwareSerial *_ser,byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, byte sH,char show0 = 'i',char show1 = 'n',char show2 = 'i', char show3 = 't')
 {
+    ser  = _ser;
     segReal[0] = sA;
     segReal[1] = sB;
     segReal[2] = sC;
@@ -148,7 +167,9 @@ void disp::begin(byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, b
     segReal[7] = sH;
     vystupWork = 0;
     maxWork = 0;
-    addText4Char('i','n','i','t');
+    addText4Char(show0,show1,show2,show3);
+    vystupWork = maxWork;
+    nextTimeSet(vystupWork);
 }
 
 
@@ -164,103 +185,103 @@ byte disp::toSegment(char znak)
     }
     if (znak >= 'A' && znak <= 'Z')
     {
-        return segAbc[znak - 'A'] | RealHP;
+        return segAbc[znak - 'A'] | hp;
     }
     switch (znak)
     {
+    case ' ':
+        return 0;
+        break;
+    case ',':
+        return c;
+        break;
+    case '.':
+        return dp;
+        break;
     case ':':
-        return D|G;
+        return d|g;
         break; 
     case '-':
-        return G;
+        return g;
+        break;
+    case '*':
+        return b|c|g|dp;
+        break;
+    case '+':
+        return b|c|g;
+        break;
+    case '/':
+        return b|g|e;
         break;
     case '_':
-        return D;
+        return d;
         break;
     case '~':
-        return G|DP;
+        return g|dp;
         break;  
     case '[':
     case '{':
     case '(':
-        return A|D|E|F;
+        return a|d|e|f;
         break;
     case ']':
     case '}':
     case ')':
-            return A|B|C|D;
+            return a|b|c|d;
         break;
     case '!':
-        return B|C|DP;
+        return b|c|dp;
         break; 
     case '"':
-        return B|F;
+        return b|f;
         break;  
     case '#':
-        return A|B|G|F;
+        return a|b|g|f;
         break;  
     case '%':
-        return B|G|E|DP;
+        return b|g|e|dp;
         break; 
     case '&':
-        return A|B|G|F|DP;
-        break;
-    case '*':
-        return B|C|G|DP;
-        break;
-    case '+':
-        return B|C|G;
-        break;
-    case ',':
-        return C;
-        break;
-    case '.':
-        return DP;
-        break;
-    case '/':
-        return B|G|E;
+        return a|b|g|f|dp;
         break;
     case ';':
-        return C|DP;
+        return c|dp;
         break;
     case '<':
-        return A|G|F;
+        return a|g|f;
         break;
     case '=':
-        return A|G;
+        return a|g;
         break;
     case 39://'
-        return B;
+        return b;
         break;
     case '>':
-        return A|B|G;
+        return a|b|g;
         break;
     case '?':
-        return A|B|D|E|G|DP;
+        return a|b|d|e|g|dp;
         break;
     case '@':
-        return A|B|C|D|E|F|G|DP;
+        return a|b|c|d|e|f|g|dp;
         break;
-    case 127://dell
-        return A|B|C|D|E|F|DP;
+    case 127://dell  //vymaze znak
+        return a|b|c|d|e|f|dp;
         break;
     case 92:/*\*/ 
-        return C|G|F;
+        return c|g|f;
         break;
     case '^':
-        return A|B|F;
+        return a|b|f;
         break;
-    case 96://'
-        return A|B|G;
+    case 96://`
+        return a|b|g;
         break;
     case '|':
-        return B|C;
+        return b|c;
         break;
     case '$':
-        return A|D|G;
-        break;
-    case ' ':
-        return 0;
+        return a|d|g;
         break;
     default:
         break;
@@ -317,58 +338,60 @@ byte disp::addText4(String text = "    ", long dobaTrvani = 0, long tecky =0,lon
 
 byte disp::vystup()
 {
-    return work[vystupWork].vystup[work[vystupWork].vystupInd];
+    return work[vystupWork].vystup[vystupInd];
 }
 
 
 void disp::vystupEX()
 {
-    if (work[vystupWork].vystupInd == 3)
+    if (vystupInd == 3)
     {
-        if ((maxWork != vystupWork)&& (work[vystupWork].nextTime > millis()))
+        if ((maxWork != vystupWork)&& nextTimeIs(vystupWork))
         {
-            byte vymaz  = vystupWork;
             vystupWork ++;
             if (vystupWork == mWork)
             {
                vystupWork =0;
             }    
-            work[vystupWork].nextTime = work[vystupWork].timeTrvani + millis();
+            nextTimeSet(vystupWork);
         }
-        work[vystupWork].vystupInd = 0;
+        vystupInd = 0;
     }
     else
     {
-        work[vystupWork].vystupInd ++;
+        vystupInd ++;
     }
 }
 
 
 byte disp::index()
 {
-    return work[vystupWork].vystupInd;
+    return vystupInd;
 }
 
 
 void disp::dell()
 {
+    String m = "Delete. Index (from"+String(vystupWork) +") ="+String( maxWork);
     vystupWork = maxWork;
     work[vystupWork].timeTrvani = 0;
+    nextTimeSet(vystupWork,true);
+    ser->println(m);
 }
 
 
-void disp::addText4IP(IPAddress a,long dobaTrvani)
+void disp::addText4IP(IPAddress ip,long dobaTrvani)
 {
     dobaTrvani = dobaTrvani /5;
     addText4Char('I','P',':',' ',dobaTrvani);
     for (size_t i = 0; i < 4; i++)
     {
-        String u = String( a.operator[](i),10);
+        String u = String( ip.operator[](i),10);
         while (u.length() <= 4)
         {
             u = " " + u;
         }
-        addText4Char(u[0],u[1],u[2],u[3],dobaTrvani,SetBit(i));
+        addText4Char(u[0],u[1],u[2],u[3],dobaTrvani,BitSet(i));
         
     }
     
