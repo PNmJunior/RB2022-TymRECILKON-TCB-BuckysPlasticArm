@@ -359,10 +359,12 @@ void setup()
   segDisp.begin(&Serial, segDisp.dp, segDisp.d, segDisp.e, segDisp.c, segDisp.g, segDisp.b, segDisp.f, segDisp.a);
   Serial.println("2");
   // zahajeni ...
+  
   My_timer = timerBegin(0, 80, true);
   timerAttachInterrupt(My_timer, &HlavniPreruseni, true);
   timerAlarmWrite(My_timer, 20000, true);
   timerAlarmEnable(My_timer); // Just Enable
+  
   Serial.println("3");
   mot.beginTimer();
 
@@ -374,7 +376,7 @@ void setup()
   mot.begin(5, pin_m5, LEDC_CHANNEL_5, false, false, 255, 0);
   mot.begin(6, pin_m6, LEDC_CHANNEL_6, false, false, 255, 0);
   mot.begin(7, pin_m7, LEDC_CHANNEL_7, false, false, 255, 0);
-
+ Serial.println("4");
   if (mot.beginEnd() == 0)
   {
     segDisp.addText4("Err1");
@@ -382,7 +384,7 @@ void setup()
 
   //enk.begin(pin_EnkA, pin_EnkB, pin_EnkDP, pin_Tlac);
 
-  MotorStopAll();
+  MotorStopAll(); Serial.println("5");
 
   komunFace komF;
   komF.displej = &segDisp;
@@ -392,13 +394,13 @@ void setup()
   editText.begin(komF);
   menu Vr1;
   Vr1.begin(komF);
-
+ Serial.println("6");
   if (!SPIFFS.begin(true))
   {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-
+/*
   File setWeb0 = SPIFFS.open("/setWeb0.txt");
   File setWeb1 = SPIFFS.open("/setWeb1.txt");
   File setWeb2 = SPIFFS.open("/setWeb2.txt");
@@ -407,19 +409,40 @@ void setup()
   File setWeb5 = SPIFFS.open("/setWeb5.txt");
   File setWeb6 = SPIFFS.open("/setWeb6.txt");
   File setWeb7 = SPIFFS.open("/setWeb7.txt");
-
+*/
   preferences.begin("credentials", false);
 
   initFS();
   WiFi.mode(WIFI_STA);
+      int n = WiFi.scanNetworks();
+    Serial.println("scan done");
+    if (n == 0) {
+        Serial.println("no networks found");
+    } else {
+        Serial.print(n);
+        Serial.println(" networks found");
+        for (int i = 0; i < n; ++i) {
+            // Print SSID and RSSI for each network found
+            Serial.print(i + 1);
+            Serial.print(": ");
+            Serial.print(WiFi.SSID(i));
+            Serial.print(" (");
+            Serial.print(WiFi.RSSI(i));
+            Serial.print(")");
+            Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
+            delay(10);
+        }
+    }
 
   WiFi.begin(ssid, password);
   // Wait for connection
+  Serial.println("7");
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
   }
+  Serial.println("8");
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);

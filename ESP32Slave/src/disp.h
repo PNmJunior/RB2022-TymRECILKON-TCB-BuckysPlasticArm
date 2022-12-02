@@ -20,11 +20,11 @@ struct textik
 class disp
 {
 private:
-    textik work[mWork];
-    byte vystupWork;
-    byte maxWork;
+    volatile textik work[mWork];
+    volatile byte vystupWork;
+    volatile byte maxWork;
     byte segReal[8];
-    byte vystupInd = 0;
+    volatile byte vystupInd = 0;
     HardwareSerial *ser;
 
 
@@ -122,21 +122,23 @@ bool disp::nextTimeIs(byte vW)
 byte disp::toReal(byte segm)
 {
     byte alfa = 0;
-    ser->println("lll"); ser->println(segm);
+    //ser->println("lll"); ser->println(segm);
     for (int i = 0; i < 8; i++)
     {
         if ((segm & (B10000000 >> i)) != 0)
         {
             alfa |= segReal[i];
-            ser->print("g");
-            ser->println(i);
+            //ser->print("g");
+            //ser->println(i);
         }
         
     }
+    /*
     ser->println();
     ser->print(segm,2);
     ser->print("=");
     ser->println(alfa,2);
+    */
     return alfa;
 }
 
@@ -179,6 +181,7 @@ void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani 
     maxWork = maxWork2;//vložení textu do fronty
     m += String(maxWork2) + " cas:" + String(dobaTrvani);
     ser->println(m);
+    /*
     for (size_t i = 0; i < 4; i++)
     {
         ser->print(work[maxWork2].textNow[i]);
@@ -190,7 +193,7 @@ void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani 
         ser->print(work[maxWork2].Aline[i],2);
         ser->print("=>");
         ser->println(work[maxWork2].vystup[i],2);
-    }
+    }*/
     
 }
 
@@ -214,12 +217,12 @@ void disp::begin(HardwareSerial *_ser,byte sA,byte sB, byte sC, byte sD, byte sE
     for (size_t i = 0; i < 26; i++)
     {
         ser->println(segAbc[i],2);
-    }*/
+    }
     for (size_t i = 0; i < 8; i++)
     {
         ser->println(toReal(B10000000>>i),2);
         
-    }
+    }*/
     
     
     addText4Char(show0,show1,show2,show3);
@@ -233,21 +236,21 @@ byte disp::toSegment(char znak)
     ser->print('z');ser->print(znak);
     if(znak >= '0' && znak <= '9')
     {
-        ser->print("a");
+        //ser->print("a");
         return segNumber[znak - '0'];
     }
     if (znak >= 'a' && znak <= 'z')
     {
-        ser->print("b");
-        ser->print(segAbc[znak - 'a'],2);
+        //ser->print("b");
+        //er->print(segAbc[znak - 'a'],2);
         return segAbc[znak - 'a'];
     }
     if (znak >= 'A' && znak <= 'Z')
     {
-        ser->print("c");
+        //ser->print("c");
         return segAbc[znak - 'A'] | hp;
     }
-    ser->print("d");
+    //ser->print("d");
     switch (znak)
     {
     case ' ':

@@ -17,20 +17,28 @@ typedef byte resDuty;
 #define LEDC_mFrec              5000
 
 #define pohonMaxHod 255
-struct pohon
+
+struct pohonVol
+{
+    resDuty dutOld;
+    resDuty duty;
+    ledc_mode_t speed_mode;
+    ledc_channel_t channel;
+    uint32_t hpoint;
+};
+
+
+struct pohonSet
 {
     char neg;//oto4ena svorkovnice
     char inverz;//ote4eni motoru
-    resDuty duty;
     resDuty max;
     resDuty min;
-    byte zmena1;
-    byte zmena2;
     byte index;
     char smer;
     long timeStop;
-    ledc_timer_config_t *ledc_timer;
-    ledc_channel_config_t ledc_channel;
+   ledc_timer_config_t *ledc_timer;
+   ledc_channel_config_t ledc_channel;
 };
 
 
@@ -46,8 +54,9 @@ struct pohon
 class motor
 {
 private:
-    byte vyst = 0;
-    pohon m[8];
+    volatile byte vyst = 0;
+    pohonSet m[8];
+    volatile pohonVol v[8];
     byte set = 0;
     ledc_timer_config_t defTim;
     bool setDefTimer = 0;
@@ -56,8 +65,6 @@ private:
     bool inputGo(byte mot, char smer ,int spead ,int maxSpead ,int minSpead);
     
 public:
-    void zmenaEdd(byte mot);
-    bool zmenaIs(byte mot);
     byte vystup();
     void beginStart();
     bool beginTimer(uint32_t frek ,ledc_timer_t _tim  ,ledc_mode_t _speadmode );
@@ -269,9 +276,8 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     }
     m[mot].max = _max;
     m[mot].min = _min;
-    m[mot].duty = 0;
-    m[mot].zmena1 = 0;
-    m[mot].zmena2 = 0;
+    v[mot].duty = 0;
+    v[mot].dutOld = v[mot].duty;
     m[mot].index = numToPosun(mot);
     m[mot].smer = mStop;
     m[mot].timeStop = 0;
@@ -282,7 +288,7 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
         .channel        = channel,
         .intr_type      = LEDC_INTR_DISABLE,
         .timer_sel      = ledc_timer->timer_num,
-        .duty           = m[mot].duty,
+        .duty           = v[mot].duty,
         .hpoint         = 0
     };
     esp_err_t a = ledc_channel_config(&ledc_channel);
@@ -291,7 +297,10 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
         return false;
     }
 
-    m[mot].ledc_channel = ledc_channel;
+    m[mot].ledc_channel =ledc_channel;
+    v[mot].speed_mode = m[mot].ledc_channel.speed_mode;
+    v[mot].channel = m[mot].ledc_channel.channel;
+    v[mot].hpoint = m[mot].ledc_channel.hpoint;
     set |= m[mot].index;
     return true;
 }
@@ -306,20 +315,6 @@ bool motor::beginEnd()
     
 }
 
-void motor::zmenaEdd(byte mot)
-{
-    m[mot].zmena1 ++;
-}
-
-bool motor::zmenaIs(byte mot)
-{
-    if(m[mot].zmena1 != m[mot].zmena2)
-    {
-        m[mot].zmena2 ++;
-        return true;
-    }
-    return false;
-}
 
 bool motor::input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,int minSpead  =0, int cas = 0)
 {
@@ -339,18 +334,18 @@ bool motor::input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,i
         {
             vyst |= m[mot].index;       
         }
-        m[mot].duty = map(spead,minSpead,maxSpead,m[mot].min, m[mot].max); 
+        v[mot].duty = map(spead,minSpead,maxSpead,m[mot].min, m[mot].max); 
         m[mot].timeStop = millis() + cas;
     }
     else if (smer==mStopHigh)
     {
         vyst |= m[mot].index;
-        m[mot].duty = pohonMaxHod;
+        v[mot].duty = pohonMaxHod;
     }
     else if (smer == mStopLow)
     {
         vyst &= ~m[mot].index;
-        m[mot].duty = 0;
+        v[mot].duty = 0;
     }
     else
     {
@@ -358,13 +353,13 @@ bool motor::input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,i
         int b = smer * m[mot].neg * m[mot].inverz;
         if (b == mVpred)
         {
-            m[mot].duty = a;
+            v[mot].duty = a;
             vyst &= ~m[mot].index;
         }
         else if (b == mVzad)
         {
             vyst |= m[mot].index;
-            m[mot].duty = ~a;
+            v[mot].duty = ~a;
         }
         else
         {
@@ -372,7 +367,6 @@ bool motor::input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,i
         }
     }
     
-    zmenaEdd(mot);
     return true;
 }
 
@@ -403,13 +397,11 @@ bool motor::inputProc(byte mot, char proc)
 
 void motor::updatePWM(int i)
 {
-
-    if (zmenaIs(i))
+    if (v[i].duty != v[i].dutOld)
     {
-        ledc_set_duty_and_update(m[i].ledc_timer->speed_mode,m[i].ledc_channel.channel,m[i].duty, m[i].ledc_channel.hpoint);
+        ledc_set_duty_and_update(v[i].speed_mode,v[i].channel,v[i].duty, v[i].hpoint);
+        v[i].dutOld = v[i].duty;
     }
-    
-    
 }
 
 void motor::updatePWM()
