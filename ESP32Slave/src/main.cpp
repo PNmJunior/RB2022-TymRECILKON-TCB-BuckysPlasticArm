@@ -354,15 +354,16 @@ void setup()
   digitalWrite(pin_LedD2, 1);
   digitalWrite(pin_LedD3, 1);
   digitalWrite(pin_LedD4, 1);
-  Serial.begin(115200);
+  Serial.begin(9600);
+  Serial.println("1");
   segDisp.begin(&Serial, segDisp.dp, segDisp.d, segDisp.e, segDisp.c, segDisp.g, segDisp.b, segDisp.f, segDisp.a);
-
+  Serial.println("2");
   // zahajeni ...
   My_timer = timerBegin(0, 80, true);
   timerAttachInterrupt(My_timer, &HlavniPreruseni, true);
   timerAlarmWrite(My_timer, 20000, true);
   timerAlarmEnable(My_timer); // Just Enable
-
+  Serial.println("3");
   mot.beginTimer();
 
   mot.begin(0, pin_m0, LEDC_CHANNEL_0, false, false, 255, 0);
@@ -425,6 +426,7 @@ void setup()
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   initWebSocket();
+  segDisp.addText4IP(WiFi.localIP());
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(SPIFFS, "/index.html", "text/html"); });

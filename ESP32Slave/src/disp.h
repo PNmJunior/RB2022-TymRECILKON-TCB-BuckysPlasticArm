@@ -27,7 +27,36 @@ private:
     byte vystupInd = 0;
     HardwareSerial *ser;
 
-    const byte segNumber[10] = {
+
+
+    void nextTimeSet(byte vW, bool vynulovat);
+    bool nextTimeIs(byte vW);
+
+public:
+    void begin(HardwareSerial *_ser,byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, byte sH,char show0,char show1,char show2, char show3);
+    byte toSegment(char znak);
+    byte toReal(byte segm);
+    //void addText4(char z0, char z1, char z2, char z3, long dobaTrvani, byte tecky =0,byte neg = 0);
+    void addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani , byte tecky ,byte neg );
+    byte addText4(String text, long dobaTrvani, long tecky ,long neg );
+    void addText4IP(IPAddress ip, long dobaTrvani);
+    byte vystup();
+    void vystupEX();
+    byte index();
+    long BitSet(byte index);
+    void dell();
+    const byte a  = B10000000;
+    const byte b  = B1000000;
+    const byte c  = B100000;
+    const byte d  = B10000;
+    const byte e  = B1000;
+    const byte f  = B100;
+    const byte g  = B10;
+    const byte hp  = B1;
+    const byte dp  = hp;
+
+
+        const byte segNumber[10] = {
         a|b|c|d|e|f,   //0
         e|f,               //1
         a|b|d|e|g,      //2
@@ -68,32 +97,6 @@ private:
         b|e|f|g,         //Y
         a|b|d|e,         //Z
     };
-
-    void nextTimeSet(byte vW, bool vynulovat);
-    bool nextTimeIs(byte vW);
-
-public:
-    void begin(HardwareSerial *_ser,byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, byte sH,char show0,char show1,char show2, char show3);
-    byte toSegment(char znak);
-    byte toReal(byte segm);
-    //void addText4(char z0, char z1, char z2, char z3, long dobaTrvani, byte tecky =0,byte neg = 0);
-    void addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani , byte tecky ,byte neg );
-    byte addText4(String text, long dobaTrvani, long tecky ,long neg );
-    void addText4IP(IPAddress ip, long dobaTrvani);
-    byte vystup();
-    void vystupEX();
-    byte index();
-    long BitSet(byte index);
-    void dell();
-    const byte a  = B10000000;
-    const byte b  = B1000000;
-    const byte c  = B100000;
-    const byte d  = B10000;
-    const byte e  = B1000;
-    const byte f  = B100;
-    const byte g  = B10;
-    const byte hp  = B1;
-    const byte dp  = hp;
 };
 
 
@@ -116,14 +119,41 @@ bool disp::nextTimeIs(byte vW)
     return false;    
 }
 
+byte disp::toReal(byte segm)
+{
+    byte alfa = 0;
+    ser->println("lll"); ser->println(segm);
+    for (int i = 0; i < 8; i++)
+    {
+        if ((segm & (B10000000 >> i)) != 0)
+        {
+            alfa |= segReal[i];
+            ser->print("g");
+            ser->println(i);
+        }
+        
+    }
+    ser->println();
+    ser->print(segm,2);
+    ser->print("=");
+    ser->println(alfa,2);
+    return alfa;
+}
+
 void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani = 0, byte tecky =0,byte neg = 0)
 {
+
+    
     byte maxWork2 = maxWork;
     maxWork2 ++;
     if (maxWork2 == mWork)
     {
         maxWork2 = 0;
     }
+    Serial.print(z0);
+    Serial.print(z1);
+    Serial.print(z2);
+    Serial.print(z3);
     work[maxWork2].textNow[0] = z0;
     work[maxWork2].textNow[1] = z1;
     work[maxWork2].textNow[2] = z2;
@@ -132,23 +162,36 @@ void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani 
     String m   ="                index:";
     for (int i = 0; i < 4; i++)
     {
-        work[maxWork2].Aline[i] = toSegment(work->textNow[i]);
-        m[i*4] = work->textNow[i];
+        work[maxWork2].Aline[i] = toSegment(work[maxWork2].textNow[i]);
+        m[i*4] = work[maxWork2].textNow[i];
         if ((tecky & (B1000 > i))!=0)
         {
             work[maxWork2].Aline[i] |= dp;
-            m[i*4 +1] = '.';
+            //m. = '.';
         }
         if ((neg & (B1000 > i))!=0)
         {
             work[maxWork2].Aline[i] = ~work[maxWork2].Aline[i];
-            m[i*4 +2] = 'n';
+            //m[i*4 +2] = 'n';
         }        
-        work[maxWork2].vystup[i]= toReal(work->Aline[i]);
+        work[maxWork2].vystup[i]= toReal(work[maxWork2].Aline[i]);
     }
     maxWork = maxWork2;//vložení textu do fronty
     m += String(maxWork2) + " cas:" + String(dobaTrvani);
     ser->println(m);
+    for (size_t i = 0; i < 4; i++)
+    {
+        ser->print(work[maxWork2].textNow[i]);
+        ser->print("=>");
+        ser->print(work[maxWork2].textNow[i],10);
+        ser->print("=>");
+        ser->print(work[maxWork2].textNow[i],2);
+        ser->print("=>");
+        ser->print(work[maxWork2].Aline[i],2);
+        ser->print("=>");
+        ser->println(work[maxWork2].vystup[i],2);
+    }
+    
 }
 
 
@@ -167,6 +210,18 @@ void disp::begin(HardwareSerial *_ser,byte sA,byte sB, byte sC, byte sD, byte sE
     segReal[7] = sH;
     vystupWork = 0;
     maxWork = 0;
+    /*
+    for (size_t i = 0; i < 26; i++)
+    {
+        ser->println(segAbc[i],2);
+    }*/
+    for (size_t i = 0; i < 8; i++)
+    {
+        ser->println(toReal(B10000000>>i),2);
+        
+    }
+    
+    
     addText4Char(show0,show1,show2,show3);
     vystupWork = maxWork;
     nextTimeSet(vystupWork);
@@ -175,18 +230,24 @@ void disp::begin(HardwareSerial *_ser,byte sA,byte sB, byte sC, byte sD, byte sE
 
 byte disp::toSegment(char znak)
 {
+    ser->print('z');ser->print(znak);
     if(znak >= '0' && znak <= '9')
     {
+        ser->print("a");
         return segNumber[znak - '0'];
     }
     if (znak >= 'a' && znak <= 'z')
     {
+        ser->print("b");
+        ser->print(segAbc[znak - 'a'],2);
         return segAbc[znak - 'a'];
     }
     if (znak >= 'A' && znak <= 'Z')
     {
+        ser->print("c");
         return segAbc[znak - 'A'] | hp;
     }
+    ser->print("d");
     switch (znak)
     {
     case ' ':
@@ -290,19 +351,7 @@ byte disp::toSegment(char znak)
 }
 
 
-byte disp::toReal(byte segm)
-{
-    byte alfa = 0;
-    for (int i = 0; i < 8; i++)
-    {
-        if ((segm & (B10000000 >> i)) != 0)
-        {
-            alfa |= segReal[i];
-        }
-        
-    }
-    return alfa;
-}
+
 
 
 long disp::BitSet(byte index)
@@ -380,7 +429,7 @@ void disp::dell()
 }
 
 
-void disp::addText4IP(IPAddress ip,long dobaTrvani)
+void disp::addText4IP(IPAddress ip,long dobaTrvani = 1000)
 {
     dobaTrvani = dobaTrvani /5;
     addText4Char('I','P',':',' ',dobaTrvani);
