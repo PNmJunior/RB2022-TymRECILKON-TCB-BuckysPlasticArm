@@ -20,10 +20,10 @@ Preferences preferences;
 String WifiNotPassword = "@";
 
 // nove definice
-#define pin_PR_Clock 16
+#define pin_PR_Clock 17
 #define pin_PR_Data1 18
 #define pin_PR_Data2 4
-#define pin_PR_Latch 17
+#define pin_PR_Latch 16
 #define pin_Servo2 22
 #define pin_Servo3 23
 #define pin_Servo1 2
@@ -61,17 +61,37 @@ void MotorStopAll() // Vždy zastaví chod robota.
 void IRAM_ATTR HlavniPreruseni()
 {
   byte d1 = mot.vystup();
+  //byte d2 = B10000001;
   byte d2 = segDisp.vystup();
+  //Serial.println(d2,2);
   byte d3 = segDisp.index();
+
   digitalWrite(pin_PR_Latch, LOW);
-  for (uint8_t i = 0; i < 8; i++)
+  delayMicroseconds(10);
+  for (uint8_t i = 0; i < 8; i++)//7 - i
   {
-    // digitalWrite(pin_PR_Data1, !!(val & (1 << i)));//LSBFIRST
-    digitalWrite(pin_PR_Data1, !!(d1 & (1 << (7 - i)))); // MSBFIRST
-                                                         // digitalWrite(pin_PR_Data2, !!(val & (1 << i)));//LSBFIRST
-    digitalWrite(pin_PR_Data2, !!(d2 & (1 << (7 - i)))); // MSBFIRST
+    if ((d2>>i)&1)
+    {
+      digitalWrite(pin_PR_Data2, 1);digitalWrite(pin_PR_Data1, 1);
+    }
+    else
+    {
+      digitalWrite(pin_PR_Data2, 0);digitalWrite(pin_PR_Data1, 0);
+    }
+    if ((d2>>i)&1)
+    {
+      digitalWrite(pin_PR_Data2, 1);digitalWrite(pin_PR_Data1, 1);     
+    }
+    else
+    {
+      digitalWrite(pin_PR_Data2, 0);digitalWrite(pin_PR_Data1, 0);
+    }
+    
+    delayMicroseconds(10);
     digitalWrite(pin_PR_Clock, HIGH);
+    delayMicroseconds(10);
     digitalWrite(pin_PR_Clock, LOW);
+    delayMicroseconds(10);
   }
 
   mot.updatePWM();
@@ -345,6 +365,11 @@ String getPassswordWifi(String ssid, String WNPass = WifiNotPassword)
 void setup()
 {
   // put your setup code here, to run once:
+  
+  pinMode(pin_PR_Clock, OUTPUT);
+  pinMode(pin_PR_Data1, OUTPUT);
+  pinMode(pin_PR_Data2, OUTPUT);
+  pinMode(pin_PR_Latch, OUTPUT);
 
   pinMode(pin_LedD1, OUTPUT);
   pinMode(pin_LedD2, OUTPUT);
@@ -356,13 +381,13 @@ void setup()
   digitalWrite(pin_LedD4, 1);
   Serial.begin(9600);
   Serial.println("1");
-  segDisp.begin(&Serial, segDisp.dp, segDisp.d, segDisp.e, segDisp.c, segDisp.g, segDisp.b, segDisp.f, segDisp.a);
+  segDisp.begin(&Serial, B00000001, B00000100, B00010000, B01000000, B00100000, B00000010, B00001000, B10000000);
   Serial.println("2");
   // zahajeni ...
   
   My_timer = timerBegin(0, 80, true);
   timerAttachInterrupt(My_timer, &HlavniPreruseni, true);
-  timerAlarmWrite(My_timer, 20000, true);
+  timerAlarmWrite(My_timer, 5000, true);
   timerAlarmEnable(My_timer); // Just Enable
   
   Serial.println("3");
@@ -379,12 +404,24 @@ void setup()
  Serial.println("4");
   if (mot.beginEnd() == 0)
   {
-    segDisp.addText4("Err1");
+    //segDisp.addText4("Err1");
   }
 
-  //enk.begin(pin_EnkA, pin_EnkB, pin_EnkDP, pin_Tlac);
-
   MotorStopAll(); Serial.println("5");
+
+  enk.begin(pin_EnkA, pin_EnkB, pin_EnkDP, pin_Tlac);
+  //segDisp.addText4("1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvwwwwxxxxyyyyzzzz",250000);
+  //segDisp.addText4("({[ )}] :-_~!#%&*+,./;<=>?@^|$",1000000);
+  //segDisp.addText4("|$. ",30000);
+  //segDisp.addText4Char(34,39,92,96,30000);
+  //segDisp.addText4Char(127,127,127,127,30000);
+  //segDisp.addText4Char('a','b','a','b',5000,B0110);
+  //segDisp.addText4Char('a','b','a','b',5000,B0000,B0110);
+  //segDisp.addText4("abababab",500,B10010110);
+  //segDisp.addText4("abababab",7000,0,B10010110);
+  //delay(12000);
+  //segDisp.del();
+  //segDisp.addText4("dell",30000);
 
   komunFace komF;
   komF.displej = &segDisp;
@@ -449,7 +486,7 @@ void setup()
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   initWebSocket();
-  segDisp.addText4IP(WiFi.localIP());
+  segDisp.addText4IP(WiFi.localIP(),50000);
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(SPIFFS, "/index.html", "text/html"); });
