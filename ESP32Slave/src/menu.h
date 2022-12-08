@@ -19,7 +19,8 @@ struct polozka
 {
     int indexButt;
     int indexTlac;
-    String segD;
+    //String segD;
+    char *segD;
     long cas;
 };
 
@@ -64,7 +65,12 @@ polozka menu::newPolozka(int _indexButt,int _indexTlac,String _segD,long _cas)
     p.cas = _cas;
     p.indexButt = _indexButt;
     p.indexTlac = _indexTlac;
-    p.segD = _segD;
+    p.segD = (char *)malloc(_segD.length()+1);
+    for (size_t i = 0; i < _segD.length(); i++)
+    {
+        p.segD[i] = _segD[i];
+    }
+    p.segD[_segD.length()] = 0;
     return p;
 }
 
@@ -88,7 +94,7 @@ void menu::addPolozka(polozka pol)
     polozky[pocet].indexTlac = pol.indexTlac;
      Serial.println("f3");
     //polozky[pocet].segD = String(pol.segD.c_str());
-    //polozky[pocet].segD = pol.segD;
+    polozky[pocet].segD = pol.segD;
     Serial.println('v');
     pocet++;
     Serial.println('w');
@@ -219,6 +225,11 @@ int menu::work()
 
 void menu::menuFree()
 {
+    for (size_t i = 0; i < pocet; i++)
+    {
+        free(polozky[i].segD);
+    }
+    
     free(polozky);
 }
 
