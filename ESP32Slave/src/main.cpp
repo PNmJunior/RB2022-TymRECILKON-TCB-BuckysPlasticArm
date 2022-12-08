@@ -14,6 +14,7 @@
 #include <Arduino_JSON.h>
 #include "SPIFFS.h"      //nastaveni webu
 #include <Preferences.h> //Ulozeni hesla
+#include "writeTextSegDisp.h"
 
 
 Preferences preferences;
