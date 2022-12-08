@@ -210,11 +210,6 @@ int menu::work()
                 break;
             }
         }
-        
-        
-
-        delay(1000);
-        
     } while (tl == false && bt == false);
     if (tl == true)
     {

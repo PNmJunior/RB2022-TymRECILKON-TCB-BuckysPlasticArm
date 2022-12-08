@@ -68,31 +68,31 @@ void IRAM_ATTR HlavniPreruseni()
   byte d3 = segDisp.index();
 
   digitalWrite(pin_PR_Latch, LOW);
-  delayMicroseconds(10);
+  //delayMicroseconds(10);
   for (uint8_t i = 0; i < 8; i++)//7 - i
   {
-    if ((d2>>i)&1)
+    if ((d1>>i)&1)
     {
-      digitalWrite(pin_PR_Data2, 1);digitalWrite(pin_PR_Data1, 1);
+      digitalWrite(pin_PR_Data1, 1);
     }
     else
     {
-      digitalWrite(pin_PR_Data2, 0);digitalWrite(pin_PR_Data1, 0);
+      digitalWrite(pin_PR_Data1, 0);
     }
     if ((d2>>i)&1)
     {
-      digitalWrite(pin_PR_Data2, 1);digitalWrite(pin_PR_Data1, 1);     
+      digitalWrite(pin_PR_Data2, 1);     
     }
     else
     {
-      digitalWrite(pin_PR_Data2, 0);digitalWrite(pin_PR_Data1, 0);
+      digitalWrite(pin_PR_Data2, 0);
     }
     
-    delayMicroseconds(10);
+    //delayMicroseconds(10);
     digitalWrite(pin_PR_Clock, HIGH);
-    delayMicroseconds(10);
+    //delayMicroseconds(10);
     digitalWrite(pin_PR_Clock, LOW);
-    delayMicroseconds(10);
+    //delayMicroseconds(10);
   }
 
   mot.updatePWM();
@@ -363,15 +363,6 @@ String getPassswordWifi(String ssid, String WNPass = WifiNotPassword)
   return preferences.getString(ssid.c_str(), WNPass);
 }
 
-void IRAM_ATTR readEncoderISR()
-{
-  //EnkoderPootoceni2();
-  Serial.print("p");
-  //int p=2;
-  //p = 3;
-
-}
-
 
 void setup()
 {
@@ -420,7 +411,7 @@ void setup()
 
   MotorStopAll(); Serial.println("5");
 
-  enk.begin(pin_EnkA, pin_EnkB, pin_EnkDP, pin_Tlac,readEncoderISR);
+  enk.begin(pin_EnkA, pin_EnkB, pin_EnkDP, pin_Tlac);
   Serial.print('v');
   //attachInterrupt(pin_EnkA,readEncoderISR,CHANGE);
   Serial.print('u');
