@@ -15,6 +15,7 @@
 #include "SPIFFS.h"      //nastaveni webu
 #include <Preferences.h> //Ulozeni hesla
 
+
 Preferences preferences;
 
 String WifiNotPassword = "@";
@@ -362,6 +363,16 @@ String getPassswordWifi(String ssid, String WNPass = WifiNotPassword)
   return preferences.getString(ssid.c_str(), WNPass);
 }
 
+void IRAM_ATTR readEncoderISR()
+{
+  //EnkoderPootoceni2();
+  Serial.print("p");
+  //int p=2;
+  //p = 3;
+
+}
+
+
 void setup()
 {
   // put your setup code here, to run once:
@@ -409,7 +420,10 @@ void setup()
 
   MotorStopAll(); Serial.println("5");
 
-  enk.begin(pin_EnkA, pin_EnkB, pin_EnkDP, pin_Tlac);
+  enk.begin(pin_EnkA, pin_EnkB, pin_EnkDP, pin_Tlac,readEncoderISR);
+  Serial.print('v');
+  //attachInterrupt(pin_EnkA,readEncoderISR,CHANGE);
+  Serial.print('u');
   //segDisp.addText4("1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvwwwwxxxxyyyyzzzz",250000);
   //segDisp.addText4("({[ )}] :-_~!#%&*+,./;<=>?@^|$",1000000);
   //segDisp.addText4("|$. ",30000);
@@ -425,13 +439,23 @@ void setup()
 
   komunFace komF;
   komF.displej = &segDisp;
-  //komF.enk = &enk;
+  komF.enk = &enk;
   komF.ser = &Serial;
 
   editText.begin(komF);
   menu Vr1;
   Vr1.begin(komF);
  Serial.println("6");
+
+  menu prv ;
+  prv.begin(komF);
+  Serial.println("7");
+  prv.addPolozkaData(1,2,"b1t2",1000);
+  prv.addPolozkaData(-15,-1,"b-15t-1",1000);
+  Serial.println("8");
+  Serial.println(prv.work());
+  Serial.println("10");
+  
   if (!SPIFFS.begin(true))
   {
     Serial.println("An Error has occurred while mounting SPIFFS");
@@ -513,6 +537,8 @@ void loop(void)
   // Až dokončím komunikační protokol, bude fungovat zastavovaní brždění
   // dataSend p;
   // p.leng = 0;
+
+  Serial.print(digitalRead(pin_EnkA));Serial.println(digitalRead(pin_EnkB));
 
   for (int i = 0; i < 8; i++)
   {

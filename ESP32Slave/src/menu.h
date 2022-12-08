@@ -71,9 +71,27 @@ polozka menu::newPolozka(int _indexButt,int _indexTlac,String _segD,long _cas)
 
 void menu::addPolozka(polozka pol)
 {
+    String x;
     polozky =(polozka*) realloc(polozky,(pocet+1) * sizeof(polozka));
-    polozky[pocet]  = pol;
+    Serial.println('u');
+    delay(1000);
+    Serial.println(pocet);
+    Serial.println(sizeof(polozka));
+    Serial.println(sizeof(pol));
+    Serial.println(sizeof(polozky));
+    Serial.println(sizeof(polozky[0]));
+    Serial.println(sizeof(x));
+    polozky[pocet].cas = pol.cas;
+    Serial.println("f1");
+    polozky[pocet].indexButt = pol.indexButt;
+     Serial.println("f2");
+    polozky[pocet].indexTlac = pol.indexTlac;
+     Serial.println("f3");
+    //polozky[pocet].segD = String(pol.segD.c_str());
+    //polozky[pocet].segD = pol.segD;
+    Serial.println('v');
     pocet++;
+    Serial.println('w');
 }
 
 void menu::addPolozkaData(int _indexButt,int _indexTlac,String _segD,long _cas)
@@ -83,25 +101,33 @@ void menu::addPolozkaData(int _indexButt,int _indexTlac,String _segD,long _cas)
 
 int menu::work()
 {
+    ser->println("a");
     for (size_t i = 0; i < pocet; i++)
     {
         displej->addText4(polozky[i].segD,polozky[i].cas);
+        //displej->addText4(String(i),polozky[i].cas);
     }
+    ser->println("b");
     enk->Tlac();
     enk->Butt();
+    ser->println("c");
     while (ser->available())
     {
         ser->read();
     }
-    
+    ser->println("d");
     int alfa  = 0;
     long casZnovu;
     bool tl;
     bool bt;
+    ser->println("e");
     displej->addText4(polozky[0].segD,polozky[0].cas);
+    ser->println("f");
     do
     {
         int u  =enk->Enk();
+        ser->print("Enkkoder zmena:");ser->println(enk->funkce);
+        ser->print("E:");ser->println(u);
         char s ;
         if (ser->available())
         {
@@ -114,7 +140,7 @@ int menu::work()
 
         if (s != 0)
         {
-            
+            ser->print("S:");ser->println(s);
             switch (s)
             {
             case 'n':
@@ -142,18 +168,20 @@ int menu::work()
             {
                 alfa = 0;
             }     
-            displej->dell();
+            displej->del();
             casZnovu = polozky[alfa].cas + millis() + 2000;
             displej->addText4(polozky[alfa].segD,polozky[alfa].cas);
         }
-        else if (casZnovu < millis())
+        /*else if (casZnovu < millis())
         {
-            displej->dell();
+            displej->del();
             casZnovu = polozky[alfa].cas + millis() + 2000;
             displej->addText4(polozky[alfa].segD,polozky[alfa].cas);
-        }
+        }*/
         tl = enk->Tlac();
+        ser->print("T:");ser->println(tl);
         bt = enk->Butt();
+        ser->print("B:");ser->println(bt);
         if (s == 0 && ser->available())
         {
             s= ser->read();
@@ -179,7 +207,7 @@ int menu::work()
         
         
 
-        
+        delay(1000);
         
     } while (tl == false && bt == false);
     if (tl == true)
@@ -234,7 +262,7 @@ void writeTextSegDisp::Print(String st, byte index)
     {
         indexEnd = st.length();
     }
-    displej->dell();
+    displej->del();
     
     displej->addText4( st.substring(indexStart,indexEnd));
 }

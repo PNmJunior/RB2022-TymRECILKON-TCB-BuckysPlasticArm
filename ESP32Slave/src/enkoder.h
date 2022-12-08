@@ -37,34 +37,84 @@ class enkoder
 private:
 
 
-     byte pinEnA;
-     byte pinEnB;
-     byte pinEnButt;
-     byte pinTlac;
+
 public:
-     int smerEnk; 
-     byte stavEnk;
-     bool butt;
-     bool tlac;
+    volatile byte pinEnA;
+    volatile byte pinEnB;
+    volatile byte pinEnButt;
+    volatile byte pinTlac;
+    volatile int smerEnk; 
+    volatile byte stavEnk;
+    volatile bool butt;
+    volatile bool tlac;
+    volatile byte funkce;
      int Enk();
      bool Butt();
      bool Tlac();
-     void begin(byte pinEnA, byte pinEnB, byte pinEnButt, byte pinTlac);
+     void begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac,void (*ISR_callback)(void));
 };
 
 
  enkoder enk;
 
 
-void EnkoderPootoceni(void * arg)
+
+void IRAM_ATTR EnkoderPootoceni2()
 {
+    enk.stavEnk = enk.stavEnk >> 2;
+    if (digitalRead(enk.pinEnA))
+    {
+        enk.stavEnk = enk.stavEnk | B1000;
+        Serial.print('a');
+    }
+    if (digitalRead(enk.pinEnB))
+    {
+        enk.stavEnk = enk.stavEnk | B0100;
+        Serial.print('b');
+    }
+    
+    switch (enk.stavEnk)
+    {
+    
+    case B0001:
+    case B0111:
+    case B1000:
+    case B1110:
+    enk.smerEnk = 1;
+    break;
+    case B0010:
+    case B0100:
+    case B1011:
+    case B1101:
+    enk.smerEnk = -1;
+    break;
+    case B0011:
+    case B1100:
+    enk.smerEnk = 1;
+    break;
+    case B0110:
+    case B1001:
+    enk.smerEnk = -1;
+    break;    
+    default:
+    enk.smerEnk = 0;
+        break;
+    }  
+    Serial.println(enk.smerEnk);
+}
+
+
+void IRAM_ATTR EnkoderPootoceni(void * arg)
+{
+    
     enkoder *en = (enkoder*)arg;
     en->stavEnk = en->stavEnk >> 2;
-    if (digitalRead(1))
+    en->funkce ++;
+    if (digitalRead(en->pinEnA))
     {
         en->stavEnk = en->stavEnk | B1000;
     }
-    if (digitalRead(2))
+    if (digitalRead(en->pinEnB))
     {
         en->stavEnk = en->stavEnk | B0100;
     }
@@ -112,7 +162,7 @@ void Tlacitko(void * arg)
 }
 
 
-void enkoder::begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac)
+void enkoder::begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac,void (*ISR_callback)(void))
 {
     pinEnA = _pinEnA;
     pinEnB = _pinEnB;
@@ -122,9 +172,11 @@ void enkoder::begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac)
     pinMode(pinEnB,INPUT);
     pinMode(pinEnButt,INPUT);
     pinMode(pinTlac,INPUT);
-    touchAttachInterruptArg(digitalPinToInterrupt(pinEnA), EnkoderPootoceni,this, CHANGE);
-    touchAttachInterruptArg(digitalPinToInterrupt(pinEnButt),EnkoderButton,this, FALLING);
-    touchAttachInterruptArg(digitalPinToInterrupt(pinTlac),Tlacitko,this, FALLING);
+    //touchAttachInterruptArg(pinEnB, EnkoderPootoceni,this, CHANGE);
+    //touchAttachInterruptArg(pinEnButt,EnkoderButton,this, FALLING);
+    //touchAttachInterruptArg(pinTlac,Tlacitko,this, FALLING);
+    attachInterrupt(digitalPinToInterrupt(pinEnA),EnkoderPootoceni2,HIGH);
+    //attachInterrupt(pinEnA,ISR_callback,CHANGE);
 
 }
 
@@ -133,28 +185,35 @@ int enkoder::Enk()
 {
     int l  =smerEnk;
     smerEnk = 0;
+    Serial.print("Enk()");Serial.println(l);
     return l;
 }
 
 
 bool enkoder::Butt()
 {
+    Serial.print("Butt()");
     if (butt == true)
     {
+        Serial.println("1");
         butt = false;
         return true;
     }
+    Serial.println("0");
     return false;
 }
 
 
 bool enkoder::Tlac()
 {
+    Serial.print("Tlac()");
     if (tlac == true)
     {
+        Serial.println("1");
         tlac = false;
         return true;
     }
+    Serial.println("0");
     return false;
 }
 
