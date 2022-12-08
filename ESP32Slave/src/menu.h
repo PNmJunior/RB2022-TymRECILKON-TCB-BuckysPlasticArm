@@ -132,7 +132,6 @@ int menu::work()
     do
     {
         int u  =enk->Enk();
-        ser->print("Enkkoder zmena:");ser->println(enk->funkce);
         ser->print("E:");ser->println(u);
         char s ;
         if (ser->available())

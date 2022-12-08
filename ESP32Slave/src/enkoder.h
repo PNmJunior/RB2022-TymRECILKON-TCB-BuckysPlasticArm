@@ -132,7 +132,7 @@ int enkoder::Enk()
     bool vys = 0;
     if (casEnkoder != casEnkoderOld)
     {
-        if (casEnkoder - casEnkoderOld > 500)
+        if (casEnkoder - casEnkoderOld > 50)
         {
             vys = smerEnk;
         }
@@ -149,7 +149,7 @@ bool enkoder::Butt()
     bool vys = 0;
     if (casButt != casButtOld)
     {
-        if (casButt - casButtOld > 500)
+        if (casButt - casButtOld > 200)
         {
             vys = 1;
         }
@@ -167,7 +167,7 @@ bool enkoder::Tlac()
     bool vys = 0;
     if (casTlac != casTlacOld)
     {
-        if (casTlac - casTlacOld > 500)
+        if (casTlac - casTlacOld > 200)
         {
             vys = 1;
         }
