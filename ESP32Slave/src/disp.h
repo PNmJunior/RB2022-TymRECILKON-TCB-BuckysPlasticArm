@@ -4,8 +4,17 @@
 #include <Arduino.h>
 #include <binary.h>
 #include <WiFi.h>
-#include "spolecneStruktury.h"
 #define mWork 250
+
+
+struct textik
+{
+    long nextTime;
+    long timeTrvani;
+    char textNow[4];
+    byte Aline[4];
+    byte vystup[4] = {0,0,0,0};
+};
 
 
 class disp

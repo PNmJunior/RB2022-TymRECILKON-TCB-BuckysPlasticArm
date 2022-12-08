@@ -4,16 +4,42 @@
 #include <Arduino.h>
 #include <binary.h>
 #include <Arduino_JSON.h>
+#include <vector>
 #include "esp32-hal.h"
 #include "soc/soc_caps.h"
 #include "driver/ledc.h"
-#include <spolecneStruktury.h>
 //#include <komunBasic.h>
+typedef byte resDuty;
+
+
 
 #define LEDC_mTIMER              LEDC_TIMER_3
 #define LEDC_mFrec              5000
 
 #define pohonMaxHod 255
+
+struct pohonVol
+{
+    resDuty dutOld;
+    resDuty duty;
+    ledc_mode_t speed_mode;
+    ledc_channel_t channel;
+    uint32_t hpoint;
+};
+
+
+struct pohonSet
+{
+    char neg;//oto4ena svorkovnice
+    char inverz;//ote4eni motoru
+    resDuty max;
+    resDuty min;
+    byte index;
+    char smer;
+    long timeStop;
+   ledc_timer_config_t *ledc_timer;
+   ledc_channel_config_t ledc_channel;
+};
 
 
 #define mVpred 1
