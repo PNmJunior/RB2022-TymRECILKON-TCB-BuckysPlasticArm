@@ -36,8 +36,6 @@ class enkoder
 {
 private:
 
-
-
 public:
     volatile byte pinEnA;
     volatile byte pinEnB;
@@ -45,19 +43,20 @@ public:
     volatile byte pinTlac;
     volatile int smerEnk; 
     volatile byte stavEnk;
-    volatile bool butt;
-    volatile bool tlac;
-    volatile byte funkce;
-     int Enk();
-     bool Butt();
-     bool Tlac();
-     void begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac);
+    volatile long casEnkoder;
+    volatile long casButt;
+    volatile long casTlac;
+    volatile long casEnkoderOld;
+    volatile long casButtOld;
+    volatile long casTlacOld;
+    int Enk();
+    bool Butt();
+    bool Tlac();
+    void begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac);
 };
 
-
- enkoder enk;
-
-
+//enkoder.h
+enkoder enk;
 
 void IRAM_ATTR EnkoderPootoceni2()
 {
@@ -70,10 +69,8 @@ void IRAM_ATTR EnkoderPootoceni2()
     {
         enk.stavEnk = enk.stavEnk | B0100;
     }
-    
     switch (enk.stavEnk)
     {
-    
     case B0001:
     case B0111:
     case B1000:
@@ -98,20 +95,21 @@ void IRAM_ATTR EnkoderPootoceni2()
     enk.smerEnk = 0;
         break;
     }  
+    enk.casEnkoder  =millis();
 }
-
 
 
 void  EnkoderButton2()
 {
-    enk.butt = true;
+    enk.casButt = millis();
 }
 
 
 void Tlacitko2()
 {
-    enk.tlac = true;
+    enk.casTlac = millis();
 }
+
 
 void enkoder::begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac)
 {
@@ -126,44 +124,59 @@ void enkoder::begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac)
     attachInterrupt(digitalPinToInterrupt(pinEnA),EnkoderPootoceni2,HIGH);
     attachInterrupt(digitalPinToInterrupt(pinEnButt),EnkoderButton2,HIGH);
     attachInterrupt(digitalPinToInterrupt(pinTlac),Tlacitko2,HIGH);
-
 }
 
 
 int enkoder::Enk()
 {
-    int l  =smerEnk;
-    smerEnk = 0;
-    Serial.print("Enk()");Serial.println(l);
-    return l;
+    bool vys = 0;
+    if (casEnkoder != casEnkoderOld)
+    {
+        if (casEnkoder - casEnkoderOld > 500)
+        {
+            vys = smerEnk;
+        }
+        casEnkoderOld = casEnkoder;
+        Serial.print("Enk:");
+        Serial.println(vys);
+    }
+    return vys;
 }
 
 
 bool enkoder::Butt()
 {
-    Serial.print("Butt()");
-    if (butt == true)
+    bool vys = 0;
+    if (casButt != casButtOld)
     {
-        Serial.println("1");
-        butt = false;
-        return true;
+        if (casButt - casButtOld > 500)
+        {
+            vys = 1;
+        }
+        casButtOld = casButt;
+        Serial.print("Butt:");
+        Serial.println(vys);
     }
-    Serial.println("0");
-    return false;
+    
+    return vys;
 }
 
 
 bool enkoder::Tlac()
 {
-    Serial.print("Tlac()");
-    if (tlac == true)
+    bool vys = 0;
+    if (casTlac != casTlacOld)
     {
-        Serial.println("1");
-        tlac = false;
-        return true;
+        if (casTlac - casTlacOld > 500)
+        {
+            vys = 1;
+        }
+        casTlacOld = casTlac;
+        Serial.print("Tlac:");
+        Serial.println(vys);
     }
-    Serial.println("0");
-    return false;
+    
+    return vys;
 }
 
 
