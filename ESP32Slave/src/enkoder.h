@@ -60,42 +60,20 @@ enkoder enk;
 
 void IRAM_ATTR EnkoderPootoceni2()
 {
-    enk.stavEnk = enk.stavEnk >> 2;
-    if (digitalRead(enk.pinEnA))
-    {
-        enk.stavEnk = enk.stavEnk | B1000;
-    }
-    if (digitalRead(enk.pinEnB))
-    {
-        enk.stavEnk = enk.stavEnk | B0100;
-    }
-    switch (enk.stavEnk)
-    {
-    case B0001:
-    case B0111:
-    case B1000:
-    case B1110:
-    enk.smerEnk = 1;
-    break;
-    case B0010:
-    case B0100:
-    case B1011:
-    case B1101:
-    enk.smerEnk = -1;
-    break;
-    case B0011:
-    case B1100:
-    enk.smerEnk = 1;
-    break;
-    case B0110:
-    case B1001:
-    enk.smerEnk = -1;
-    break;    
-    default:
-    enk.smerEnk = 0;
-        break;
-    }  
     enk.casEnkoder  =millis();
+    if (enk.casEnkoder - enk.casEnkoderOld > 100)
+    {
+        //digitalRead(enk.pinEnA) =  0
+        if (digitalRead(enk.pinEnB))
+        {
+            enk.smerEnk = 1;
+        }
+        else
+        {
+            enk.smerEnk = -1;
+        }
+    }
+    enk.casEnkoderOld = enk.casEnkoder;
 }
 
 
@@ -121,7 +99,8 @@ void enkoder::begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac)
     pinMode(pinEnB,INPUT);
     pinMode(pinEnButt,INPUT);
     pinMode(pinTlac,INPUT);
-    attachInterrupt(digitalPinToInterrupt(pinEnA),EnkoderPootoceni2,HIGH);
+    
+    attachInterrupt(digitalPinToInterrupt(pinEnA),EnkoderPootoceni2,FALLING);
     attachInterrupt(digitalPinToInterrupt(pinEnButt),EnkoderButton2,HIGH);
     attachInterrupt(digitalPinToInterrupt(pinTlac),Tlacitko2,HIGH);
 }
@@ -129,17 +108,15 @@ void enkoder::begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac)
 
 int enkoder::Enk()
 {
-    bool vys = 0;
-    if (casEnkoder != casEnkoderOld)
-    {
-        if (casEnkoder - casEnkoderOld > 50)
-        {
-            vys = smerEnk;
-        }
-        casEnkoderOld = casEnkoder;
+    bool vys = smerEnk;
+    smerEnk = 0;
         Serial.print("Enk:");
         Serial.println(vys);
-    }
+        if(vys != 0)
+        {
+            delay(1000);
+        }
+    
     return vys;
 }
 

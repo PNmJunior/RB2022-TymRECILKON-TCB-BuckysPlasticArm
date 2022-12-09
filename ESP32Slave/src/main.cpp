@@ -273,13 +273,16 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       sliderValue4 = message.substring(2);
       mot.inputProc(3, sliderValue4.toFloat());
+      Serial.println("Dokon");
       notifyClients(getSliderValues(4));
     }
     if (message.indexOf("5s") >= 0)
     {
       sliderValue5 = message.substring(2);
       mot.inputProc(4, sliderValue5.toFloat());
-      notifyClients(getSliderValues(5));
+      Serial.println("Dokon");
+      notifyClients(getSliderValues(5));Serial.println("Dokon2");
+
     }
     if (message.indexOf("6s") >= 0)
     {
@@ -434,6 +437,7 @@ void setup()
   komF.ser = &Serial;
 
   editText.begin(komF);
+  
   menu Vr1;
   Vr1.begin(komF);
  Serial.println("6");
@@ -441,8 +445,9 @@ void setup()
   menu prv ;
   prv.begin(komF);
   Serial.println("7");
-  prv.addPolozkaData(1,2,"b1t2",1000);
-  prv.addPolozkaData(-15,-1,"b-15t-1",1000);
+  prv.addPolozkaData(1,2,"A",1000);
+  prv.addPolozkaData(-15,-1,"B",1000);
+  prv.addPolozkaData(-5,-100,"C",1000);
   Serial.println("8");
   Serial.println(prv.work());
   Serial.println("10");
@@ -529,7 +534,9 @@ void loop(void)
   // dataSend p;
   // p.leng = 0;
 
-  Serial.print(digitalRead(pin_EnkA));Serial.println(digitalRead(pin_EnkB));
+  //Serial.print(digitalRead(pin_EnkA));Serial.println(digitalRead(pin_EnkB));
+Serial.print(digitalRead(pin_EnkDP));Serial.println(digitalRead(pin_Tlac));
+  //Serial.println(mot.vystup(),2);
 
   for (int i = 0; i < 8; i++)
   {

@@ -132,7 +132,7 @@ int menu::work()
     do
     {
         int u  =enk->Enk();
-        ser->print("E:");ser->println(u);
+        //ser->print("E:");ser->println(u);
         char s ;
         if (ser->available())
         {
@@ -145,7 +145,7 @@ int menu::work()
 
         if (s != 0)
         {
-            ser->print("S:");ser->println(s);
+            //ser->print("S:");ser->println(s);
             switch (s)
             {
             case 'n':
@@ -184,9 +184,9 @@ int menu::work()
             displej->addText4(polozky[alfa].segD,polozky[alfa].cas);
         }*/
         tl = enk->Tlac();
-        ser->print("T:");ser->println(tl);
+        //ser->print("T:");ser->println(tl);
         bt = enk->Butt();
-        ser->print("B:");ser->println(bt);
+        //ser->print("B:");ser->println(bt);
         if (s == 0 && ser->available())
         {
             s= ser->read();
