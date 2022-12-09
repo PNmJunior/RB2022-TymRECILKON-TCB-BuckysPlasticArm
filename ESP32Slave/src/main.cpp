@@ -534,8 +534,8 @@ void loop(void)
   // dataSend p;
   // p.leng = 0;
 
-  //Serial.print(digitalRead(pin_EnkA));Serial.println(digitalRead(pin_EnkB));
-Serial.print(digitalRead(pin_EnkDP));Serial.println(digitalRead(pin_Tlac));
+  Serial.print(digitalRead(pin_EnkA));Serial.println(digitalRead(pin_EnkB));
+//Serial.print(digitalRead(pin_EnkDP));Serial.println(digitalRead(pin_Tlac));
   //Serial.println(mot.vystup(),2);
 
   for (int i = 0; i < 8; i++)

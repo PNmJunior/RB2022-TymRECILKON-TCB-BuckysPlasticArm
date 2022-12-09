@@ -41,12 +41,13 @@ public:
     volatile byte pinEnB;
     volatile byte pinEnButt;
     volatile byte pinTlac;
-    volatile int smerEnk; 
-    volatile byte stavEnk;
     volatile long casEnkoder;
+    volatile long casEnkoderA;
+    volatile long casEnkoderB;
+    volatile long casEnkoderAold;
+    volatile long casEnkoderBold;
     volatile long casButt;
     volatile long casTlac;
-    volatile long casEnkoderOld;
     volatile long casButtOld;
     volatile long casTlacOld;
     int Enk();
@@ -58,22 +59,16 @@ public:
 //enkoder.h
 enkoder enk;
 
-void IRAM_ATTR EnkoderPootoceni2()
+void IRAM_ATTR EnkoderPootoceni2A()
 {
-    enk.casEnkoder  =millis();
-    if (enk.casEnkoder - enk.casEnkoderOld > 100)
-    {
-        //digitalRead(enk.pinEnA) =  0
-        if (digitalRead(enk.pinEnB))
-        {
-            enk.smerEnk = 1;
-        }
-        else
-        {
-            enk.smerEnk = -1;
-        }
-    }
-    enk.casEnkoderOld = enk.casEnkoder;
+    enk.casEnkoderA  =millis();
+}
+
+
+
+void IRAM_ATTR EnkoderPootoceni2B()
+{
+    enk.casEnkoderB  =millis();
 }
 
 
@@ -100,7 +95,8 @@ void enkoder::begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac)
     pinMode(pinEnButt,INPUT);
     pinMode(pinTlac,INPUT);
     
-    attachInterrupt(digitalPinToInterrupt(pinEnA),EnkoderPootoceni2,FALLING);
+    attachInterrupt(digitalPinToInterrupt(pinEnA),EnkoderPootoceni2A,FALLING);
+    attachInterrupt(digitalPinToInterrupt(pinEnB),EnkoderPootoceni2B,FALLING);
     attachInterrupt(digitalPinToInterrupt(pinEnButt),EnkoderButton2,HIGH);
     attachInterrupt(digitalPinToInterrupt(pinTlac),Tlacitko2,HIGH);
 }
@@ -108,16 +104,32 @@ void enkoder::begin(byte _pinEnA, byte _pinEnB, byte _pinEnButt, byte _pinTlac)
 
 int enkoder::Enk()
 {
-    bool vys = smerEnk;
-    smerEnk = 0;
-        Serial.print("Enk:");
-        Serial.println(vys);
-        if(vys != 0)
+    //Serial.print("A:");Serial.print(casEnkoderA);Serial.print("B:");Serial.print(casEnkoderB);Serial.print("T:");Serial.print(casEnkoder); delay(1000);
+    if (casEnkoderA == casEnkoderB || casEnkoderA == 0 || casEnkoderB == 0)
+    {
+        return 0;
+    }
+    else if (casEnkoderAold != casEnkoderA && casEnkoderBold != casEnkoderB)
+    {
+        casEnkoderAold = casEnkoderA ; 
+        casEnkoderBold = casEnkoderB;
+        if (millis() - casEnkoder < 100)
         {
-            delay(1000);
+            return 0;
         }
+        casEnkoder = millis();
+        if (casEnkoderA > casEnkoderB)
+        {
+            return 1;
+        }
+        else
+        {
+             return -1;
+        }
+
+    }
     
-    return vys;
+    return 0;
 }
 
 
