@@ -62,6 +62,7 @@ void MotorStopAll() // Vždy zastaví chod robota.
 void IRAM_ATTR HlavniPreruseni()
 {
   byte d1 = mot.vystup();
+  //Serial.println(d1);
   //byte d2 = B10000001;
   byte d2 = segDisp.vystup();
   //Serial.println(d2,2);
@@ -162,7 +163,7 @@ JSONVar slider8Values;
 String getSliderValues(int index = 100)
 {
   String jsonString;
-
+Serial.print("gS");Serial.println(index);
   switch (index)
   {
   case 100:
@@ -214,6 +215,7 @@ String getSliderValues(int index = 100)
   }
 
   // jsonString = JSON.stringify(sliderValues);
+  Serial.print("gSe");
   return jsonString;
 }
 
@@ -253,51 +255,90 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     message = (char *)data;
     if (message.indexOf("1s") >= 0)
     {
+      MC1 = sliderValue1.toFloat();
       sliderValue1 = message.substring(2);
       mot.inputProc(0, sliderValue1.toFloat());
       notifyClients(getSliderValues(1));
     }
     if (message.indexOf("2s") >= 0)
     {
+      MC2 = sliderValue2.toFloat();
       sliderValue2 = message.substring(2);
       mot.inputProc(1, sliderValue2.toFloat());
       notifyClients(getSliderValues(2));
+          Serial.print("vyst1:");
+    Serial.println(mot.vyst);
+    Serial.print("duty1:");
+    Serial.println(mot.v[1].duty);
+    Serial.print("index1:");
+    Serial.println(mot.m[1].index);
     }
     if (message.indexOf("3s") >= 0)
     {
+      MC3 = sliderValue3.toFloat();
       sliderValue3 = message.substring(2);
       mot.inputProc(2, sliderValue3.toFloat());
       notifyClients(getSliderValues(3));
+          Serial.print("vyst2:");
+    Serial.println(mot.vyst);
+    Serial.print("duty2:");
+    Serial.println(mot.v[2].duty);
+    Serial.print("index2:");
+    Serial.println(mot.m[2].index);
     }
     if (message.indexOf("4s") >= 0)
     {
+      MC4 = sliderValue4.toFloat();
       sliderValue4 = message.substring(2);
       mot.inputProc(3, sliderValue4.toFloat());
       Serial.println("Dokon");
       notifyClients(getSliderValues(4));
+              Serial.print("vyst2:");
+    Serial.println(mot.vyst);
+    Serial.print("duty3:");
+    Serial.println(mot.v[3].duty);
+    Serial.print("index3:");
+    Serial.println(mot.m[3].index);
     }
     if (message.indexOf("5s") >= 0)
     {
+      MC5 = sliderValue5.toFloat();
       sliderValue5 = message.substring(2);
       mot.inputProc(4, sliderValue5.toFloat());
       Serial.println("Dokon");
       notifyClients(getSliderValues(5));Serial.println("Dokon2");
-
+    Serial.print("vyst4:");
+    Serial.println(mot.vyst);
+    Serial.print("duty4:");
+    Serial.println(mot.v[4].duty);
+    Serial.print("index4:");
+    Serial.println(mot.m[4].index);
     }
     if (message.indexOf("6s") >= 0)
     {
+      MC6 = sliderValue6.toFloat();
       sliderValue6 = message.substring(2);
       mot.inputProc(5, sliderValue6.toFloat());
+          Serial.print("vyst5:");
+    Serial.println(mot.vyst);
       notifyClients(getSliderValues(6));
+    Serial.print("vyst5:");
+    Serial.println(mot.vyst);
+    Serial.print("duty5:");
+    Serial.println(mot.v[5].duty);
+    Serial.print("index5:");
+    Serial.println(mot.m[5].index);
     }
     if (message.indexOf("7s") >= 0)
     {
+      MC7 = sliderValue7.toFloat();
       sliderValue7 = message.substring(2);
       mot.inputProc(6, sliderValue7.toFloat());
       notifyClients(getSliderValues(7));
     }
     if (message.indexOf("8s") >= 0)
     {
+      MC8 = sliderValue8.toFloat();
       sliderValue8 = message.substring(2);
       mot.inputProc(7, sliderValue8.toFloat());
       notifyClients(getSliderValues(8));
@@ -327,6 +368,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       notifyClients(getSliderValues());
     }
+     /*   Serial.print("vyst:");
+    Serial.println(mot.vyst);
+    Serial.print("duty");
+    Serial.println(mot.v[4].duty);
+    Serial.print("index");
+    Serial.println(mot.m[4].index);*/
+    //Serial.println("Ahoj");Serial.println(mot.vystup());
   }
 }
 
@@ -396,6 +444,7 @@ void setup()
   timerAlarmEnable(My_timer); // Just Enable
   
   Serial.println("3");
+  mot.beginStart();
   mot.beginTimer();
 
   mot.begin(0, pin_m0, LEDC_CHANNEL_0, false, false, 255, 0);
@@ -528,15 +577,40 @@ void setup()
   String ip100 = WiFi.localIP().toString();
 }
 
+byte oooo = 0;
+
 void loop(void)
 {
+  if(0 !=mot.vystup())
+  {
+    Serial.println("oooo");
+  }
+
+    if(mot.vyst !=mot.vystup())
+  {
+    Serial.println("nnnn");
+  }
   // Až dokončím komunikační protokol, bude fungovat zastavovaní brždění
   // dataSend p;
   // p.leng = 0;
 
-  Serial.print(digitalRead(pin_EnkA));Serial.println(digitalRead(pin_EnkB));
+ // Serial.print(digitalRead(pin_EnkA));Serial.println(digitalRead(pin_EnkB));
 //Serial.print(digitalRead(pin_EnkDP));Serial.println(digitalRead(pin_Tlac));
-  //Serial.println(mot.vystup(),2);
+// Serial.println(mot.vystup(),2);
+if (digitalRead(pin_EnkDP) == 0)
+{
+  Serial.println(mot.vystup(),2);
+  Serial.print("0p:");Serial.println(digitalRead(pin_m0));
+  Serial.print("1p:");Serial.println(digitalRead(pin_m1));
+  Serial.print("2p:");Serial.println(digitalRead(pin_m2));
+  Serial.print("3p:");Serial.println(digitalRead(pin_m3));
+  Serial.print("4p:");Serial.println(digitalRead(pin_m4));
+  Serial.print("5p:");Serial.println(digitalRead(pin_m5));
+  Serial.print("6p:");Serial.println(digitalRead(pin_m6));
+  Serial.print("7p:");Serial.println(digitalRead(pin_m7));
+  
+  
+}
 
   for (int i = 0; i < 8; i++)
   {
