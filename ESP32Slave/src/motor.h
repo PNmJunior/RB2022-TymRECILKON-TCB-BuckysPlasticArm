@@ -30,8 +30,8 @@ struct pohonVol
 
 struct pohonSet
 {
-    char neg;//oto4ena svorkovnice
-    char inverz;//ote4eni motoru
+    int neg;//oto4ena svorkovnice
+    int inverz;//ote4eni motoru
     resDuty max;
     resDuty min;
     byte index;
@@ -77,7 +77,7 @@ public:
     
     
     bool inputProc(byte mot, char proc);
-    bool input(byte mot, char smer ,int spead,int maxSpead ,int minSpead , int cas );
+    bool input(byte mot, int smer ,byte spead,int maxSpead ,int minSpead , int cas );
     long TStop(byte mot);
     //motor();
     //~motor();
@@ -184,10 +184,8 @@ void motor::beginStart()
 //LEDC_LOW_SPEED_MODE
 bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER ,ledc_mode_t _speadmode = LEDC_LOW_SPEED_MODE)
 {
-        if (_speadmode != LEDC_LOW_SPEED_MODE || _speadmode != LEDC_HIGH_SPEED_MODE)
-    {
-        return true;
-    }
+    Serial.println("ta");
+    Serial.println("tb");
         ledc_timer_config_t ledc_timer = {
         .speed_mode       = _speadmode,
         .duty_resolution  = LEDC_TIMER_8_BIT,
@@ -195,40 +193,43 @@ bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER
         .freq_hz          = frek,  // Set output frequency at 5 kHz
         .clk_cfg          = LEDC_AUTO_CLK
     };
-    
+    Serial.println("tc");
     esp_err_t a = ledc_timer_config(&ledc_timer);
+    Serial.println("td");
     if (a != ESP_OK)
     {
         
-return false;
+        return false;
     }
+    Serial.println("te");
     defTim = ledc_timer;
-        setDefTimer = true;
+    setDefTimer = true;
     return true;
 }
 
 
 bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _neg, byte _max, byte _min, ledc_timer_config_t *ledc_timer = null )
 {
+    Serial.print("ma");
+    Serial.println(mot);
     if (mot>=8)
     {
         return false;
     }
+    Serial.println("mb");
     if (_pin>=GPIO_NUM_MAX)
     {
         return false;
     }
-    if (channel >= LEDC_CHANNEL_MAX)
-    {
-        return false;
-    }
-    
+    Serial.println("mc");
     
     if (ledc_timer == null)
     {
+        Serial.println("md");
         if (setDefTimer)
         {
             ledc_timer = &defTim;
+            Serial.println("me");
         }
         else
         {
@@ -237,12 +238,13 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
         
     }
 
-
+Serial.println("mf");
     if (_max <= _min)
     {
         return false;
     }
-    
+    Serial.println("mg");
+/*
     for (int i = 0; i < 8; i++)
     {
         if (set &numToPosun(i) != 0)
@@ -254,9 +256,10 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
             
         }
         
-    }
+    }*/
+    Serial.println("mh");
     pinMode(_pin, OUTPUT);
-    
+    Serial.println("mi");
     
     m[mot].ledc_timer = ledc_timer;
     if(_inverz){
@@ -294,9 +297,12 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     esp_err_t a = ledc_channel_config(&ledc_channel);
     if(a != ESP_OK)
     {
+        Serial.print("ledc_channel_config(&ledc_channel)>> ");
+        Serial.println(a);
+
         return false;
     }
-
+    Serial.print("ledc_channel_config(&ledc_channel) OK");
     m[mot].ledc_channel =ledc_channel;
     v[mot].speed_mode = m[mot].ledc_channel.speed_mode;
     v[mot].channel = m[mot].ledc_channel.channel;
@@ -316,16 +322,19 @@ bool motor::beginEnd()
 }
 
 
-bool motor::input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,int minSpead  =0, int cas = 0)
+bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,int minSpead  =0, int cas = 0)
 {
-    
+    Serial.print("ia:");
+    Serial.println(mot);Serial.println(smer);
     if (mot>=8)
     {
         return false;
     }
+    Serial.println("ib");
     m[mot].timeStop = 0;
     if (smer==mBrzda)
     {
+        Serial.println("ic");
         if (vyst & m[mot].index !=0)
         {
             vyst &= ~m[mot].index;
@@ -339,18 +348,22 @@ bool motor::input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,i
     }
     else if (smer==mStopHigh)
     {
+        Serial.println("id");
         vyst |= m[mot].index;
         v[mot].duty = pohonMaxHod;
     }
     else if (smer == mStopLow)
     {
+        Serial.println("ie");
         vyst &= ~m[mot].index;
         v[mot].duty = 0;
     }
     else
     {
+        Serial.println("if");
         resDuty a = map(spead,minSpead,maxSpead,m[mot].min, m[mot].max);
         int b = smer * m[mot].neg * m[mot].inverz;
+        Serial.println((int)b);Serial.println((int)smer);Serial.println((int)m[mot].neg);Serial.println((int)m[mot].inverz);
         if (b == mVpred)
         {
             v[mot].duty = a;
@@ -363,9 +376,12 @@ bool motor::input(byte mot, char smer = mStop,int spead = 0,int maxSpead = 255,i
         }
         else
         {
+            Serial.println("ig");
+            
             return false;
         }
     }
+    //Serial.println("ih");
     
     return true;
 }
@@ -380,14 +396,19 @@ bool motor::inputProc(byte mot, char proc)
     }
     else if (proc > 0 && proc <=100)
     {
-        return input(mot,mVpred,proc,100,0);
+        Serial.println("pvp");
+        bool b = input(mot,mVpred,proc,100,0);
+        Serial.print("pvyst:");Serial.println(b);
     }
     else if(proc < 0 && proc >= -100 )
     {
-        return input(mot,mVzad,proc * -1,100,0);
+        int pr =-proc;Serial.println("pvp");
+        bool b= input(mot,mVzad,pr,100,0);
+        Serial.print("pvyst:");Serial.println(b);
     }
     else
     {
+        Serial.print("else");Serial.println(proc,10);
         return false;
     }
     return false;
