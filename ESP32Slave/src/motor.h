@@ -11,11 +11,8 @@
 //#include <komunBasic.h>
 typedef byte resDuty;
 
-
-
 #define LEDC_mTIMER              LEDC_TIMER_3
 #define LEDC_mFrec              5000
-
 #define pohonMaxHod 255
 
 struct pohonVol
@@ -52,19 +49,13 @@ struct pohonSet
 #define rychModLow 0
 #define rychModHigh 1
 
+
 class motor
 {
 private:
-    
-    
-    
     byte set = 0;
     ledc_timer_config_t defTim;
     bool setDefTimer = 0;
-
-
-    bool inputGo(byte mot, char smer ,int spead ,int maxSpead ,int minSpead);
-    
 public:
 pohonSet m[8];
 volatile pohonVol v[8];
@@ -78,14 +69,11 @@ volatile byte vyst;
     void updatePWM();
     byte numToPosun(byte i);
     byte posunToNum(byte i);
-    
-    
     bool inputProc(byte mot, float proc);
     bool input(byte mot, int smer ,byte spead,int maxSpead ,int minSpead , int cas );
     long TStop(byte mot);
-    //motor();
-    //~motor();
 };
+
 
 byte motor::vystup()
 {
@@ -133,6 +121,7 @@ byte motor::posunToNum(byte i)
     }
     return 0;
 }
+
 
 long motor::TStop(byte mot)
 {
@@ -188,8 +177,6 @@ void motor::beginStart()
 //LEDC_LOW_SPEED_MODE
 bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER ,ledc_mode_t _speadmode = LEDC_LOW_SPEED_MODE)
 {
-    Serial.println("ta");
-    Serial.println("tb");
         ledc_timer_config_t ledc_timer = {
         .speed_mode       = _speadmode,
         .duty_resolution  = LEDC_TIMER_8_BIT,
@@ -197,15 +184,12 @@ bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER
         .freq_hz          = frek,  // Set output frequency at 5 kHz
         .clk_cfg          = LEDC_AUTO_CLK
     };
-    Serial.println("tc");
     esp_err_t a = ledc_timer_config(&ledc_timer);
-    Serial.println("td");
     if (a != ESP_OK)
     {
         
         return false;
     }
-    Serial.println("te");
     defTim = ledc_timer;
     setDefTimer = true;
     return true;
@@ -220,20 +204,17 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     {
         return false;
     }
-    Serial.println("mb");
     if (_pin>=GPIO_NUM_MAX)
     {
         return false;
     }
-    Serial.println("mc");
-    
     if (ledc_timer == null)
     {
-        Serial.println("md");
+        //Serial.println("md");
         if (setDefTimer)
         {
             ledc_timer = &defTim;
-            Serial.println("me");
+            //Serial.println("me");
         }
         else
         {
@@ -241,30 +222,29 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
         }
         
     }
-
-Serial.println("mf");
     if (_max <= _min)
     {
         return false;
     }
-    Serial.println("mg");
-/*
     for (int i = 0; i < 8; i++)
     {
         if (set &numToPosun(i) != 0)
         {
             if (m[i].ledc_channel.gpio_num == _pin || m[i].ledc_channel.channel == channel)
             {
+                Serial.print("Stejne piny pro motory:");
+                Serial.print(m[i].ledc_channel.gpio_num);
+                Serial.print("a");
+                Serial.println(_pin);
+                Serial.print("Stejne chanaly pro motory:");
+                Serial.print(m[i].ledc_channel.channel);
+                Serial.print("a");
+                Serial.println(channel);
                 return false;
-            }
-            
+            }            
         }
-        
-    }*/
-    Serial.println("mh");
+    }
     pinMode(_pin, OUTPUT);
-    Serial.println("mi");
-    
     m[mot].ledc_timer = ledc_timer;
     if(_inverz){
         m[mot].inverz = 1;
@@ -286,7 +266,6 @@ Serial.println("mf");
     v[mot].duty = 0;
     v[mot].dutOld = v[mot].duty;
     m[mot].index = numToPosun(mot);
-    Serial.print("MotorABC:");Serial.println(m[mot].index);
     m[mot].smer = mStop;
     m[mot].timeStop = 0;
 
@@ -304,18 +283,19 @@ Serial.println("mf");
     {
         Serial.print("ledc_channel_config(&ledc_channel)>> ");
         Serial.println(a);
-
         return false;
     }
-    Serial.print("ledc_channel_config(&ledc_channel) OK");
     m[mot].ledc_channel =ledc_channel;
     v[mot].speed_mode = m[mot].ledc_channel.speed_mode;
     v[mot].channel = m[mot].ledc_channel.channel;
     v[mot].hpoint = m[mot].ledc_channel.hpoint;
     set |= m[mot].index;
     v[mot].pin = _pin;
+    Serial.print("Uspesna inicializace motoru:");
+    Serial.println(mot);
     return true;
 }
+
 
 bool motor::beginEnd()
 {
@@ -324,23 +304,18 @@ bool motor::beginEnd()
         return false;
     }
     return true;
-    
 }
 
 
 bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,int minSpead  =0, int cas = 0)
 {
-    Serial.print("ia:");
-    Serial.println(mot);Serial.print("smer");Serial.println(smer);Serial.println(spead);
     if (mot>=8)
     {
         return false;
     }
-    //Serial.println("ib");
     m[mot].timeStop = 0;
     if (smer==mBrzda)
     {
-      //  Serial.println("ic");
         if (vyst & m[mot].index !=0)
         {
             vyst &= ~m[mot].index;
@@ -354,21 +329,17 @@ bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,i
     }
     else if (smer==mStopHigh)
     {
-        //Serial.println("id");
         vyst == vyst | m[mot].index;
         v[mot].duty = pohonMaxHod;
     }
     else if (smer == mStopLow)
     {
-        //Serial.println("ie");
         vyst = vyst & ~m[mot].index;
         v[mot].duty = 0;
     }
     else
     {
-        
         resDuty a = map(spead,minSpead,maxSpead,m[mot].min, m[mot].max);
-        //Serial.print("if"); Serial.println(a);
         int b = smer * m[mot].neg * m[mot].inverz;
         Serial.println((int)b);Serial.println((int)smer);Serial.println((int)m[mot].neg);Serial.println((int)m[mot].inverz);
         if (b == mVpred)
@@ -378,29 +349,16 @@ bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,i
         }
         else if (b == mVzad)
         {
-            vyst = m[mot].index;
+            vyst = vyst | m[mot].index;
             v[mot].duty = ~a;
         }
         else
         {
-          //  Serial.println("ig");
-            
             return false;
         }
-
     }
-    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 8191);
-    //ledc_set_duty(v[mot].speed_mode, v[mot].channel, v[mot].duty);
-    Serial.print("vyst:");
-    Serial.println(vyst);
-    Serial.print("duty");
-    Serial.println(v[mot].duty);
-    Serial.print("index");
-    Serial.println(m[mot].index);
-    
     return true;
 }
-
 
 
 bool motor::inputProc(byte mot, float proc)
@@ -411,19 +369,15 @@ bool motor::inputProc(byte mot, float proc)
     }
     else if (proc > 0 && proc <=100)
     {
-        Serial.println("pvp");
-        bool b = input(mot,mVpred,proc,100,0);
-        Serial.print("pvyst:");Serial.println(vyst);
+        return input(mot,mVpred,proc,100,0);
     }
     else if(proc < 0 && proc >= -100 )
     {
-        int pr =-proc;Serial.println("pvz");
-        bool b= input(mot,mVzad,pr,100,0);
-        Serial.print("pvyst:");Serial.println(b);
+        int pr =-proc;
+        return input(mot,mVzad,pr,100,0);
     }
     else
     {
-        Serial.print("else");Serial.println(proc,10);
         return false;
     }
     return false;
@@ -433,18 +387,6 @@ bool motor::inputProc(byte mot, float proc)
 
 void motor::updatePWM(int i)
 {
-    /*
-    if (v[i].duty == 0)
-    {
-        digitalWrite(v[i].pin,0);
-    }
-    else
-    {
-        digitalWrite(v[i].pin,1);
-    }
-    */
-    
-    
     if (v[i].duty != v[i].dutOld)
     {
         //ledc_set_duty_and_update(v[i].speed_mode,v[i].channel,v[i].duty, v[i].hpoint);
@@ -455,6 +397,7 @@ void motor::updatePWM(int i)
     }
 }
 
+
 void motor::updatePWM()
 {
     for (int i = 0; i < 8; i++)
@@ -462,17 +405,5 @@ void motor::updatePWM()
         updatePWM(i);
     }
 }
-
-/*
-motor::motor()
-{
-    
-}
-*/
-/*
-motor::~motor()
-{
-}
-*/
 
 #endif 

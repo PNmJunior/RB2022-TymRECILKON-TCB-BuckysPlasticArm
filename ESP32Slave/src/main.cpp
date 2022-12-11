@@ -131,6 +131,7 @@ void IRAM_ATTR HlavniPreruseni()
   segDisp.vystupEX();
 }
 
+
 const char *host = "BuckysPlasticArm";
 const char *ssid = wifiName;
 const char *password = wifiHeslo;
@@ -159,11 +160,11 @@ JSONVar slider6Values;
 JSONVar slider7Values;
 JSONVar slider8Values;
 
+
 // Get Slider Values
 String getSliderValues(int index = 100)
 {
   String jsonString;
-Serial.print("gS");Serial.println(index);
   switch (index)
   {
   case 100:
@@ -215,7 +216,6 @@ Serial.print("gS");Serial.println(index);
   }
 
   // jsonString = JSON.stringify(sliderValues);
-  Serial.print("gSe");
   return jsonString;
 }
 
@@ -266,12 +266,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       sliderValue2 = message.substring(2);
       mot.inputProc(1, sliderValue2.toFloat());
       notifyClients(getSliderValues(2));
-          Serial.print("vyst1:");
-    Serial.println(mot.vyst);
-    Serial.print("duty1:");
-    Serial.println(mot.v[1].duty);
-    Serial.print("index1:");
-    Serial.println(mot.m[1].index);
     }
     if (message.indexOf("3s") >= 0)
     {
@@ -279,55 +273,27 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       sliderValue3 = message.substring(2);
       mot.inputProc(2, sliderValue3.toFloat());
       notifyClients(getSliderValues(3));
-          Serial.print("vyst2:");
-    Serial.println(mot.vyst);
-    Serial.print("duty2:");
-    Serial.println(mot.v[2].duty);
-    Serial.print("index2:");
-    Serial.println(mot.m[2].index);
     }
     if (message.indexOf("4s") >= 0)
     {
       MC4 = sliderValue4.toFloat();
       sliderValue4 = message.substring(2);
       mot.inputProc(3, sliderValue4.toFloat());
-      Serial.println("Dokon");
       notifyClients(getSliderValues(4));
-              Serial.print("vyst2:");
-    Serial.println(mot.vyst);
-    Serial.print("duty3:");
-    Serial.println(mot.v[3].duty);
-    Serial.print("index3:");
-    Serial.println(mot.m[3].index);
     }
     if (message.indexOf("5s") >= 0)
     {
       MC5 = sliderValue5.toFloat();
       sliderValue5 = message.substring(2);
       mot.inputProc(4, sliderValue5.toFloat());
-      Serial.println("Dokon");
-      notifyClients(getSliderValues(5));Serial.println("Dokon2");
-    Serial.print("vyst4:");
-    Serial.println(mot.vyst);
-    Serial.print("duty4:");
-    Serial.println(mot.v[4].duty);
-    Serial.print("index4:");
-    Serial.println(mot.m[4].index);
+      notifyClients(getSliderValues(5));
     }
     if (message.indexOf("6s") >= 0)
     {
       MC6 = sliderValue6.toFloat();
       sliderValue6 = message.substring(2);
       mot.inputProc(5, sliderValue6.toFloat());
-          Serial.print("vyst5:");
-    Serial.println(mot.vyst);
       notifyClients(getSliderValues(6));
-    Serial.print("vyst5:");
-    Serial.println(mot.vyst);
-    Serial.print("duty5:");
-    Serial.println(mot.v[5].duty);
-    Serial.print("index5:");
-    Serial.println(mot.m[5].index);
     }
     if (message.indexOf("7s") >= 0)
     {
@@ -368,13 +334,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       notifyClients(getSliderValues());
     }
-     /*   Serial.print("vyst:");
-    Serial.println(mot.vyst);
-    Serial.print("duty");
-    Serial.println(mot.v[4].duty);
-    Serial.print("index");
-    Serial.println(mot.m[4].index);*/
-    //Serial.println("Ahoj");Serial.println(mot.vystup());
   }
 }
 
