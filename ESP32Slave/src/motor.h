@@ -65,6 +65,7 @@ volatile byte vyst;
     bool beginTimer(uint32_t frek ,ledc_timer_t _tim  ,ledc_mode_t _speadmode );
     bool begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _neg, byte _max, byte _min, ledc_timer_config_t *ledc_timer );
     bool beginEnd();
+    void setPWM(int i);
     void updatePWM(int i);
     void updatePWM();
     byte numToPosun(byte i);
@@ -75,19 +76,19 @@ volatile byte vyst;
 };
 
 
-byte motor::vystup()
+inline byte motor::vystup()
 {
     return vyst;
 }
 
 
-byte motor::numToPosun(byte i)
+inline byte motor::numToPosun(byte i)
 {
     return B10000000 >> i;
 }
 
 
-byte motor::posunToNum(byte i)
+inline byte motor::posunToNum(byte i)
 {
     switch (i)
     {
@@ -123,7 +124,7 @@ byte motor::posunToNum(byte i)
 }
 
 
-long motor::TStop(byte mot)
+inline long motor::TStop(byte mot)
 {
     return m[mot].timeStop;
 }
@@ -385,20 +386,33 @@ bool motor::inputProc(byte mot, float proc)
 }
 
 
-void motor::updatePWM(int i)
+inline void motor::setPWM(int i)
 {
     if (v[i].duty != v[i].dutOld)
     {
         //ledc_set_duty_and_update(v[i].speed_mode,v[i].channel,v[i].duty, v[i].hpoint);
         //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         ledc_set_duty(v[i].speed_mode, v[i].channel, v[i].duty);
+        //ledc_update_duty(v[i].speed_mode,v[i].channel);
+        //v[i].dutOld = v[i].duty;
+    }
+}
+
+inline void motor::updatePWM(int i)
+{
+    if (v[i].duty != v[i].dutOld)
+    {
+        //ledc_set_duty_and_update(v[i].speed_mode,v[i].channel,v[i].duty, v[i].hpoint);
+        //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        
+        //ledc_set_duty(v[i].speed_mode, v[i].channel, v[i].duty);
         ledc_update_duty(v[i].speed_mode,v[i].channel);
         v[i].dutOld = v[i].duty;
     }
 }
 
 
-void motor::updatePWM()
+inline void motor::updatePWM()
 {
     for (int i = 0; i < 8; i++)
     {

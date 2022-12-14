@@ -92,6 +92,7 @@ void IRAM_ATTR HlavniPreruseni()
     //delayMicroseconds(10);
     digitalWrite(pin_PR_Clock, HIGH);
     //delayMicroseconds(10);
+    mot.setPWM(i);
     digitalWrite(pin_PR_Clock, LOW);
     //delayMicroseconds(10);
   }
