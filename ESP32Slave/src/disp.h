@@ -6,10 +6,16 @@
 #include <WiFi.h>
 #define mWork 250
 
+struct textVelky
+{
+    byte Start;
+    byte End;
+    byte pocet;
+};
+
 
 struct textik
 {
-    long nextTime;
     long timeTrvani;
     char textNow[4];
     byte Aline[4];
@@ -20,27 +26,35 @@ struct textik
 class disp
 {
 private:
+    volatile long nextTime;
     volatile textik work[mWork];
     volatile byte vystupWork;
     volatile byte maxWork;
     byte segReal[8];
     volatile byte vystupInd = 0;
     HardwareSerial *ser;
-    void nextTimeSet(byte vW, bool vynulovat);
-    bool nextTimeIs(byte vW);
+    void nextTimeSet(byte vW);
+    bool nextTimeIs();
 
 public:
+    void nextTimeSetOKolik(long oCas);
+    void nextTimeSetNull();
     void begin(HardwareSerial *_ser,byte sA,byte sB, byte sC, byte sD, byte sE, byte sF, byte sG, byte sH,char show0,char show1,char show2, char show3);
     byte toSegment(char znak);
     byte toReal(byte segm);
-    void addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani , byte tecky ,byte neg );
-    byte addText4(String text, long dobaTrvani, long tecky ,long neg );
-    void addText4IP(IPAddress ip, long dobaTrvani);
+    byte addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani , byte tecky ,byte neg, byte setIndex );
+    textVelky addText4(String text, long dobaTrvani, long tecky ,long neg );
+    textVelky addText4IP(IPAddress ip, long dobaTrvani);
     byte vystup();
     void vystupEX();
     byte index();
     long BitSet(byte index);
     void del();
+
+    byte indexView();
+    bool isIndexView(byte ind);
+    bool isIndexView(textVelky ppp);
+    String textIndex(byte ind);
 
     const byte a  = B10000000;
     const byte b  = B1000000;
@@ -98,21 +112,27 @@ public:
 };
 
 
-void disp::nextTimeSet(byte vW, bool vynulovat = false)
+inline void disp::nextTimeSetOKolik(long oCas)
 {
-    if (vynulovat)
-    {
-        work[vW].nextTime = 0;
-    }
-    else{
-    work[vW].nextTime = work[vW].timeTrvani + millis();
-    }
+    nextTime = oCas + millis();
 }
 
 
-bool disp::nextTimeIs(byte vW)
+inline void disp::nextTimeSet(byte vW)
 {
-    if (work[vystupWork].nextTime < millis())
+    nextTimeSetOKolik(work[vW].timeTrvani);
+}
+
+
+inline void disp::nextTimeSetNull()
+{
+    nextTime = 0;
+}
+
+
+inline bool disp::nextTimeIs()
+{
+    if (nextTime < millis())
     {
         return true;
     }
@@ -120,7 +140,7 @@ bool disp::nextTimeIs(byte vW)
 }
 
 
-byte disp::toReal(byte segm)
+inline byte disp::toReal(byte segm)
 {
     byte alfa = 0;
     for (int i = 0; i < 8; i++)
@@ -134,10 +154,22 @@ byte disp::toReal(byte segm)
 }
 
 
-void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani = 0, byte tecky =0,byte neg = 0)
+byte disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani = 0, byte tecky =0,byte neg = 0, byte setIndex = 255)
 {
     byte maxWork2 = maxWork;
-    maxWork2 ++;
+    if (setIndex == 255)
+    {
+        maxWork2 ++;
+    }
+    else if (setIndex < mWork)
+    {
+        maxWork2 = setIndex;
+    }
+    else
+    {
+        return 254;
+    }
+    
     if (maxWork2 == mWork)
     {
         maxWork2 = 0;
@@ -169,9 +201,12 @@ void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani 
         }        
         work[maxWork2].vystup[i]= toReal(work[maxWork2].Aline[i]);
     }
-    maxWork = maxWork2;//vložení textu do fronty
     m += String(maxWork2) + " cas:" + String(dobaTrvani);
     ser->println(m);
+    if (setIndex == 255)
+    {
+        maxWork = maxWork2;//vložení textu do fronty
+    }
     /*
     for (size_t i = 0; i < 4; i++)
     {
@@ -189,6 +224,8 @@ void disp::addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani 
        //ser->println(work[maxWork2].vystup[i],2);
     }
     */
+
+   return maxWork;
 }
 
 
@@ -211,7 +248,7 @@ void disp::begin(HardwareSerial *_ser,byte sA,byte sB, byte sC, byte sD, byte sE
 }
 
 
-byte disp::toSegment(char znak)
+inline byte disp::toSegment(char znak)
 {
     if(znak >= '0' && znak <= '9')
     {
@@ -328,13 +365,13 @@ byte disp::toSegment(char znak)
 }
 
 
-long disp::BitSet(byte index)
+inline long disp::BitSet(byte index)
 {
     return 1<<index;
 }
 
 
-byte disp::addText4(String text = "    ", long dobaTrvani = 0, long tecky =0,long neg = 0)
+textVelky disp::addText4(String text = "    ", long dobaTrvani = 0, long tecky =0,long neg = 0)
 {
     int nasob = text.length()/4;
     int poslednichZnaku = text.length()-(nasob*4);
@@ -348,27 +385,34 @@ byte disp::addText4(String text = "    ", long dobaTrvani = 0, long tecky =0,lon
         nasob++;
     }
     long doba = dobaTrvani/nasob;
-    int u;   
+    int u;  
+    textVelky ppp;
+    ppp.pocet = nasob;
     for (int i = 0; i < nasob; i++)
     {
         u = 4*i;
-        addText4Char(text.charAt(u+0),text.charAt(u+1),text.charAt(u+2),text.charAt(u+3), doba,(tecky >>((nasob-1-i)*4))&B00001111,(neg >>((nasob-1-i)*4))&B00001111);
+        ppp.End = addText4Char(text.charAt(u+0),text.charAt(u+1),text.charAt(u+2),text.charAt(u+3), doba,(tecky >>((nasob-1-i)*4))&B00001111,(neg >>((nasob-1-i)*4))&B00001111);
+        if (i == 0)
+        {
+            ppp.Start = ppp.End;
+        }
+        
     }
-    return nasob ;
+    return ppp ;
 }
 
 
-byte disp::vystup()
+inline byte disp::vystup()
 {
     return work[vystupWork].vystup[vystupInd];
 }
 
 
-void disp::vystupEX()
+inline void disp::vystupEX()
 {
     if (vystupInd == 3)
     {
-        if ((maxWork != vystupWork)&& nextTimeIs(vystupWork))
+        if ((maxWork != vystupWork)&& nextTimeIs())
         {
             vystupWork ++;
             if (vystupWork == mWork)
@@ -386,26 +430,26 @@ void disp::vystupEX()
 }
 
 
-byte disp::index()
+inline byte disp::index()
 {
     return vystupInd;
 }
 
 
-void disp::del()
+inline void disp::del()
 {
-    String m = "Delete. Index z "+String(vystupWork) +" na "+String( maxWork);
+    ser->println("Delete. Index z "+String(vystupWork) +" na "+String( maxWork));
     vystupWork = maxWork;
     work[vystupWork].timeTrvani = 0;
-    nextTimeSet(vystupWork,true);
-    ser->println(m);
+    nextTimeSetNull();
 }
 
 
-void disp::addText4IP(IPAddress ip,long dobaTrvani = 1000)
+textVelky disp::addText4IP(IPAddress ip,long dobaTrvani = 1000)
 {
+    textVelky ppp;
     dobaTrvani = dobaTrvani /5;
-    addText4Char('I','P',':',' ',dobaTrvani);
+    ppp.Start = addText4Char('I','P',':',' ',dobaTrvani);
     for (size_t i = 0; i < 4; i++)
     {
         String u = String( ip.operator[](i),10);
@@ -413,9 +457,50 @@ void disp::addText4IP(IPAddress ip,long dobaTrvani = 1000)
         {
             u = " " + u;
         }
-        addText4Char(u[0],u[1],u[2],u[3],dobaTrvani,B1000>>i);
+        ppp.End = addText4Char(u[0],u[1],u[2],u[3],dobaTrvani,B1000>>i);
     }
+    ppp.pocet = 5;
+    return ppp;
 }
 
+
+inline byte disp::indexView()
+{
+    return vystupWork;
+}
+
+
+inline bool disp::isIndexView(byte ind)
+{
+    if (ind == vystupWork)
+    {
+        return true;
+    }
+    return false;
+}
+
+
+inline bool disp::isIndexView(textVelky ppp)
+{
+    if (ppp.Start <= vystupWork && ppp.End >= vystupWork)
+    {
+        return true;
+    }
+    return false;
+}
+
+inline String disp::textIndex(byte ind)
+{
+    String o;
+    if (ind >= mWork)
+    {
+        return o;
+    }
+    for (size_t i = 0; i < 4; i++)
+    {
+        o += work[ind].textNow[i];
+    }
+    return o;
+}
 
 #endif
