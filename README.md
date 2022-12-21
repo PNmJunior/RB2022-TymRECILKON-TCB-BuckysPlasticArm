@@ -7,5 +7,4 @@ Původně jsem chtěl robota ovládat pomocí Bluetooth a mnou naprogramované m
 
 ## Aktuápní podoba
 
-<img src = "fotodokumentace/sezona 2023/r1.jpg">
-<img src = "fotodokumentace/sezona 2023/r2.jpg">
+<img src = "fotodokumentace/sezona 2023/21.12.22.jpg">

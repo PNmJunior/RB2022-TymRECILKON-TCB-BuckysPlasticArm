@@ -60,11 +60,11 @@ function updateSliderPWM2(a,b) {
 }
 
 function updateSliderPWMnullLevy() {
-    websocket.send("2s0");
+    websocket.send("7s0");
 }
 
 function updateSliderPWMnullPravy() {
-    websocket.send("1s0");
+    websocket.send("8s0");
 }
 
 function reset123()
