@@ -40,7 +40,6 @@ public:
     int work();
     void begin(komunFace face, String nadp , long casNadp);
     void begin(disp *_displej,enkoder *_enk, HardwareSerial *_ser, String nadp , long casNadp);
-    void menuFree();
 };
 
 
@@ -195,22 +194,18 @@ int menu::work()
             }
         }
     } while (tl == false && bt == false);
+    int m = polozky[alfa].indexButt;
     if (tl == true)
     {
-        return polozky[alfa].indexTlac;
+        m= polozky[alfa].indexTlac;
     }
-    return polozky[alfa].indexButt;
-}
-
-
-void menu::menuFree()
-{
     for (size_t i = 0; i < pocet; i++)
     {
         free(polozky[i].segD);
     }
     
     free(polozky);
+    return m;
 }
 
 
