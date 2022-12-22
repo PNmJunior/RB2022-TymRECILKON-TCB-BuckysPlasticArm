@@ -242,6 +242,8 @@ public:
     void begin(komunFace face);
     void begin(disp *_displej,enkoder *_enk, HardwareSerial *_ser);
     String WriteText(String st);
+    String WriteTextSerial(String st);
+    String WriteTextVyber(String st);
     String SetChar(String st,byte ind);
 };
 
@@ -259,17 +261,10 @@ void writeTextSegDisp::begin(komunFace face)
 
 void writeTextSegDisp::Print(String st, byte index)
 {
-    
-    byte indexStart = index/4;
-    indexStart = index *4;
-    byte indexEnd  =(indexStart + 3);
-    if (indexEnd > st.length())
-    {
-        indexEnd = st.length();
-    }
+    byte indexStart = index / 4;
+    indexStart = indexStart * 4;
     displej->del();
-    
-    displej->addText4( st.substring(indexStart,indexEnd));
+    displej->addText4( st.substring(indexStart, indexStart + 4));
 }
 
 
@@ -279,7 +274,7 @@ String writeTextSegDisp::SetChar(String st,byte index)
     enk->Butt();
     bool tl;
     bool bt;
-    char pism = 'A';
+    char pism = st.charAt(index);
     Print(st,index);
     char s = 0;
     do
@@ -319,7 +314,7 @@ String writeTextSegDisp::SetChar(String st,byte index)
     {
         if (tl)
         {
-            pism -= 'a'-'A';
+            pism += 'a'-'A';
             st[index] = pism;
         }
     }
@@ -327,20 +322,17 @@ String writeTextSegDisp::SetChar(String st,byte index)
     {
         if (bt)
         {
-            pism += 'a'-'A';
+            pism -= 'a'-'A';
             st[index] = pism;
         }
     }
     
     if (pism == 127)
     {
-        st.remove(index);
+        st.remove(index,1);
     }
-    
-    
     Print(st,index);
     return st;
-    
 }
 
 
@@ -349,8 +341,9 @@ String writeTextSegDisp::WriteText(String st = " ")
     enk->Tlac();
     enk->Butt();
     byte index = 0;
-    String mezara = st;
-    byte s = millis();
+    String mezara = st;           
+    mezara[0] = ' ';
+    long s = millis();
     bool o;
     while (ser->available())
     {
@@ -364,14 +357,10 @@ String writeTextSegDisp::WriteText(String st = " ")
         {
             if (u == 1)
             {
-                if (index + 1 < st.length())
-                {
-                    index ++;
-                }
-                else if (index + 1 == st.length() && st[index] != '_')
+                index ++;
+                if (index  == st.length())
                 {
                     st += "_";
-                    index  = st.length()-1;
                 }                
             }
             else if (u == -1)
@@ -381,10 +370,12 @@ String writeTextSegDisp::WriteText(String st = " ")
                     index --;
                 }
             }
-            mezara =st;
-            o = true;
+            mezara =st;            
             mezara[index] = ' ';
-            s = millis() +2000;
+            o = true;
+            s = millis();
+            Serial.print("Index:");
+            Serial.println(index);
         }
         if (enk->Butt())
         {
@@ -393,12 +384,12 @@ String writeTextSegDisp::WriteText(String st = " ")
             {
                 index = st.length() -1;
             }
-            
+            mezara =st;            
+            mezara[index] = ' ';   
         }
-
-        if (millis()-s>1000)
+        if ( s < millis())
         {
-            s  =millis();
+            s = millis() +200;
             if (o)
             {
                 Print(st,index);
@@ -406,13 +397,82 @@ String writeTextSegDisp::WriteText(String st = " ")
             else
             {
                 Print(mezara,index);
-                
             }
             o = !o;
-        }
+        }       
    } while (enk->Tlac() == false);
     return st;
 }
+
+
+String writeTextSegDisp::WriteTextSerial(String st)
+{
+    String p;
+    displej->addText4("SeWr");
+    bool a;
+    long t;
+    char k = 0;
+    ser->println(st);
+    do
+    {
+        while (ser->available()>0)
+        {
+            ser->read();
+        }
+        ser->println("Muzes poslat text:");
+        while (ser->available()==0)
+        {
+            t = millis();
+        }
+        while (ser->available()>0)
+        {
+            char o = ser->read();
+            p += o;
+            t = millis();
+            Serial.println(ser->available());
+            Serial.println(o);
+            Serial.println(o,10);
+            delay(10);            
+        }
+        ser->println("Tvuj text:");
+        ser->println(p);
+        ser->println("Chces to ulozit? A/N/C:");
+        while (ser->available()==0)
+        {
+            delay(50);
+        } 
+        k = ser->read()  ;
+        if (k == 'C' || k == 'c' || k == 'n' || k == 'N')
+        {
+            p.clear();
+        }
+    } while (!(k == 'C' || k == 'c' || k == 'A' || k == 'a'));
+    return p;
+}
+
+
+String writeTextSegDisp::WriteTextVyber(String st)
+{
+    menu rozhodnuti;
+    rozhodnuti.begin(displej,enk,ser);
+    rozhodnuti.addPolozkaData(1,1,"Enk",1000);
+    rozhodnuti.addPolozkaData(2,2,"Seri",1000);
+    rozhodnuti.addPolozkaData(3,3,"Clos",1000);
+    String p;
+    switch (rozhodnuti.work())
+    {
+    case 1:
+        return WriteText(st);
+        break;
+    case 2:
+        return WriteTextSerial(st);
+        break;
+    default:
+        break;
+    }
+    return p;
+}
+
 
 writeTextSegDisp editText;
 

@@ -449,8 +449,8 @@ void setup()
   
   menu Vr1;
   Vr1.begin(komF);
- Serial.println("6");
-
+  Serial.println("6");
+  /*
   menu prv ;
   prv.begin(komF);
   Serial.println("7");
@@ -460,7 +460,10 @@ void setup()
   Serial.println("8");
   Serial.println(prv.work());
   Serial.println("10");
-  
+  */
+  Serial.println(editText.WriteTextVyber("Ahojky"));
+
+   
   if (!SPIFFS.begin(true))
   {
     Serial.println("An Error has occurred while mounting SPIFFS");
