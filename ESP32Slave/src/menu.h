@@ -5,8 +5,6 @@
 #include <disp.h>
 #include <enkoder.h>
 
-#define menuDobaZob 1000
-
 struct komunFace
 {
     disp *displej;
@@ -25,7 +23,6 @@ struct polozka
 };
 
 
-
 class menu
 {
 private:
@@ -34,30 +31,36 @@ private:
     disp *displej;
     enkoder *enk;
     HardwareSerial *ser;
+    String nadpis;
+    long casNadpis;
 public:
     polozka newPolozka(int _indexButt,int _indexTlac,String _segD,long _cas);
     void addPolozkaData(int _indexButt,int _indexTlac,String _segD,long _cas);
     void addPolozka(polozka pol);
     int work();
-    void begin(komunFace face);
-    void begin(disp *_displej,enkoder *_enk, HardwareSerial *_ser);
+    void begin(komunFace face, String nadp , long casNadp);
+    void begin(disp *_displej,enkoder *_enk, HardwareSerial *_ser, String nadp , long casNadp);
     void menuFree();
 };
 
 
-void menu::begin(disp *_displej,enkoder *_enk, HardwareSerial *_ser)
+void menu::begin(disp *_displej,enkoder *_enk, HardwareSerial *_ser, String nadp = "", long casNadp = 2000)
 {
     pocet = 0;
     polozky = (polozka *)malloc(sizeof(polozka));
     displej = _displej;
     enk  = _enk;
     ser = _ser;
+    nadpis = nadp;
+    casNadpis = casNadp;
 }
 
-void menu::begin(komunFace face)
+
+void menu::begin(komunFace face, String nadp = "", long casNadp = 2000)
 {
-    begin(face.displej,face.enk, face.ser);
+    begin(face.displej,face.enk, face.ser,nadp, casNadp);
 }
+
 
 polozka menu::newPolozka(int _indexButt,int _indexTlac,String _segD,long _cas)
 {
@@ -79,60 +82,45 @@ void menu::addPolozka(polozka pol)
 {
     String x;
     polozky =(polozka*) realloc(polozky,(pocet+1) * sizeof(polozka));
-    Serial.println('u');
-    delay(1000);
-    Serial.println(pocet);
-    Serial.println(sizeof(polozka));
-    Serial.println(sizeof(pol));
-    Serial.println(sizeof(polozky));
-    Serial.println(sizeof(polozky[0]));
-    Serial.println(sizeof(x));
     polozky[pocet].cas = pol.cas;
-    Serial.println("f1");
     polozky[pocet].indexButt = pol.indexButt;
-     Serial.println("f2");
     polozky[pocet].indexTlac = pol.indexTlac;
-     Serial.println("f3");
-    //polozky[pocet].segD = String(pol.segD.c_str());
     polozky[pocet].segD = pol.segD;
-    Serial.println('v');
     pocet++;
-    Serial.println('w');
 }
+
 
 void menu::addPolozkaData(int _indexButt,int _indexTlac,String _segD,long _cas)
 {
     addPolozka(newPolozka(_indexButt, _indexTlac, _segD, _cas));
 }
 
+
 int menu::work()
 {
-    ser->println("a");
+    if(nadpis != "")
+    {
+        ser->println(nadpis);
+        displej->addText4(nadpis, casNadpis);
+    }
     for (size_t i = 0; i < pocet; i++)
     {
         displej->addText4(polozky[i].segD,polozky[i].cas);
-        //displej->addText4(String(i),polozky[i].cas);
     }
-    ser->println("b");
     enk->Tlac();
     enk->Butt();
-    ser->println("c");
     while (ser->available())
     {
         ser->read();
     }
-    ser->println("d");
     int alfa  = 0;
     long casZnovu;
     bool tl;
     bool bt;
-    ser->println("e");
     displej->addText4(polozky[0].segD,polozky[0].cas);
-    ser->println("f");
     do
     {
         int u  =enk->Enk();
-        //ser->print("E:");ser->println(u);
         char s ;
         if (ser->available())
         {
@@ -145,7 +133,6 @@ int menu::work()
 
         if (s != 0)
         {
-            //ser->print("S:");ser->println(s);
             switch (s)
             {
             case 'n':
@@ -184,9 +171,7 @@ int menu::work()
             displej->addText4(polozky[alfa].segD,polozky[alfa].cas);
         }*/
         tl = enk->Tlac();
-        //ser->print("T:");ser->println(tl);
         bt = enk->Butt();
-        //ser->print("B:");ser->println(bt);
         if (s == 0 && ser->available())
         {
             s= ser->read();
@@ -216,6 +201,7 @@ int menu::work()
     }
     return polozky[alfa].indexButt;
 }
+
 
 void menu::menuFree()
 {
@@ -454,7 +440,7 @@ String writeTextSegDisp::WriteTextSerial(String st)
 String writeTextSegDisp::WriteTextVyber(String st)
 {
     menu rozhodnuti;
-    rozhodnuti.begin(displej,enk,ser);
+    rozhodnuti.begin(displej,enk,ser,st,1000);
     rozhodnuti.addPolozkaData(1,1,"Enk",1000);
     rozhodnuti.addPolozkaData(2,2,"Seri",1000);
     rozhodnuti.addPolozkaData(3,3,"Clos",1000);
