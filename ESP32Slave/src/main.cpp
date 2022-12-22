@@ -50,6 +50,8 @@ motor mot;
 hw_timer_t *My_timer = NULL;
 //enkoder enk;
 
+byte posunIP = 0;
+
 void MotorStopAll() // Vždy zastaví chod robota.
 {
   for (int i = 0; i < 8; i++)
@@ -600,7 +602,7 @@ void setup()
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   initWebSocket();
-  segDisp.addText4IP(WiFi.localIP(),50000);
+  segDisp.addText4IP(WiFi.localIP(),10000);
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(SPIFFS, "/index.html", "text/html"); });
@@ -626,6 +628,21 @@ byte oooo = 0;
 
 void loop(void)
 {
+  int e = enk.Enk();
+  if (e != 0)
+  {
+    if (e == 1)
+    {
+      posunIP ++;
+    }
+    else if (e == -1)
+    {
+      posunIP --;
+    }
+    segDisp.addText4IPIndex(posunIP%4,WiFi.localIP());    
+  }
+  
+
   if(0 !=mot.vystup())
   {
     Serial.println("oooo");

@@ -45,6 +45,7 @@ public:
     byte addText4Char(char z0 , char z1 , char z2 , char z3 , long dobaTrvani , byte tecky ,byte neg, byte setIndex );
     textVelky addText4(String text, long dobaTrvani, long tecky ,long neg );
     textVelky addText4IP(IPAddress ip, long dobaTrvani);
+    byte addText4IPIndex(byte i, IPAddress ip,long dobaTrvani);
     byte vystup();
     void vystupEX();
     byte index();
@@ -445,6 +446,17 @@ inline void disp::del()
 }
 
 
+byte disp::addText4IPIndex(byte i, IPAddress ip,long dobaTrvani = 0)
+{
+    String u = String( ip.operator[](i),10);
+    while (u.length() < 4)
+    {
+        u = " " + u;
+    }
+    return addText4Char(u[0],u[1],u[2],u[3],dobaTrvani,B1000>>i);
+}
+
+
 textVelky disp::addText4IP(IPAddress ip,long dobaTrvani = 1000)
 {
     textVelky ppp;
@@ -452,12 +464,7 @@ textVelky disp::addText4IP(IPAddress ip,long dobaTrvani = 1000)
     ppp.Start = addText4Char('I','P',':',' ',dobaTrvani);
     for (size_t i = 0; i < 4; i++)
     {
-        String u = String( ip.operator[](i),10);
-        while (u.length() < 4)
-        {
-            u = " " + u;
-        }
-        ppp.End = addText4Char(u[0],u[1],u[2],u[3],dobaTrvani,B1000>>i);
+        ppp.End = addText4IPIndex(i,ip,dobaTrvani);
     }
     ppp.pocet = 5;
     return ppp;
