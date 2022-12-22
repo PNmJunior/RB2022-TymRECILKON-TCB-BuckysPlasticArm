@@ -3,7 +3,6 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
-#include <tajnosti.h> //Jsou zde definované jmého a heslo wifi
 #include <disp.h>
 #include <motor.h>
 //#include <komun.h>
@@ -132,10 +131,8 @@ void IRAM_ATTR HlavniPreruseni()
   segDisp.vystupEX();
 }
 
-
-const char *host = "BuckysPlasticArm";
-const char *ssid = wifiName;
-const char *password = wifiHeslo;
+String ssid ;
+String password ;
 
 // WebServer server(80);
 AsyncWebServer server(80);
@@ -374,6 +371,87 @@ String getPassswordWifi(String ssid, String WNPass = WifiNotPassword)
   return preferences.getString(ssid.c_str(), WNPass);
 }
 
+bool isSaweWifi(String ssid)
+{
+  return preferences.isKey(ssid.c_str());
+}
+
+void MenuWifiAdd(komunFace komF)
+{
+  int p;
+  do
+  {
+    segDisp.del();
+    segDisp.addText4Char('.','.','.','.');
+    menu w;
+    w.begin(komF,"Saznam Wifi",5000);
+    int n = WiFi.scanNetworks();
+    for (int i = 0; i < n; i++)
+    {
+      Serial.print(i);
+      Serial.print(": ");
+      Serial.print(WiFi.SSID(i));
+      Serial.print(" (");
+      Serial.print(WiFi.RSSI(i));
+      Serial.print(")");
+      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
+      w.addPolozkaData(i,i+100,WiFi.SSID(i),500*WiFi.SSID(i).length());
+    }
+    w.addPolozkaData(-1,-1,"_upd",2000);
+    w.addPolozkaData(-2,-2,"_clo",2000);
+    p = w.work();
+    if (p >= 100)
+    {
+      addWifi(WiFi.SSID(p-100),"");
+    }
+    else if (p >= 0)
+    {
+      String heslo = editText.WriteTextVyber("_");
+      if (heslo != "" && heslo != "_")
+      {
+        addWifi(WiFi.SSID(p),heslo);
+      }
+      else
+      {
+        p = -1;
+      }
+    }
+  } while (p == -1);
+}
+
+void MenuWifiSet(komunFace komF)
+{
+  int p;
+  do
+  {
+    segDisp.del();
+    segDisp.addText4Char('.','.','.','.');
+    menu w;
+    w.begin(komF,"UrciWifi",3000);
+    int n = WiFi.scanNetworks();
+    for (int i = 0; i < n; i++)
+    {
+      if(isSaweWifi(WiFi.SSID(i)))
+      {
+        w.addPolozkaData(i,i,String(WiFi.SSID(i)),2000);
+      }
+    }
+    w.addPolozkaData(-1,-1,"_upd",2000);
+    w.addPolozkaData(-2,-2,"_add",2000);
+    p = w.work();
+    if(p == -2)
+    {
+      MenuWifiAdd(komF);
+      p = -1;
+    }
+    else if (p >= 0)
+    {
+      ssid = WiFi.SSID(p);
+      password  = getPassswordWifi(ssid);
+    }
+  } while (p == -1);
+}
+
 
 void setup()
 {
@@ -461,7 +539,7 @@ void setup()
   Serial.println(prv.work());
   Serial.println("10");
   */
-  Serial.println(editText.WriteTextVyber("Ahojky"));
+  //Serial.println(editText.WriteTextVyber("Ahojky"));
 
    
   if (!SPIFFS.begin(true))
@@ -483,27 +561,31 @@ void setup()
 
   initFS();
   WiFi.mode(WIFI_STA);
-      int n = WiFi.scanNetworks();
-    Serial.println("scan done");
-    if (n == 0) {
-        Serial.println("no networks found");
-    } else {
-        Serial.print(n);
-        Serial.println(" networks found");
-        for (int i = 0; i < n; ++i) {
-            // Print SSID and RSSI for each network found
-            Serial.print(i + 1);
-            Serial.print(": ");
-            Serial.print(WiFi.SSID(i));
-            Serial.print(" (");
-            Serial.print(WiFi.RSSI(i));
-            Serial.print(")");
-            Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
-            delay(10);
-        }
+/*
+  int n = WiFi.scanNetworks();
+  Serial.println("scan done");
+  if (n == 0) {
+    Serial.println("no networks found");
+  } else {
+    Serial.print(n);
+    Serial.println(" networks found");
+    for (int i = 0; i < n; ++i) {
+      // Print SSID and RSSI for each network found
+      Serial.print(i + 1);
+      Serial.print(": ");
+      Serial.print(WiFi.SSID(i));
+      Serial.print(" (");
+      Serial.print(WiFi.RSSI(i));
+      Serial.print(")");
+      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
+      delay(10);
     }
+  }
+*/
 
-  WiFi.begin(ssid, password);
+  MenuWifiSet(komF);
+  password.remove(password.length()-1);//Upravuje heslo, odstaranuje char 13 z konce
+  WiFi.begin(ssid.c_str(), password.c_str());
   // Wait for connection
   Serial.println("7");
   while (WiFi.status() != WL_CONNECTED)
