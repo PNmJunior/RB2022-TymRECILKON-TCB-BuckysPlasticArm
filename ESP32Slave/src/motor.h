@@ -199,7 +199,7 @@ bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER
 
 bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _neg, byte _max, byte _min, ledc_timer_config_t *ledc_timer = null )
 {
-    Serial.print("ma");
+    Serial.print("motor:");
     Serial.println(mot);
     if (mot>=8)
     {

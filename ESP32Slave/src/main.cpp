@@ -259,56 +259,56 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       MC1 = sliderValue1.toFloat();
       sliderValue1 = message.substring(2);
-      mot.inputProc(0, sliderValue1.toFloat());
+      mot.inputProc(0, MC1);
       notifyClients(getSliderValues(1));
     }
     if (message.indexOf("2s") >= 0)
     {
       MC2 = sliderValue2.toFloat();
       sliderValue2 = message.substring(2);
-      mot.inputProc(1, sliderValue2.toFloat());
+      mot.inputProc(1, MC2);
       notifyClients(getSliderValues(2));
     }
     if (message.indexOf("3s") >= 0)
     {
       MC3 = sliderValue3.toFloat();
       sliderValue3 = message.substring(2);
-      mot.inputProc(2, sliderValue3.toFloat());
+      mot.inputProc(2, MC3);
       notifyClients(getSliderValues(3));
     }
     if (message.indexOf("4s") >= 0)
     {
       MC4 = sliderValue4.toFloat();
       sliderValue4 = message.substring(2);
-      mot.inputProc(3, sliderValue4.toFloat());
+      mot.inputProc(3, MC4);
       notifyClients(getSliderValues(4));
     }
     if (message.indexOf("5s") >= 0)
     {
       MC5 = sliderValue5.toFloat();
       sliderValue5 = message.substring(2);
-      mot.inputProc(4, sliderValue5.toFloat());
+      mot.inputProc(4, MC5);
       notifyClients(getSliderValues(5));
     }
     if (message.indexOf("6s") >= 0)
     {
       MC6 = sliderValue6.toFloat();
       sliderValue6 = message.substring(2);
-      mot.inputProc(5, sliderValue6.toFloat());
+      mot.inputProc(5, MC6);
       notifyClients(getSliderValues(6));
     }
     if (message.indexOf("7s") >= 0)
     {
       MC7 = sliderValue7.toFloat();
       sliderValue7 = message.substring(2);
-      mot.inputProc(6, sliderValue7.toFloat());
+      mot.inputProc(6, MC7);
       notifyClients(getSliderValues(7));
     }
     if (message.indexOf("8s") >= 0)
     {
       MC8 = sliderValue8.toFloat();
       sliderValue8 = message.substring(2);
-      mot.inputProc(7, sliderValue8.toFloat());
+      mot.inputProc(7, MC8);
       notifyClients(getSliderValues(8));
     }
     if (message.indexOf("9s") >= 0)
@@ -382,17 +382,17 @@ void initWebSocket()
   server.addHandler(&ws);
 }
 
-void addWifi(String ssid, String password)
+void inline addWifi(String ssid, String password)
 {
   preferences.putString(ssid.c_str(), password);
 }
 
-String getPassswordWifi(String ssid, String WNPass = WifiNotPassword)
+String inline getPassswordWifi(String ssid, String WNPass = WifiNotPassword)
 {
   return preferences.getString(ssid.c_str(), WNPass);
 }
 
-bool isSaweWifi(String ssid)
+bool inline isSaweWifi(String ssid)
 {
   return preferences.isKey(ssid.c_str());
 }
@@ -452,9 +452,17 @@ void MenuWifiSet(komunFace komF)
     int n = WiFi.scanNetworks();
     for (int i = 0; i < n; i++)
     {
+      Serial.print(i);
+      Serial.print(": ");
+      Serial.print(WiFi.SSID(i));
+      Serial.print(" (");
+      Serial.print(WiFi.RSSI(i));
+      Serial.print(")");
+      Serial.print((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
       if(isSaweWifi(WiFi.SSID(i)))
       {
         w.addPolozkaData(i,i,String(WiFi.SSID(i)),2000);
+        Serial.println("+");
       }
     }
     w.addPolozkaData(-1,-1,"_upd",2000);
@@ -492,9 +500,9 @@ void setup()
   digitalWrite(pin_LedD3, 1);
   digitalWrite(pin_LedD4, 1);
   Serial.begin(9600);
-  Serial.println("1");
+  Serial.println("Inicializace pinu");
   segDisp.begin(&Serial, B00000001, B00000100, B00010000, B01000000, B00100000, B00000010, B00001000, B10000000);
-  Serial.println("2");
+  Serial.println("Displaj.begin");
   // zahajeni ...
   
   My_timer = timerBegin(0, 80, true);
@@ -502,7 +510,7 @@ void setup()
   timerAlarmWrite(My_timer, 5000, true);
   timerAlarmEnable(My_timer); // Just Enable
   
-  Serial.println("3");
+  Serial.println("Inicializace a spusteni hlavniho presuseni");
   mot.beginStart();
   mot.beginTimer();
 
@@ -514,30 +522,16 @@ void setup()
   mot.begin(5, pin_m5, LEDC_CHANNEL_5, false, false, 255, 0);
   mot.begin(6, pin_m6, LEDC_CHANNEL_6, false, false, 255, 0);
   mot.begin(7, pin_m7, LEDC_CHANNEL_7, false, false, 255, 0);
- Serial.println("4");
   if (mot.beginEnd() == 0)
   {
-    //segDisp.addText4("Err1");
+    segDisp.addText4("Err Motor");
   }
 
-  MotorStopAll(); Serial.println("5");
+  MotorStopAll();
+
+  Serial.println("Motor");
 
   enk.begin(pin_EnkA, pin_EnkB, pin_EnkDP, pin_Tlac);
-  Serial.print('v');
-  //attachInterrupt(pin_EnkA,readEncoderISR,CHANGE);
-  Serial.print('u');
-  //segDisp.addText4("1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvwwwwxxxxyyyyzzzz",250000);
-  //segDisp.addText4("({[ )}] :-_~!#%&*+,./;<=>?@^|$",1000000);
-  //segDisp.addText4("|$. ",30000);
-  //segDisp.addText4Char(34,39,92,96,30000);
-  //segDisp.addText4Char(127,127,127,127,30000);
-  //segDisp.addText4Char('a','b','a','b',5000,B0110);
-  //segDisp.addText4Char('a','b','a','b',5000,B0000,B0110);
-  //segDisp.addText4("abababab",500,B10010110);
-  //segDisp.addText4("abababab",7000,0,B10010110);
-  //delay(12000);
-  //segDisp.del();
-  //segDisp.addText4("dell",30000);
 
   komunFace komF;
   komF.displej = &segDisp;
@@ -548,26 +542,14 @@ void setup()
   
   menu Vr1;
   Vr1.begin(komF);
-  Serial.println("6");
-  /*
-  menu prv ;
-  prv.begin(komF);
-  Serial.println("7");
-  prv.addPolozkaData(1,2,"A",1000);
-  prv.addPolozkaData(-15,-1,"B",1000);
-  prv.addPolozkaData(-5,-100,"C",1000);
-  Serial.println("8");
-  Serial.println(prv.work());
-  Serial.println("10");
-  */
-  //Serial.println(editText.WriteTextVyber("Ahojky"));
-
    
   if (!SPIFFS.begin(true))
   {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
+Serial.println("Dalsi Inicailizace");
+
 /*
   File setWeb0 = SPIFFS.open("/setWeb0.txt");
   File setWeb1 = SPIFFS.open("/setWeb1.txt");
@@ -579,49 +561,32 @@ void setup()
   File setWeb7 = SPIFFS.open("/setWeb7.txt");
 */
   preferences.begin("credentials", false);
-
+Serial.println("Soubory");
   initFS();
   WiFi.mode(WIFI_STA);
-/*
-  int n = WiFi.scanNetworks();
-  Serial.println("scan done");
-  if (n == 0) {
-    Serial.println("no networks found");
-  } else {
-    Serial.print(n);
-    Serial.println(" networks found");
-    for (int i = 0; i < n; ++i) {
-      // Print SSID and RSSI for each network found
-      Serial.print(i + 1);
-      Serial.print(": ");
-      Serial.print(WiFi.SSID(i));
-      Serial.print(" (");
-      Serial.print(WiFi.RSSI(i));
-      Serial.print(")");
-      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
-      delay(10);
-    }
-  }
-*/
-
+  Serial.println("WIFI_STA");
   MenuWifiSet(komF);
   password.remove(password.length()-1);//Upravuje heslo, odstaranuje char 13 z konce
   WiFi.begin(ssid.c_str(), password.c_str());
   // Wait for connection
-  Serial.println("7");
+  Serial.println("Pripojovani se");
+  Serial.println();
+  byte teckyCekani=0;
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(500);
+    delay(100);
     Serial.print(".");
+    segDisp.addText4(" ",0,segDisp.BitSet(3-(teckyCekani % 4)));
+    teckyCekani++;
   }
-  Serial.println("8");
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-  initWebSocket();
   segDisp.addText4IP(WiFi.localIP(),10000);
+  initWebSocket();
+  Serial.println("initWebSocket");
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(SPIFFS, "/index.html", "text/html"); });
@@ -640,10 +605,8 @@ void setup()
   AsyncElegantOTA.begin(&server); // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
-  String ip100 = WiFi.localIP().toString();
 }
 
-byte oooo = 0;
 
 void loop(void)
 {
@@ -661,37 +624,9 @@ void loop(void)
     segDisp.addText4IPIndex(posunIP%4,WiFi.localIP());    
   }
   
-
-  if(0 !=mot.vystup())
-  {
-    Serial.println("oooo");
-  }
-
-    if(mot.vyst !=mot.vystup())
-  {
-    Serial.println("nnnn");
-  }
   // Až dokončím komunikační protokol, bude fungovat zastavovaní brždění
   // dataSend p;
   // p.leng = 0;
-
- // Serial.print(digitalRead(pin_EnkA));Serial.println(digitalRead(pin_EnkB));
-//Serial.print(digitalRead(pin_EnkDP));Serial.println(digitalRead(pin_Tlac));
-// Serial.println(mot.vystup(),2);
-if (digitalRead(pin_EnkDP) == 0)
-{
-  Serial.println(mot.vystup(),2);
-  Serial.print("0p:");Serial.println(digitalRead(pin_m0));
-  Serial.print("1p:");Serial.println(digitalRead(pin_m1));
-  Serial.print("2p:");Serial.println(digitalRead(pin_m2));
-  Serial.print("3p:");Serial.println(digitalRead(pin_m3));
-  Serial.print("4p:");Serial.println(digitalRead(pin_m4));
-  Serial.print("5p:");Serial.println(digitalRead(pin_m5));
-  Serial.print("6p:");Serial.println(digitalRead(pin_m6));
-  Serial.print("7p:");Serial.println(digitalRead(pin_m7));
-  
-  
-}
 
   for (int i = 0; i < 8; i++)
   {
