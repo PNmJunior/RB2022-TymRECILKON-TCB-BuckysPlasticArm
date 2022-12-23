@@ -662,6 +662,11 @@ void loop(void)
   }
   
 
+  if(enk.Butt())
+  {
+    Serial.println(enk.ButtCas());
+  }
+
   if(0 !=mot.vystup())
   {
     Serial.println("oooo");
