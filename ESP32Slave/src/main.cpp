@@ -52,8 +52,6 @@ hw_timer_t *My_timer = NULL;
 
 byte posunIP = 0;
 
-byte pocetClientu = 0 ;
-
 void MotorStopAll() // Vždy zastaví chod robota.
 {
   for (int i = 0; i < 8; i++)
@@ -339,39 +337,22 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   }
 }
 
-void PrClent(IPAddress ip)
-{
-  segDisp.addText4IP(ip,2000);
-  segDisp.addText4("Cl"+String(pocetClientu));
-}
-
 void onEvent2(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
 {
   switch (type)
   {
   case WS_EVT_CONNECT:
     Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-    segDisp.addText4("ConC",1000);
-    pocetClientu ++;
-    PrClent(client->remoteIP());
+
     break;
   case WS_EVT_DISCONNECT:
     Serial.printf("WebSocket client #%u disconnected\n", client->id());
-    segDisp.addText4("DisC",1000);
-    pocetClientu --;
-    PrClent(client->remoteIP());
     break;
   case WS_EVT_DATA:
     handleWebSocketMessage(arg, data, len);
     break;
   case WS_EVT_PONG:
-  Serial.printf("Ping from %s\n", client->remoteIP().toString().c_str());
-    segDisp.addText4("ping",1000);
-    PrClent(client->remoteIP());
   case WS_EVT_ERROR:
-  Serial.printf("errr from %s\n", client->remoteIP().toString().c_str());
-    segDisp.addText4("errr",1000);
-    PrClent(client->remoteIP());
     break;
   }
 }
