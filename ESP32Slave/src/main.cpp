@@ -10,7 +10,7 @@
 #include <enkoder.h>
 #include <menu.h>
 #include "SPIFFS.h"
-#include <Arduino_JSON.h>
+#include <ArduinoJson.h>
 #include "SPIFFS.h"      //nastaveni webu
 #include <Preferences.h> //Ulozeni hesla
 
@@ -152,6 +152,7 @@ String sliderValue7 = "0";
 String sliderValue8 = "0";
 
 // Json Variable to Hold Slider Values
+/*
 JSONVar sliderValues;
 JSONVar slider1Values;
 JSONVar slider2Values;
@@ -161,11 +162,12 @@ JSONVar slider5Values;
 JSONVar slider6Values;
 JSONVar slider7Values;
 JSONVar slider8Values;
-
+*/
 
 // Get Slider Values
 String getSliderValues(int index = 100)
 {
+  /*
   String jsonString;
   switch (index)
   {
@@ -219,6 +221,7 @@ String getSliderValues(int index = 100)
 
   // jsonString = JSON.stringify(sliderValues);
   return jsonString;
+  */
 }
 
 void initFS()
@@ -255,6 +258,21 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   {
     data[len] = 0;
     message = (char *)data;
+    char mod = 0;
+    float number;
+    Serial.println(message);
+    StaticJsonDocument<200> doc;
+    DeserializationError error = deserializeJson(doc, message);
+      if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+      }
+    
+
+    //input.parse(message);
+    //Serial.println(input);
+
     if (message.indexOf("1s") >= 0)
     {
       sliderValue1 = message.substring(2);

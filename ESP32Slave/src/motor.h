@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <binary.h>
-#include <Arduino_JSON.h>
 #include <vector>
 #include "esp32-hal.h"
 #include "soc/soc_caps.h"

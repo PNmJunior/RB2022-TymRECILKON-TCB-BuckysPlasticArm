@@ -35,7 +35,8 @@ function updateSliderPWM(element) {
     var sliderValue = document.getElementById(element.id).value;
     document.getElementById("sV"+sliderNumber).innerHTML = sliderValue;
     console.log(sliderValue);
-    websocket.send(sliderNumber+"s"+sliderValue.toString());
+    //websocket.send(sliderNumber+"s"+sliderValue.toString());
+    websocket.send(formatMotor(sliderNumber,sliderValue));
 }
 
 
@@ -53,11 +54,6 @@ function delay(delayInms) {
     let delayres = await delay(3000);
     console.log('b');
   }
-
-
-function updateSliderPWM2(a,b) {
-    websocket.send(a.toString()+"s"+b.toString());
-}
 
 function updateSliderPWMnullLevy() {
     websocket.send("7s0");
@@ -91,6 +87,11 @@ function stisknuto()
     websocket.send("9s0");
     var b = window.open("/stop");
     b.close();
+}
+
+function formatMotor(cM,  num)
+{
+    return JSON.stringify( [new String('m' + cM.toString()) , new Number(num) ]);
 }
 
 function onMessage(event) {
