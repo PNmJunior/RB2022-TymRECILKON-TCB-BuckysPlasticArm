@@ -201,6 +201,40 @@ var Joy1 = new JoyStick('joy1Div', {}, function(stickData) {
     joy1Y.value = stickData.y;
     setTimeout(myGreeting, 500);
 });
+/*
+const myTimeout = setTimeout(myGreeting, 500, document.getElementById("joy1X"), document.getElementById("joy1Y"));
+var LevaJ=0;
+var PravaJ = 0; 
+function myGreeting(abcx,abcy) {
+    console.log("abcx");
+    console.log(abcx);
+    console.log(abcy);
+    var Leva = 0;
+    var Prava =0;
+    if(abcx<0)
+    {
+        Leva = abcy+abcx;
+    Prava =abcy;
+    }
+    else
+    {
+        Leva = abcy;
+    Prava = abcy-abcx;
+    }
+    console.log(Leva);
+    console.log(Prava);
+    console.log(LevaJ);
+    console.log(PravaJ);
+
+    if(LevaJ != Leva || PravaJ != Prava)
+    {
+    updateSliderPWM2(1, Leva);
+    updateSliderPWM2(2,Prava);
+    PravaJ = Prava;
+    LevaJ = Leva;
+    }
+}
+*/
 
 
 // Create JoyStick object into the DIV 'joy2Div'
