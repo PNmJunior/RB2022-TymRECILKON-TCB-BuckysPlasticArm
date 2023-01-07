@@ -5,8 +5,7 @@
 #include <AsyncElegantOTA.h>
 #include <disp.h>
 #include <motor.h>
-//#include <komun.h>
-//#include <komunBasic.h>
+#include <komunProtokol.h>
 #include <enkoder.h>
 #include <menu.h>
 #include "SPIFFS.h"
@@ -248,6 +247,11 @@ float MC5;
 float MC6;
 float MC7;
 
+
+
+
+
+
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 {
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
@@ -255,6 +259,37 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   {
     data[len] = 0;
     message = (char *)data;
+    //;m:0:2;m:1:-100;t:1:pocet:"joiuyytuiopiuytrddxhhi jj   m  ijmk"
+    komunProtokol komP;
+    komP.begin(message);
+    for (int s = 0; s < komP.pocetSouboru; s++)
+    {
+      String souName = komP.readStr();
+      if (souName.length() != 1)
+      {
+        Serial.println("Problem s velikosti:");
+        Serial.println(souName);
+        return;
+      }
+      
+      switch (souName.charAt(0))
+      {
+      case 'm':
+        if (komP.indentifikace_pocet() != 1)
+        {
+          Serial.println("Problem s velikosti:");
+          Serial.println(souName);
+          return;
+        }
+        break;
+      
+      default:
+        break;
+      }
+    }
+    
+
+
     if (message.indexOf("1s") >= 0)
     {
       sliderValue1 = message.substring(2);
