@@ -17,8 +17,8 @@ function balicekInt(a)
 function balicekText(a)
 {
     let str = String(a)
-    str = str.replace(SouborZnak, nahradaSouborZnak);
-    str = str.replace(SubSouborZnak, nahradaSubSouborZnak);
+    str = str.replaceAll(SouborZnak, nahradaSouborZnak);
+    str = str.replaceAll(SubSouborZnak, nahradaSubSouborZnak);
     return str;
 }
 
@@ -91,8 +91,8 @@ function readInt(a)
 function readText(a)
 {
     let str = String(a)
-    str=str.replace( nahradaSouborZnak, SouborZnak);
-    str=str.replace( nahradaSubSouborZnak, SubSouborZnak);
+    str=str.replaceAll( nahradaSouborZnak, SouborZnak);
+    str=str.replaceAll( nahradaSubSouborZnak, SubSouborZnak);
     return str;
 }
 
