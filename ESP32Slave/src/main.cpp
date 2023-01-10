@@ -141,83 +141,30 @@ String password ;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 String message = "";
-String sliderValue1 = "0";
-String sliderValue2 = "0";
-String sliderValue3 = "0";
-String sliderValue4 = "0";
-String sliderValue5 = "0";
-String sliderValue6 = "0";
-String sliderValue7 = "0";
-String sliderValue8 = "0";
+int sliderValue[8];
+
 
 // Json Variable to Hold Slider Values
-JSONVar sliderValues;
-JSONVar slider1Values;
-JSONVar slider2Values;
-JSONVar slider3Values;
-JSONVar slider4Values;
-JSONVar slider5Values;
-JSONVar slider6Values;
-JSONVar slider7Values;
-JSONVar slider8Values;
 
 
 // Get Slider Values
 String getSliderValues(int index = 100)
 {
-  String jsonString;
-  switch (index)
+  String st;
+  if (index == 100)
   {
-  case 100:
-    sliderValues["sV1"] = String(sliderValue1);
-    sliderValues["sV2"] = String(sliderValue2);
-    sliderValues["sV3"] = String(sliderValue3);
-    sliderValues["sV4"] = String(sliderValue4);
-    sliderValues["sV5"] = String(sliderValue5);
-    sliderValues["sV6"] = String(sliderValue6);
-    sliderValues["sV7"] = String(sliderValue7);
-    sliderValues["sV8"] = String(sliderValue8);
-    jsonString = JSON.stringify(sliderValues);
-    break;
-  case 1:
-    slider1Values["sV1"] = String(sliderValue1);
-    jsonString = JSON.stringify(slider1Values);
-    break;
-  case 2:
-    slider2Values["sV2"] = String(sliderValue2);
-    jsonString = JSON.stringify(slider2Values);
-    break;
-  case 3:
-    slider3Values["sV3"] = String(sliderValue3);
-    jsonString = JSON.stringify(slider3Values);
-    break;
-  case 4:
-    slider4Values["sV4"] = String(sliderValue4);
-    jsonString = JSON.stringify(slider4Values);
-    break;
-  case 5:
-    slider5Values["sV5"] = String(sliderValue5);
-    jsonString = JSON.stringify(slider5Values);
-    break;
-  case 6:
-    slider6Values["sV6"] = String(sliderValue6);
-    jsonString = JSON.stringify(slider6Values);
-    break;
-  case 7:
-    slider7Values["sV7"] = String(sliderValue7);
-    jsonString = JSON.stringify(slider7Values);
-    break;
-  case 8:
-    slider8Values["sV8"] = String(sliderValue8);
-    jsonString = JSON.stringify(slider8Values);
-    break;
-
-  default:
-    break;
+    for (size_t i = 0; i < 8; i++)
+    {
+      st += SendSystem.motor(i,sliderValue[i] );
+      //st += ";m:" + String(i) + ':'+String(sliderValue[i]);
+    }
+  }
+  else if(index >= 0 && index < 8)
+  {
+    st = SendSystem.motor(index,sliderValue[index] );
   }
 
-  // jsonString = JSON.stringify(sliderValues);
-  return jsonString;
+  return st;
 }
 
 void initFS()
@@ -237,20 +184,6 @@ void inline notifyClients(String sliderValues)
   ws.textAll(sliderValues);
 }
 
-float MC8;
-float MC8old;
-float MC1;
-float MC2;
-float MC3;
-float MC4;
-float MC5;
-float MC6;
-float MC7;
-
-
-
-
-
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 {
@@ -262,6 +195,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     //;m:0:2;m:1:-100;t:1:pocet:"joiuyytuiopiuytrddxhhi jj   m  ijmk"
     komunProtokol komP;
     komP.begin(message);
+    Serial.println("message:");
+    Serial.println(message);
+    String outAll;
     for (int s = 0; s < komP.pocetSouboru; s++)
     {
       String souName = komP.readStr();
@@ -269,27 +205,45 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       {
         Serial.println("Problem s velikosti:");
         Serial.println(souName);
+        Serial.println(souName.length());
         return;
       }
-      
+      int cisloM;
+      int smer;
       switch (souName.charAt(0))
       {
       case 'm':
-        if (komP.indentifikace_pocet() != 1)
+
+        if (komP.pocetVAktualSouboru() != 3)
         {
-          Serial.println("Problem s velikosti:");
-          Serial.println(souName);
+          Serial.println("Problem s velikosti M:");
+          Serial.println(komP.pocetVAktualSouboru());
           return;
         }
+        cisloM = komP.readInt();
+        smer = komP.readInt();
+        Serial.print("c:");
+        Serial.println(cisloM);
+        Serial.print("h:");
+        Serial.println(smer);
+        mot.inputProc(cisloM, smer);
+        outAll += komP.sendAktSoubor();
+        if(cisloM >= 0 && cisloM < 8)
+        {
+          sliderValue[cisloM]  = smer;
+        }
         break;
-      
       default:
+        Serial.println("neznama vec");
+        outAll += getSliderValues();
         break;
       }
     }
+            Serial.println("outAll:");
+        Serial.println(outAll);
+    ws.textAll(outAll);
     
-
-
+/*
     if (message.indexOf("1s") >= 0)
     {
       sliderValue1 = message.substring(2);
@@ -371,7 +325,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     {
       notifyClients(getSliderValues());
     }
+    */
   }
+  
 }
 
 void PrClent(IPAddress ip)

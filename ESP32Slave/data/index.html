@@ -20,9 +20,9 @@
                         <div class="card">
                             <p class="card-title"> LED</p>
                             <p class="switch">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider6" min="-100" max="100" step="20" value ="0" class="slider">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider5" min="-100" max="100" step="20" value ="0" class="slider">
                             </p>
-                            <p class="state"> <span id="sV6"></span> &percnt;</p>
+                            <p class="state"> <span id="sV5"></span> &percnt;</p>
                         </div> 
                     </td>
                     <td>
@@ -45,23 +45,14 @@
                         <div class="card2">
                             <p class="card-title"> Kleste</p>
                             <p class="switch2">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider5" min="-100" max="100" step="100" value ="0" class="slider2">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider4" min="-100" max="100" step="100" value ="0" class="slider2">
                             </p>
-                            <p class="state"> <span id="sV5"></span> &percnt;</p>
+                            <p class="state"> <span id="sV4"></span> &percnt;</p>
                         </div>   
                     </td>
                     <td>
                         <div class="card2">
                             <p class="card-title"> M4</p>
-                            <p class="switch2">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider4" min="-100" max="100" step="50" value ="0" class="slider2">
-                            </p>
-                            <p class="state"> <span id="sV4"></span> &percnt;</p>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="card2">
-                            <p class="card-title"> M3</p>
                             <p class="switch2">
                                 <input type="range" onchange="updateSliderPWM(this)" id="slider3" min="-100" max="100" step="50" value ="0" class="slider2">
                             </p>
@@ -70,11 +61,20 @@
                     </td>
                     <td>
                         <div class="card2">
-                            <p class="card-title"> M2</p>
+                            <p class="card-title"> M3</p>
                             <p class="switch2">
                                 <input type="range" onchange="updateSliderPWM(this)" id="slider2" min="-100" max="100" step="50" value ="0" class="slider2">
                             </p>
                             <p class="state"> <span id="sV2"></span> &percnt;</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="card2">
+                            <p class="card-title"> M2</p>
+                            <p class="switch2">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="-100" max="100" step="50" value ="0" class="slider2">
+                            </p>
+                            <p class="state"> <span id="sV1"></span> &percnt;</p>
                         </div>
                     </td>
                 </tr>
@@ -83,9 +83,9 @@
                         <div class="card">
                             <p class="card-title"> M1</p>
                             <p class="switch">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="-100" max="100" step="50" value ="0" class="slider">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider0" min="-100" max="100" step="50" value ="0" class="slider">
                             </p>
-                            <p class="state"> <span id="sV1"></span> &percnt;</p>
+                            <p class="state"> <span id="sV0"></span> &percnt;</p>
                         </div>
                     </td>
                 </tr>
@@ -97,9 +97,9 @@
                                     Levy</button>
                             
                             <p class="switch3">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider7" min="-100" max="100" step="5" value ="0" class="slider3">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider6" min="-100" max="100" step="5" value ="0" class="slider3">
                             </p>
-                            <p class="state"> <span id="sV7"></span> &percnt;</p>
+                            <p class="state"> <span id="sV6"></span> &percnt;</p>
                         </div>
                     </td>
                     <td colspan=2>
@@ -107,9 +107,9 @@
                             <button type="button" onclick="updateSliderPWMnullPravy()">
                                 Pravy</button>
                             <p class="switch3">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider8" min="-100" max="100" step="5" value ="0" class="slider3">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider7" min="-100" max="100" step="5" value ="0" class="slider3">
                             </p>
-                            <p class="state"> <span id="sV8"></span> &percnt;</p>
+                            <p class="state"> <span id="sV7"></span> &percnt;</p>
                         </div>
                 </tr>
                 <tr id="tr3">
@@ -132,10 +132,12 @@
 
         </div>
     </div>
+    
     <script src="script.js"></script>
+    <!--
     <script src="joy.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type="text/javascript">
+    <script type="text/javascript">
     $(function () {
         $("#tr1").hide();
         $("#tr2").hide();
@@ -201,40 +203,6 @@ var Joy1 = new JoyStick('joy1Div', {}, function(stickData) {
     joy1Y.value = stickData.y;
     setTimeout(myGreeting, 500);
 });
-/*
-const myTimeout = setTimeout(myGreeting, 500, document.getElementById("joy1X"), document.getElementById("joy1Y"));
-var LevaJ=0;
-var PravaJ = 0; 
-function myGreeting(abcx,abcy) {
-    console.log("abcx");
-    console.log(abcx);
-    console.log(abcy);
-    var Leva = 0;
-    var Prava =0;
-    if(abcx<0)
-    {
-        Leva = abcy+abcx;
-    Prava =abcy;
-    }
-    else
-    {
-        Leva = abcy;
-    Prava = abcy-abcx;
-    }
-    console.log(Leva);
-    console.log(Prava);
-    console.log(LevaJ);
-    console.log(PravaJ);
-
-    if(LevaJ != Leva || PravaJ != Prava)
-    {
-    updateSliderPWM2(1, Leva);
-    updateSliderPWM2(2,Prava);
-    PravaJ = Prava;
-    LevaJ = Leva;
-    }
-}
-*/
 
 
 // Create JoyStick object into the DIV 'joy2Div'
@@ -268,5 +236,6 @@ setInterval(function(){ joy3Direzione.value=Joy3.GetDir(); }, 50);
 setInterval(function(){ joy3X.value=Joy3.GetX(); }, 50);
 setInterval(function(){ joy3Y.value=Joy3.GetY(); }, 50);
 </script>
+-->
 </body>
 </html>
