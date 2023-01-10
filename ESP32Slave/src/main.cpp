@@ -233,14 +233,32 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
           sliderValue[cisloM]  = smer;
         }
         break;
+      case 'M':
+        if (komP.pocetVAktualSouboru() != 2)
+        {
+          Serial.println("Problem s velikosti M:");
+          Serial.println(komP.pocetVAktualSouboru());
+          return;
+        }
+        outAll += getSliderValues(komP.readInt());
+        break;
+      case 'A':
+        if (komP.pocetVAktualSouboru() != 1)
+        {
+          Serial.println("Problem s velikosti M:");
+          Serial.println(komP.pocetVAktualSouboru());
+          return;
+        }
+        outAll += getSliderValues();
+        break;
       default:
         Serial.println("neznama vec");
         outAll += getSliderValues();
         break;
       }
     }
-            Serial.println("outAll:");
-        Serial.println(outAll);
+    Serial.println("outAll:");
+    Serial.println(outAll);
     ws.textAll(outAll);
     
 /*

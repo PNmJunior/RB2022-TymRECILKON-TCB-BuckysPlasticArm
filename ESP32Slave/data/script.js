@@ -1,5 +1,7 @@
 // Complete project details: https://randomnerdtutorials.com/esp32-web-server-websocket-sliders/
 
+
+//komunikační knihovna
 const SouborZnak = ";";
 const nahradaSouborZnak =" ///1||| ";
 const SubSouborZnak =":";
@@ -15,8 +17,8 @@ function balicekInt(a)
 function balicekText(a)
 {
     let str = String(a)
-    str.replace(SouborZnak, nahradaSouborZnak);
-    str.replace(SubSouborZnak, nahradaSubSouborZnak);
+    str = str.replace(SouborZnak, nahradaSouborZnak);
+    str = str.replace(SubSouborZnak, nahradaSubSouborZnak);
     return str;
 }
 
@@ -47,6 +49,12 @@ function motorAllSend()
 {
     return addSoubor(balicekText('A'));
 }
+
+function  dataMotor(mot, hod)
+{
+    return [mot, hod];
+}
+
 
 function viceMotoru(a)
 {
@@ -83,16 +91,13 @@ function readInt(a)
 function readText(a)
 {
     let str = String(a)
-    str.replace( nahradaSouborZnak, SouborZnak);
-    str.replace( nahradaSubSouborZnak, SubSouborZnak);
+    str=str.replace( nahradaSouborZnak, SouborZnak);
+    str=str.replace( nahradaSubSouborZnak, SubSouborZnak);
     return str;
 }
 
 
-
-
-
-
+//work
 var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
 window.addEventListener('load', onload);
@@ -128,7 +133,7 @@ function updateSliderPWM(element) {
     var sliderValue = document.getElementById(element.id).value;
     //document.getElementById("sV"+sliderNumber).innerHTML = sliderValue;
     console.log(sliderValue);
-    websocket.send(motorSend([sliderNumber, sliderValue]));
+    websocket.send(motorSend(dataMotor(sliderNumber, sliderValue)));
 }
 
 
@@ -148,12 +153,8 @@ async function sample() {
   }
 
 
-function updateSliderPWMnullLevy() {
-    websocket.send(motorSend([8,0]));
-}
-
-function updateSliderPWMnullPravy() {
-    websocket.send(motorSend([7,0]));;
+function updateSliderPWMnull(a) {
+    websocket.send(motorSend(dataMotor(a, 0)));
 }
 
 function reset123()
@@ -164,25 +165,12 @@ function reset123()
     stisknuto();
 }
 
+
 function stisknuto()
 { 
-    /*  
-    websocket.send("9s0"); 
-    var a = window.open("/stop");
-    a.close();
-    
-    for(var i = 1; i < 9; i++)
-    {        
-        document.getElementById("slider"+i.toString()).innerHTML = 0;
-        console.log("a");
-        websocket.send(i.toString()+"s0");
-        console.log("b");
-    }
-    websocket.send("9s0");
-    var b = window.open("/stop");
-    b.close();
-    */
+    motorAllSend();
 }
+
 
 function onMessage(event) {
     console.log(event.data);
@@ -194,8 +182,6 @@ function onMessage(event) {
         console.log(SoubIn);
         switch (readText( SoubIn[0]))
         {
-            
-
             case "m":
                 let key = readInt( SoubIn[1]);
                 let myObj = readInt( SoubIn[2]);
@@ -211,28 +197,6 @@ function onMessage(event) {
                 break;
             default:
                 break;
-
         }
     }
-
-
-
-/*
-    var myObj = JSON.parse(event.data);
-    var keys = Object.keys(myObj);
-    console.log(myObj);
-    console.log(keys);
-
-    for (var i = 0; i < keys.length; i++){
-        var key = keys[i];
-        var keyB = key.toString().charAt(2);
-        console.log("kiijonikn");
-        console.log(key);
-        document.getElementById(key).innerHTML = myObj[key];
-        console.log(myObj[key]);
-        console.log("slider"+ key.toString()+"="+myObj[key].toString());
-        document.getElementById("slider"+ keyB.toString()).value = myObj[key];
-        
-    }
-    */
 }
