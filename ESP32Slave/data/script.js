@@ -35,35 +35,47 @@ function addSubSoubor(a)
 }
 
 
-function motorSend(a)
+function motorSend(mot,hod)
 {
-    return addSoubor(balicekText('m')) + addSubSoubor(balicekInt(a[0])) + addSubSoubor(balicekInt(a[1]));
+    return sendAuto(dataMotor(mot,hod));
 }
 
 function motorQestionSend(a)
 {
-    return addSoubor(balicekText('M')) + addSubSoubor(balicekInt(a));
+    return sendAuto(dataMotorQestion(a));
 }
 
 function motorAllSend()
 {
-    return addSoubor(balicekText('A'));
+    return sendAuto(dataMotorAll());
+}
+
+function dataMotorAll()
+{
+    return ['A'];
+}
+
+function dataMotorQestion(mot)
+{
+    return ['M',balicekInt( mot)];
 }
 
 function  dataMotor(mot, hod)
 {
-    return [mot, hod];
+    return ['m',balicekInt( mot),balicekInt( hod)];
 }
 
 
-function viceMotoru(a)
+function sendAuto(a)
 {
-    let s = "";
-    for(let element of a) 
+    let str = addSoubor(a[0]);
+    a.shift();
+    for(const b of a) 
     {
-        s = s + motor(element);
+        str = str + addSubSoubor(b);
     }
-    return s;
+    return str;
+
 }
 
 
@@ -102,6 +114,10 @@ var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
 window.addEventListener('load', onload);
 
+var startTimeSend = performance.now();
+var startTimeIn = performance.now();
+var startTimeAll = performance.now();
+
 function onload(event) {
     initWebSocket();
 }
@@ -129,11 +145,14 @@ function onClose(event) {
 }
 
 function updateSliderPWM(element) {
+    startTimeSend = performance.now();
+    startTimeAll = performance.now();
     var sliderNumber = element.id.charAt(element.id.length-1);
     var sliderValue = document.getElementById(element.id).value;
     //document.getElementById("sV"+sliderNumber).innerHTML = sliderValue;
     console.log(sliderValue);
-    websocket.send(motorSend(dataMotor(sliderNumber, sliderValue)));
+    websocket.send(motorSend(sliderNumber, sliderValue));
+    console.log(`Send time ${performance.now() - startTimeSend} milliseconds`);
 }
 
 
@@ -154,7 +173,7 @@ async function sample() {
 
 
 function updateSliderPWMnull(a) {
-    websocket.send(motorSend(dataMotor(a, 0)));
+    websocket.send(motorSend(a, 0));
 }
 
 function reset123()
@@ -173,6 +192,7 @@ function stisknuto()
 
 
 function onMessage(event) {
+    startTimeIn = performance.now();
     console.log(event.data);
 
     var dataIn = read(event.data);
@@ -199,4 +219,6 @@ function onMessage(event) {
                 break;
         }
     }
+    console.log(`In time ${performance.now() - startTimeIn} milliseconds`);
+    console.log(`All time ${performance.now() - startTimeAll} milliseconds`);
 }
