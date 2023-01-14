@@ -2,7 +2,6 @@
 #define enkod
 
 #include <Arduino.h>
-#include <functional>
 /*
 //https://github.com/PaulStoffregen/Encoder.git
 

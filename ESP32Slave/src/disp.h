@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <binary.h>
-#include <WiFi.h>
 #define mWork 250
 
 struct textVelky

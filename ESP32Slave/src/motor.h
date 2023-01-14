@@ -3,12 +3,9 @@
 
 #include <Arduino.h>
 #include <binary.h>
-#include <Arduino_JSON.h>
-#include <vector>
 #include "esp32-hal.h"
 #include "soc/soc_caps.h"
 #include "driver/ledc.h"
-//#include <komunBasic.h>
 typedef byte resDuty;
 
 #define LEDC_mTIMER              LEDC_TIMER_3
@@ -197,7 +194,7 @@ bool motor::beginTimer(uint32_t frek = LEDC_mFrec,ledc_timer_t _tim =LEDC_mTIMER
 }
 
 
-bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _neg, byte _max, byte _min, ledc_timer_config_t *ledc_timer = null )
+bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _neg, byte _max, byte _min, ledc_timer_config_t *ledc_timer = 0 )
 {
     Serial.print("motor:");
     Serial.println(mot);
@@ -209,7 +206,7 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     {
         return false;
     }
-    if (ledc_timer == null)
+    if (ledc_timer == 0)
     {
         //Serial.println("md");
         if (setDefTimer)
