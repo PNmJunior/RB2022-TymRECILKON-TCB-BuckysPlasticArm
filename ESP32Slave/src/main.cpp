@@ -9,7 +9,6 @@
 #include <enkoder.h>
 #include <menu.h>
 #include "SPIFFS.h"
-#include <Arduino_JSON.h>
 #include "SPIFFS.h"      //nastaveni webu
 #include <Preferences.h> //Ulozeni hesla
 
@@ -185,7 +184,7 @@ void inline notifyClients(String sliderValues)
 }
 
 
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client)
 {
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
@@ -198,6 +197,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     Serial.println("message:");
     Serial.println(message);
     String outAll;
+    String outClient;
     for (int s = 0; s < komP.pocetSouboru; s++)
     {
       String souName = komP.readStr();
@@ -240,7 +240,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
           Serial.println(komP.pocetVAktualSouboru());
           return;
         }
-        outAll += getSliderValues(komP.readInt());
+        outClient += getSliderValues(komP.readInt());
         break;
       case 'A':
         if (komP.pocetVAktualSouboru() != 1)
@@ -249,7 +249,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
           Serial.println(komP.pocetVAktualSouboru());
           return;
         }
-        outAll += getSliderValues();
+        outClient += getSliderValues();
         break;
       default:
         Serial.println("neznama vec");
@@ -259,7 +259,18 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     }
     Serial.println("outAll:");
     Serial.println(outAll);
-    ws.textAll(outAll);
+    if (outAll != "")
+    {
+      ws.textAll(outAll);
+    }
+    Serial.print("outClient:");
+    Serial.println(client->id());
+    Serial.println(outClient);
+    if (outClient != "")
+    {
+      client->text(outClient);
+    }
+    
     
 /*
     if (message.indexOf("1s") >= 0)
@@ -371,7 +382,7 @@ void onEvent2(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType
     PrClent(client->remoteIP());
     break;
   case WS_EVT_DATA:
-    handleWebSocketMessage(arg, data, len);
+    handleWebSocketMessage(arg, data, len, client);
     break;
   case WS_EVT_PONG:
   Serial.printf("Ping from %s\n", client->remoteIP().toString().c_str());
