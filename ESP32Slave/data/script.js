@@ -117,6 +117,9 @@ window.addEventListener('load', onload);
 var startTimeSend = performance.now();
 var startTimeIn = performance.now();
 var startTimeAll = performance.now();
+var timeOldSend = performance.now();
+var hodNow = [0,0,0,0,0,0,0,0]
+var hodOld = [0,0,0,0,0,0,0,0]
 
 function onload(event) {
     initWebSocket();
@@ -222,3 +225,180 @@ function onMessage(event) {
     console.log(`In time ${performance.now() - startTimeIn} milliseconds`);
     console.log(`All time ${performance.now() - startTimeAll} milliseconds`);
 }
+
+
+class JoystickController
+{
+	// stickID: ID of HTML element (representing joystick) that will be dragged
+	// maxDistance: maximum amount joystick can move in any direction
+	// deadzone: joystick must move at least this amount from origin to register value change
+	constructor( stickID, maxDistance, deadzone )
+	{
+		this.id = stickID;
+		let stick = document.getElementById(stickID);
+
+		// location from which drag begins, used to calculate offsets
+		this.dragStart = null;
+
+		// track touch identifier in case multiple joysticks present
+		this.touchId = null;
+		
+		this.active = false;
+		this.value = { x: 0, y: 0 }; 
+
+		let self = this;
+
+		function handleDown(event)
+		{
+		    self.active = true;
+
+			// all drag movements are instantaneous
+			stick.style.transition = '0s';
+
+			// touch event fired before mouse event; prevent redundant mouse event from firing
+			event.preventDefault();
+
+		    if (event.changedTouches)
+		    	self.dragStart = { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY };
+		    else
+		    	self.dragStart = { x: event.clientX, y: event.clientY };
+
+			// if this is a touch event, keep track of which one
+		    if (event.changedTouches)
+		    	self.touchId = event.changedTouches[0].identifier;
+		}
+		
+		function handleMove(event) 
+		{
+		    if ( !self.active ) return;
+
+		    // if this is a touch event, make sure it is the right one
+		    // also handle multiple simultaneous touchmove events
+		    let touchmoveId = null;
+		    if (event.changedTouches)
+		    {
+		    	for (let i = 0; i < event.changedTouches.length; i++)
+		    	{
+		    		if (self.touchId == event.changedTouches[i].identifier)
+		    		{
+		    			touchmoveId = i;
+		    			event.clientX = event.changedTouches[i].clientX;
+		    			event.clientY = event.changedTouches[i].clientY;
+		    		}
+		    	}
+
+		    	if (touchmoveId == null) return;
+		    }
+            /*
+		    const xDiff = event.clientX - self.dragStart.x;
+		    const yDiff = event.clientY - self.dragStart.y;
+		    const angle = Math.atan2(yDiff, xDiff);
+			const distance = Math.min(maxDistance, Math.hypot(xDiff, yDiff));
+			const xPosition = distance * Math.cos(angle);
+			const yPosition = distance * Math.sin(angle);
+*/
+
+            const xDiff = event.clientX - self.dragStart.x;
+		    const yDiff = event.clientY - self.dragStart.y;
+		    const angle = Math.atan2(yDiff, xDiff);
+			let xPosition = 0;
+			let yPosition = 0;
+            if(xDiff > 0)
+            {
+                xPosition = Math.min(xDiff, maxDistance);
+            }
+            else if(xDiff < 0)
+            {
+                xPosition = Math.max(xDiff, -maxDistance);
+            }
+
+            if(yDiff > 0)
+            {
+                yPosition = Math.min(yDiff, maxDistance);
+            }
+            else if(yDiff < 0)
+            {
+                yPosition = Math.max(yDiff, -maxDistance);
+            }
+
+            const distance = Math.max(Math.abs(xPosition), Math.abs(yPosition));
+
+            //console.log(xPosition);
+            //console.log(yPosition);
+
+
+			// move stick image to new position
+		    stick.style.transform = `translate3d(${xPosition}px, ${yPosition}px, 0px)`;
+
+			// deadzone adjustment
+		    const xPercent = xPosition.toFixed(0);
+		    const yPercent = yPosition.toFixed(0);
+            
+
+		    
+		    self.value = { x: xPercent, y: yPercent };
+		  }
+
+		function handleUp(event) 
+		{
+		    if ( !self.active ) return;
+
+		    // if this is a touch event, make sure it is the right one
+		    if (event.changedTouches && self.touchId != event.changedTouches[0].identifier) return;
+
+		    // transition the joystick position back to center
+		    stick.style.transition = '.2s';
+		    stick.style.transform = `translate3d(0px, 0px, 0px)`;
+
+		    // reset everything
+		    self.value = { x: 0, y: 0 };
+		    self.touchId = null;
+		    self.active = false;
+		}
+
+		stick.addEventListener('mousedown', handleDown);
+		stick.addEventListener('touchstart', handleDown);
+		document.addEventListener('mousemove', handleMove, {passive: false});
+		document.addEventListener('touchmove', handleMove, {passive: false});
+		document.addEventListener('mouseup', handleUp);
+		document.addEventListener('touchend', handleUp);
+	}
+}
+
+let joystick1 = new JoystickController("stick1", 100, 10);
+let joystick2 = new JoystickController("stick2", 100, 10);
+
+function update()
+{
+//.log("des");
+	document.getElementById("status1").innerText = "Joystick 1: " + JSON.stringify(joystick1.value);
+	document.getElementById("status2").innerText = "Joystick 2: " + JSON.stringify(joystick2.value);
+    hodNow[0] = joystick1.value.x;
+    hodNow[1] = joystick1.value.y;
+    let stri = "";
+    for(let i = 0; i < 8; i++)
+    {
+        if(hodNow[i] != hodOld[i])
+        {
+            hodOld[i] = hodNow[i];
+            stri =  stri + motorSend(i,hodOld[i]);
+        }
+    }
+    if(stri != "")
+    {
+        websocket.send(stri);
+        console.log(stri);
+    }
+    setTimeout(arguments.callee, 500);
+
+}
+
+function loop()
+{
+	requestAnimationFrame(loop);
+	//update();
+    
+}
+//setTimeout(update(), 1000);
+//loop();
+update();
