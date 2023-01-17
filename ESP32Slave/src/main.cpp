@@ -261,7 +261,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     Serial.println(outAll);
     if (outAll != "")
     {
+      Serial.println("outAllp1:");
       ws.textAll(outAll);
+      Serial.println("outAllp2:");
     }
     Serial.print("outClient:");
     Serial.println(client->id());
