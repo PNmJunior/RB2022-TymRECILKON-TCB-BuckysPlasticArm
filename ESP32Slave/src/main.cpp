@@ -259,10 +259,16 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     }
     Serial.println("outAll:");
     Serial.println(outAll);
+    ws._cleanBuffers();
     if (outAll != "")
     {
       Serial.println("outAllp1:");
-      ws.textAll(outAll);
+      //ws.textAll(outAll);
+      //ws._clients;
+      /*
+      for(const auto& c: ws.getClients()){
+        c->text(outAll);
+      }*/
       Serial.println("outAllp2:");
     }
     Serial.print("outClient:");
@@ -270,9 +276,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     Serial.println(outClient);
     if (outClient != "")
     {
-      client->text(outClient);
+      //client->text(outClient);
+      //ws.text(client->id(),outClient);
+      ws.textAll(outClient);
     }
-    
+
+
+    //ws._cleanBuffers();
     
 /*
     if (message.indexOf("1s") >= 0)

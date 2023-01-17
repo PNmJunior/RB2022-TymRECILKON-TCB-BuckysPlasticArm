@@ -381,14 +381,15 @@ function update()
         if(hodNow[i] != hodOld[i])
         {
             hodOld[i] = hodNow[i];
-            stri =  stri + motorSend(i,hodOld[i]);
+            websocket.send( motorSend(i,hodOld[i]));
         }
     }
+    /*
     if(stri != "")
     {
         websocket.send(stri);
         console.log(stri);
-    }
+    }*/
     setTimeout(arguments.callee, 500);
 
 }
