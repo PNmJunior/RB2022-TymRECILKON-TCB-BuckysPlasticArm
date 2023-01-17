@@ -257,13 +257,14 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
         break;
       }
     }
+    //komP.clear();
     Serial.println("outAll:");
     Serial.println(outAll);
-    ws._cleanBuffers();
+    //ws._cleanBuffers();
     if (outAll != "")
     {
       Serial.println("outAllp1:");
-      //ws.textAll(outAll);
+      ws.textAll(outAll);
       //ws._clients;
       /*
       for(const auto& c: ws.getClients()){

@@ -382,6 +382,7 @@ function update()
         {
             hodOld[i] = hodNow[i];
             websocket.send( motorSend(i,hodOld[i]));
+            //stri  = stri + motorSend(i,hodOld[i]);
         }
     }
     /*

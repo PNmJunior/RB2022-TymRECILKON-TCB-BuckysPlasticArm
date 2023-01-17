@@ -100,7 +100,7 @@ public:
     int pocetVAktualSouboru();
     int indentifikace_pocet();
     String sendAktSoubor();
-
+    void clear();
     komunProtokol();
     ~komunProtokol();
 };
@@ -114,6 +114,13 @@ komunProtokol::~komunProtokol()
 
 }
 
+
+void komunProtokol::clear()
+{
+    free(indexyStart);
+    free(pocetSubsouboru);
+    //str.clear();
+}
 
 String komunProtokol::sendAktSoubor()
 {
