@@ -253,15 +253,11 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
         break;
       default:
         Serial.println("neznama vec");
-        Serial.println(souName.charAt(0));
-        //outAll += getSliderValues();
+        outAll += getSliderValues();
         break;
       }
-        //Serial.println("delay");
-        //delay(1000);
     }
     //komP.clear();
-  
     Serial.println("outAll:");
     Serial.println(outAll);
     //ws._cleanBuffers();

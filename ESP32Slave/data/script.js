@@ -154,7 +154,7 @@ function updateSliderPWM(element) {
     var sliderValue = document.getElementById(element.id).value;
     //document.getElementById("sV"+sliderNumber).innerHTML = sliderValue;
     console.log(sliderValue);
-    websocket.send(motorSend(sliderNumber, sliderValue) + `;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f;f`);
+    websocket.send(motorSend(sliderNumber, sliderValue));
     console.log(`Send time ${performance.now() - startTimeSend} milliseconds`);
 }
 
@@ -381,16 +381,16 @@ function update()
         if(hodNow[i] != hodOld[i])
         {
             hodOld[i] = hodNow[i];
-            //websocket.send( motorSend(i,hodOld[i]));
-            stri  = stri + motorSend(i,hodOld[i]);
+            websocket.send( motorSend(i,hodOld[i]));
+            //stri  = stri + motorSend(i,hodOld[i]);
         }
     }
-    
+    /*
     if(stri != "")
     {
         websocket.send(stri);
         console.log(stri);
-    }
+    }*/
     setTimeout(arguments.callee, 500);
 
 }
