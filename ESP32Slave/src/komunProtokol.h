@@ -81,8 +81,8 @@ class komunProtokol
 private:
     int sizeM;
     int posledniSoubor;
-    char *str;
-    size_t len;
+    String str;
+    void ZvetstiZasobnik();
     void pocetVAktualSouboru2();
 public:
     int pocetSouboru = 0;
@@ -92,10 +92,9 @@ public:
     int pocet = 0;
     const int end = 10000;
     const int subSoubor = 0;
-    void begin(char *data, size_t len);
+    void begin(String STR);
     int readInt();
     String readStr();
-    char readChar();
     bool isMesterSoubor();
     bool isEND();
     int pocetVAktualSouboru();
@@ -123,11 +122,9 @@ void komunProtokol::clear()
     //str.clear();
 }
 
-
-
 String komunProtokol::sendAktSoubor()
 {
-    return String(&str[indexyStart[pocet]],indexyStart[++pocet] - indexyStart[pocet - 1]);
+    return str.substring(indexyStart[posledniSoubor], indexyStart[posledniSoubor + pocetSubsouboru[posledniSoubor]]);
 }
 
 
@@ -171,12 +168,7 @@ int komunProtokol::readInt()
 {
     if(pocet > pocetPrvku){return end;}
     pocetVAktualSouboru2();
-    return String(&str[indexyStart[pocet] + 1],indexyStart[++pocet] - indexyStart[pocet - 1]).toInt();
-}
-
-char komunProtokol::readChar()
-{
-    return str[indexyStart[pocet++] + 1];
+    return str.substring(indexyStart[pocet] + 1,indexyStart[++pocet ]).toInt();
 }
 
 
@@ -184,40 +176,39 @@ String komunProtokol::readStr()
 {
     if(pocet > pocetPrvku){return "end";}
     pocetVAktualSouboru2();
-    String a = String(&str[indexyStart[pocet] + 1],indexyStart[++pocet] - indexyStart[pocet - 1]);
-    pocet ++;
+    String a = str.substring(indexyStart[pocet] + 1,indexyStart[++pocet ]);
     a.replace(nahradaSouborZnak,SouborZnak);
     a.replace(nahradaSubSouborZnak,SubSouborZnak);
     return a;
 }
 
 
-
-void komunProtokol::begin(char *data, size_t _len)
+inline void komunProtokol::ZvetstiZasobnik()
 {
-    str = data;
-    len = _len;
-    char pism;
-    sizeM = 1;
-    for (int i = 0; i < len; i++)
+    if (sizeM == pocetPrvku)
     {
-        if (str[i]==';' || str[i]==':')
-        {
-            sizeM ++;
-        }
+        sizeM += 10;
+        indexyStart = (int *)realloc(indexyStart,sizeM + 1);
+        pocetSubsouboru = (int *)realloc(pocetSubsouboru,sizeM+1);
     }
+}
 
-    pocetPrvku = 0;
 
-    indexyStart = (int *)malloc(sizeM);
-    pocetSubsouboru = (int *)malloc(sizeM);
-    for (int i = 0; i < len; i++)
+void komunProtokol::begin(String STR)
+{
+    str = STR;
+    char pism;
+    sizeM = 10;
+    indexyStart = (int *)malloc(sizeM + 1);
+    pocetSubsouboru = (int *)malloc(sizeM + 1);
+    for (int i = 0; i < str.length(); i++)
     {
-        pism = str[i];
+        pism = str.charAt(i);
         if (pism == ';')
         {
             pocetSouboru ++;
             pocetPrvku ++;
+            ZvetstiZasobnik();
             posledniSoubor = pocetPrvku -1;
             indexyStart[posledniSoubor] = i;
             pocetSubsouboru[posledniSoubor] = 1;
@@ -225,12 +216,13 @@ void komunProtokol::begin(char *data, size_t _len)
         else if (pism == ':')
         {
             pocetPrvku ++;
+            ZvetstiZasobnik();
             indexyStart[pocetPrvku -1] = i;
             pocetSubsouboru[pocetPrvku -1] = 0;
             pocetSubsouboru[posledniSoubor] ++;
         }
     }
-    indexyStart[pocetPrvku] = str[len - 1];
+    indexyStart[pocetPrvku] = str.length();
     pocetSubsouboru[pocetPrvku] = end;
 }
 
