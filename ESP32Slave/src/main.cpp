@@ -193,7 +193,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     message = (char *)data;
     //;m:0:2;m:1:-100;t:1:pocet:"joiuyytuiopiuytrddxhhi jj   m  ijmk"
     komunProtokol komP;
-    komP.begin(message);
+    komP.begin((char *)data,len);
     Serial.println("message:");
     Serial.println(message);
     String outAll;
