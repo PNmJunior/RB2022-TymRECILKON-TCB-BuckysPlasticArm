@@ -82,6 +82,7 @@ private:
     int sizeM;
     int posledniSoubor;
     String str;
+    void ZvetstiZasobnik();
     void pocetVAktualSouboru2();
 public:
     int pocetSouboru = 0;
@@ -94,7 +95,6 @@ public:
     void begin(String STR);
     int readInt();
     String readStr();
-    char readChar();
     bool isMesterSoubor();
     bool isEND();
     int pocetVAktualSouboru();
@@ -164,13 +164,6 @@ inline bool komunProtokol::isEND()
 }
 
 
-char komunProtokol::readChar()
-{
-    if(pocet > pocetPrvku){return 0;}
-    pocetVAktualSouboru2();
-    return str.charAt(indexyStart[pocet ++] + 1);
-}
-
 int komunProtokol::readInt()
 {
     if(pocet > pocetPrvku){return end;}
@@ -190,33 +183,40 @@ String komunProtokol::readStr()
 }
 
 
+inline void komunProtokol::ZvetstiZasobnik()
+{
+    if (sizeM == pocetPrvku)
+    {
+        sizeM += 10;
+        indexyStart = (int *)realloc(indexyStart,sizeM + 1);
+        pocetSubsouboru = (int *)realloc(pocetSubsouboru,sizeM+1);
+    }
+}
+
 
 void komunProtokol::begin(String STR)
 {
     str = STR;
-    sizeM = 1;
+    char pism;
+    sizeM = 10;
+    indexyStart = (int *)malloc(sizeM + 1);
+    pocetSubsouboru = (int *)malloc(sizeM + 1);
     for (int i = 0; i < str.length(); i++)
     {
-        if (str.charAt(i) == ';' || str.charAt(i) == ':')
-        {
-            sizeM ++;
-        }
-    }
-    indexyStart = (int *)malloc(sizeM);
-    pocetSubsouboru = (int *)malloc(sizeM);
-    for (int i = 0; i < str.length(); i++)
-    {
-        if (str.charAt(i) == ';')
+        pism = str.charAt(i);
+        if (pism == ';')
         {
             pocetSouboru ++;
             pocetPrvku ++;
+            ZvetstiZasobnik();
             posledniSoubor = pocetPrvku -1;
             indexyStart[posledniSoubor] = i;
             pocetSubsouboru[posledniSoubor] = 1;
         }
-        else if (str.charAt(i) == ':')
+        else if (pism == ':')
         {
             pocetPrvku ++;
+            ZvetstiZasobnik();
             indexyStart[pocetPrvku -1] = i;
             pocetSubsouboru[pocetPrvku -1] = 0;
             pocetSubsouboru[posledniSoubor] ++;
