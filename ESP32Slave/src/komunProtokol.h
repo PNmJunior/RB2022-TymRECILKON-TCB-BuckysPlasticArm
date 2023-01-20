@@ -86,8 +86,8 @@ private:
 public:
     int pocetSouboru = 0;
     int pocetPrvku = 0;
-    int *indexyStart;
-    int *pocetSubsouboru; //0=subsoubor; 0> hlavni soubor s poctem subsouboru
+    byte *indexyStart;
+    byte *pocetSubsouboru; //0=subsoubor; 0> hlavni soubor s poctem subsouboru
     int pocet = 0;
     const int end = 10000;
     const int subSoubor = 0;
@@ -202,8 +202,8 @@ void komunProtokol::begin(String STR)
             sizeM ++;
         }
     }
-    indexyStart = (int *)malloc(sizeM);
-    pocetSubsouboru = (int *)malloc(sizeM);
+    indexyStart = (byte*)malloc(sizeM);
+    pocetSubsouboru = (byte *)malloc(sizeM);
     for (int i = 0; i < str.length(); i++)
     {
         if (str.charAt(i) == ';')
