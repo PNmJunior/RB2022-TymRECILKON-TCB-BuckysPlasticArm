@@ -7,6 +7,15 @@ const nahradaSouborZnak =" ///1||| ";
 const SubSouborZnak =":";
 const nahradaSubSouborZnak= " ///2||| " ;
 
+const M_LED = 0;
+const M_1 = 1;
+const M_2 = 2;
+const M_3 = 3;
+const M_4 = 4;
+const M_Kleste = 5;
+const M_Levy = 6;
+const M_Pravy = 7;
+
 
 function balicekInt(a)
 {

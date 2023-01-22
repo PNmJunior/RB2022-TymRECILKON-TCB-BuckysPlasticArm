@@ -42,6 +42,19 @@ String WifiNotPassword = "@";
 #define pin_EnkB 34
 #define pin_EnkDP 36
 
+
+#define M_LED 0//5
+#define M_1 1//0
+#define M_2 2//1
+#define M_3 3//2
+#define M_4 4//3
+#define M_Kleste 5//4
+#define M_Levy 6//6
+#define M_Pravy 7//7
+
+const byte Prevodnik[8] = {5,0,1,2,3,4,6,7};
+
+
 disp segDisp;
 motor mot;
 // komun kom;
@@ -226,7 +239,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
         Serial.println(cisloM);
         Serial.print("h:");
         Serial.println(smer);
-        mot.inputProc(cisloM, smer);
+        mot.inputProc(Prevodnik[cisloM], smer);
         outAll += komP.sendAktSoubor();
         if(cisloM >= 0 && cisloM < 8)
         {
