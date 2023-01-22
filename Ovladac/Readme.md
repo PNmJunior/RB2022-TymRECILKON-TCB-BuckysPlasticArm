@@ -36,3 +36,7 @@ Levý Horní = Rameno.
 <img src = "fotky/modul_pro_telefon_1.jpg"><img src = "fotky/modul_pro_telefon_2.jpg">
 
 
+## Rychloupínák na stativ
+https://www.tripodhead.com/images/arca-specs.gif
+<img src = "fotky/arca-specs.gif">
+
