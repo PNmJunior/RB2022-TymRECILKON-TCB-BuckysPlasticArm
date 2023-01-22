@@ -1,5 +1,6 @@
 # Ovladač
 Jde o zařízení s možností ovládat všech osm motorů tak, aby to zvládal jeden člověk.
+<img src = "fotky/ovladac_22_1_2023.jpg">
 
 ## Zapojení
 Použil jsem levné Arduino joysticky. Úrovně napětí bude snímat BluePill a posílat data do telefonu přes USB.
