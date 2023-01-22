@@ -1,8 +1,25 @@
+uhel = 45;
+vyska = 10;
+delniRozAbs = 41.9;
+delniRozReal = 38;
 
+rych();
 
-
-
-
+module rych()
+{
+    difference()
+    {
+        translate() intersection()
+        {
+            translate([0,0,0]) cube([delniRozAbs,delniRozAbs,vyska]);
+            translate([0,0,0]) rotate([0,uhel,0]) cube([delniRozAbs,delniRozAbs,1000]);
+            translate([0,0,0]) rotate([-uhel,0,0]) cube([delniRozAbs,delniRozAbs,1000]);
+            translate([(delniRozAbs - delniRozReal)/2,(delniRozAbs - delniRozReal)/2,0]) cube([delniRozReal,delniRozReal,vyska]);
+        }
+        translate([0,delniRozAbs,0]) rotate([uhel,0,0]) cube([delniRozAbs,delniRozAbs,1000]);
+        translate([delniRozAbs,0,0]) rotate([0,-uhel,0]) cube([delniRozAbs,delniRozAbs,1000]);
+    }
+}
 
 //Kód pro vytvoření oválných kvádrů
 module OvalnaKrichleX(Rozdmery, zakulaceni)
