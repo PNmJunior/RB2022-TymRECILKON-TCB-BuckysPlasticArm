@@ -28,3 +28,6 @@ Levý Horní = Rameno.
     
 <img src = "fotky/koncept_ovladace.png">
 
+## Jednotka joysticku
+<img src = "fotky/joystickova_jednotka.jpg">
+
