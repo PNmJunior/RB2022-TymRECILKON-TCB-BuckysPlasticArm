@@ -31,3 +31,7 @@ Levý Horní = Rameno.
 ## Jednotka joysticku
 <img src = "fotky/joystickova_jednotka.jpg">
 
+## Modul pro telefon
+<img src = "fotky/modul_pro_telefon_1.jpg"><img src = "fotky/modul_pro_telefon_2.jpg">
+
+
