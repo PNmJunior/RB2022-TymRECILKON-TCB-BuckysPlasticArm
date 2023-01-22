@@ -1,11 +1,15 @@
 uhel = 45;
-vyska = 10;
+vyska = 9;
 delniRozAbs = 41.9;
 delniRozReal = 38;
 
 dir_roztec = 5;
 dir_az = 10;
-dir_vel = 3.1;
+dir_vel = 3.2;
+
+podlozka = 5;
+vyrez = 15;
+vyrez_vyska = 3.5;
 
 rych();
 
@@ -28,10 +32,13 @@ module rych()
             {
                 for(y = [-dir_az : dir_roztec  :dir_az])
                 {
-                    translate([x,y,0]) cylinder(h=100, d=dir_vel, center=true,$fn=20);
+                    translate([x,y,0]) cylinder(h=100, d=dir_vel, center=true,$fn=30);
+                    //translate([x,y,0]) cylinder(h=6, d=10, center=true,$fn=30);
                 }
             }
+            translate([-vyrez,-vyrez,-vyrez_vyska]) OvalnaKrichleZ([vyrez*2,vyrez*2,vyrez_vyska*2],podlozka,50);
         }
+        //translate([0,30,0]) cube([100,100,100]);
     }
 }
 
@@ -62,15 +69,15 @@ module OvalnaKrichleY(Rozdmery, zakulaceni)
 }
 
 
-module OvalnaKrichleZ(Rozdmery, zakulaceni)
+module OvalnaKrichleZ(Rozdmery, zakulaceni,st = 10)
 {
 	union() {
 	translate([zakulaceni,0,0]) cube([Rozdmery[0] - zakulaceni * 2,Rozdmery[1],Rozdmery[2]],center=false);
 	translate([0,zakulaceni,0]) cube([Rozdmery[0],Rozdmery[1]  - zakulaceni * 2,Rozdmery[2]],center=false);
-	translate([zakulaceni,zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=10);
-	translate([Rozdmery[0] - zakulaceni,zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=10);
-	translate([zakulaceni,Rozdmery[1] - zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=10);
-	translate([Rozdmery[0] - zakulaceni,Rozdmery[1] - zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=10);
+	translate([zakulaceni,zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([Rozdmery[0] - zakulaceni,zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([zakulaceni,Rozdmery[1] - zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([Rozdmery[0] - zakulaceni,Rozdmery[1] - zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=st);
 	}
 }
 
