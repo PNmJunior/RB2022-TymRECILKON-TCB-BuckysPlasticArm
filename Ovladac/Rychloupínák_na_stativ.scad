@@ -3,6 +3,10 @@ vyska = 10;
 delniRozAbs = 41.9;
 delniRozReal = 38;
 
+dir_roztec = 5;
+dir_az = 10;
+dir_vel = 3.1;
+
 rych();
 
 module rych()
@@ -18,6 +22,16 @@ module rych()
         }
         translate([0,delniRozAbs,0]) rotate([uhel,0,0]) cube([delniRozAbs,delniRozAbs,1000]);
         translate([delniRozAbs,0,0]) rotate([0,-uhel,0]) cube([delniRozAbs,delniRozAbs,1000]);
+        translate([delniRozAbs/2,delniRozAbs/2,0])
+        {
+            for(x = [-dir_az : dir_roztec  :dir_az])
+            {
+                for(y = [-dir_az : dir_roztec  :dir_az])
+                {
+                    translate([x,y,0]) cylinder(h=100, d=dir_vel, center=true,$fn=20);
+                }
+            }
+        }
     }
 }
 
