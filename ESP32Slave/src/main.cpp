@@ -153,7 +153,7 @@ String password ;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 String message = "";
-int sliderValue[8];
+//int sliderValue[8];
 
 
 // Json Variable to Hold Slider Values
@@ -167,13 +167,13 @@ String getSliderValues(int index = 100)
   {
     for (size_t i = 0; i < 8; i++)
     {
-      st += SendSystem.motor(i,sliderValue[i] );
+      st += SendSystem.motor(i,mot.outProc(i) );
       //st += ";m:" + String(i) + ':'+String(sliderValue[i]);
     }
   }
   else if(index >= 0 && index < 8)
   {
-    st = SendSystem.motor(index,sliderValue[index] );
+    st = SendSystem.motor(index,mot.outProc(index) );
   }
 
   return st;
@@ -241,10 +241,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
         Serial.println(smer);
         mot.inputProc(Prevodnik[cisloM], smer);
         outAll += komP.sendAktSoubor();
-        if(cisloM >= 0 && cisloM < 8)
-        {
-          sliderValue[cisloM]  = smer;
-        }
         break;
       case 'M':
         if (komP.pocetVAktualSouboru() != 2)
@@ -301,90 +297,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
 
 
     //ws._cleanBuffers();
-    
-/*
-    if (message.indexOf("1s") >= 0)
-    {
-      sliderValue1 = message.substring(2);
-      MC1 = sliderValue1.toFloat();
-      mot.inputProc(0, MC1);
-      notifyClients(getSliderValues(1));
-    }
-    if (message.indexOf("2s") >= 0)
-    {
-      sliderValue2 = message.substring(2);
-      MC2 = sliderValue2.toFloat();
-      mot.inputProc(1, MC2);
-      notifyClients(getSliderValues(2));
-    }
-    if (message.indexOf("3s") >= 0)
-    {
-      sliderValue3 = message.substring(2);
-      MC3 = sliderValue3.toFloat();
-      mot.inputProc(2, MC3);
-      notifyClients(getSliderValues(3));
-    }
-    if (message.indexOf("4s") >= 0)
-    {
-      sliderValue4 = message.substring(2);
-      MC4 = sliderValue4.toFloat();
-      mot.inputProc(3, MC4);
-      notifyClients(getSliderValues(4));
-    }
-    if (message.indexOf("5s") >= 0)
-    {
-      sliderValue5 = message.substring(2);
-      MC5 = sliderValue5.toFloat();
-      mot.inputProc(4, MC5);
-      notifyClients(getSliderValues(5));
-    }
-    if (message.indexOf("6s") >= 0)
-    {
-      sliderValue6 = message.substring(2);
-      MC6 = sliderValue6.toFloat();
-      mot.inputProc(5, MC6);
-      notifyClients(getSliderValues(6));
-    }
-    if (message.indexOf("7s") >= 0)
-    {
-      sliderValue7 = message.substring(2);
-      MC7 = sliderValue7.toFloat();
-      mot.inputProc(6, MC7);
-      notifyClients(getSliderValues(7));
-    }
-    if (message.indexOf("8s") >= 0)
-    {
-      sliderValue8 = message.substring(2);
-      MC8 = sliderValue8.toFloat();
-      mot.inputProc(7, MC8);
-      notifyClients(getSliderValues(8));
-    }
-    if (message.indexOf("9s") >= 0)
-    {
-      sliderValue1 = "0";
-      MC1 = 0;
-      sliderValue2 = "0";
-      MC2 = 0;
-      sliderValue3 = "0";
-      MC3 = 0;
-      sliderValue4 = "0";
-      MC4 = 0;
-      sliderValue5 = "0";
-      MC5 = 0;
-      sliderValue6 = "0";
-      MC6 = 0;
-      sliderValue7 = "0";
-      MC7 = 0;
-      sliderValue8 = "0";
-      MC8 = 0;
-      MotorStopAll();
-      notifyClients(getSliderValues());
-    }
-    if (strcmp((char *)data, "getValues") == 0)
-    {
-      notifyClients(getSliderValues());
-    }
-    */
   }
   
 }

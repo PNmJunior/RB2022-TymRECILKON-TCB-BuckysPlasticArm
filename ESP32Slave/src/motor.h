@@ -32,8 +32,8 @@ struct pohonSet
     byte index;
     char smer;
     long timeStop;
-   ledc_timer_config_t *ledc_timer;
-   ledc_channel_config_t ledc_channel;
+    ledc_timer_config_t *ledc_timer;
+    ledc_channel_config_t ledc_channel;
 };
 
 
@@ -70,6 +70,9 @@ volatile byte vyst;
     bool inputProc(byte mot, float proc);
     bool input(byte mot, int smer ,byte spead,int maxSpead ,int minSpead , int cas );
     long TStop(byte mot);
+    char outSmer(byte mot);
+    byte outSpead(byte mot,int min, int max );
+    int outProc(byte mot);
 };
 
 
@@ -324,16 +327,19 @@ bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,i
         }
         v[mot].duty = map(spead,minSpead,maxSpead,m[mot].min, m[mot].max); 
         m[mot].timeStop = millis() + cas;
+        m[mot].smer = smer;
     }
     else if (smer==mStopHigh)
     {
         vyst == vyst | m[mot].index;
         v[mot].duty = pohonMaxHod;
+        m[mot].smer = smer;
     }
     else if (smer == mStopLow)
     {
         vyst = vyst & ~m[mot].index;
         v[mot].duty = 0;
+        m[mot].smer = smer;
     }
     else
     {
@@ -354,6 +360,7 @@ bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,i
         {
             return false;
         }
+        m[mot].smer = smer;
     }
     return true;
 }
@@ -415,6 +422,46 @@ inline void motor::updatePWM()
     {
         updatePWM(i);
     }
+}
+
+
+char motor::outSmer(byte mot)
+{
+    if(mot >= 8)
+    {
+        return 0;
+    }
+    return m[mot].smer;
+}
+
+
+byte motor::outSpead(byte mot, int min = 0, int max = 255)
+{
+    if(mot >= 8)
+    {
+        return 0;
+    }
+    return map(v[mot].duty,m[mot].min, m[mot].max,min,max);
+}
+
+
+int motor::outProc(byte mot)
+{
+    if(mot >= 8)
+    {
+        return 0;
+    }
+    char s = outSmer(mot);
+    
+    if (s == mVzad)
+    {
+        return (-1)* outSpead(mot,0,100);
+    }
+    else if (s == mVpred)
+    {
+        return outSpead(mot,0,100);
+    }
+    return 0;
 }
 
 #endif 
