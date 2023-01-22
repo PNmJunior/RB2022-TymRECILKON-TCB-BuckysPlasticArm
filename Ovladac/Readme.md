@@ -40,3 +40,7 @@ Levý Horní = Rameno.
 https://www.tripodhead.com/images/arca-specs.gif
 <img src = "fotky/arca-specs.gif">
 
+## Schéma
+<img src = "fotky/ovladac.png">
+
+
