@@ -19,6 +19,14 @@ const M_Pravy = 7;
 
 function balicekInt(a)
 {
+    if(a == -0)
+    {
+        a = 0;
+    }
+    else if(a == NaN)
+    {
+
+    }
     return String(a);
 }
 
@@ -253,7 +261,7 @@ class JoystickController
 		this.touchId = null;
 		
 		this.active = false;
-		this.value = { x: 0, y: 0 }; 
+		this.value = { x: 0, y: 0 ,uhel:0, d:0}; 
 
 		let self = this;
 
@@ -298,15 +306,15 @@ class JoystickController
 
 		    	if (touchmoveId == null) return;
 		    }
-            /*
+
 		    const xDiff = event.clientX - self.dragStart.x;
 		    const yDiff = event.clientY - self.dragStart.y;
 		    const angle = Math.atan2(yDiff, xDiff);
 			const distance = Math.min(maxDistance, Math.hypot(xDiff, yDiff));
 			const xPosition = distance * Math.cos(angle);
 			const yPosition = distance * Math.sin(angle);
-*/
 
+/*
             const xDiff = event.clientX - self.dragStart.x;
 		    const yDiff = event.clientY - self.dragStart.y;
 		    const angle = Math.atan2(yDiff, xDiff);
@@ -331,7 +339,8 @@ class JoystickController
             }
 
             const distance = Math.max(Math.abs(xPosition), Math.abs(yPosition));
-
+            */
+            
             //console.log(xPosition);
             //console.log(yPosition);
 
@@ -343,9 +352,10 @@ class JoystickController
 		    const xPercent = xPosition.toFixed(0);
 		    const yPercent = yPosition.toFixed(0);
             
+            
 
 		    
-		    self.value = { x: xPercent, y: yPercent };
+		    self.value = { x: xPercent, y: yPercent , uhel: angle, d:distance};
 		  }
 
 		function handleUp(event) 
@@ -360,7 +370,7 @@ class JoystickController
 		    stick.style.transform = `translate3d(0px, 0px, 0px)`;
 
 		    // reset everything
-		    self.value = { x: 0, y: 0 };
+		    self.value = { x: 0, y: 0 , uhel: 0, d:0};
 		    self.touchId = null;
 		    self.active = false;
 		}
@@ -376,14 +386,38 @@ class JoystickController
 
 let joystick1 = new JoystickController("stick1", 100, 10);
 let joystick2 = new JoystickController("stick2", 100, 10);
+let joystick3 = new JoystickController("stick3", 100, 10);
+let joystick4 = new JoystickController("stick4", 100, 10);
 
 function update()
 {
-//.log("des");
+console.log('dos');
 	document.getElementById("status1").innerText = "Joystick 1: " + JSON.stringify(joystick1.value);
 	document.getElementById("status2").innerText = "Joystick 2: " + JSON.stringify(joystick2.value);
-    hodNow[0] = joystick1.value.x;
-    hodNow[1] = joystick1.value.y;
+    document.getElementById("status3").innerText = "Joystick 3: " + JSON.stringify(joystick3.value);
+    document.getElementById("status4").innerText = "Joystick 4: " + JSON.stringify(joystick4.value);
+    hodNow[M_LED] = joystick3.value.x;
+    hodNow[M_1] = joystick2.value.x;
+    hodNow[M_2] = (-1)*joystick2.value.y;
+    hodNow[M_3] = (-1)*joystick3.value.y;
+    hodNow[M_4] = (-1)*joystick4.value.y;
+    hodNow[M_Kleste] = joystick4.value.x;//0.7853985 = 45st
+    var M_Levy_lokal = Number(joystick1.value.d) * Math.cos(Number(joystick1.value.uhel) + 0.7853985);
+    var M_Pravy_lokal = joystick1.value.d * Math.sin(joystick1.value.uhel + 0.7853985);
+    console.log('joystick1.d');
+    console.log(Number(joystick1.value.d));
+    console.log('joystick1.uhel');
+    console.log(Number(joystick1.value.uhel));
+    
+    
+    
+    console.log('mot levy:');
+    console.log(M_Levy_lokal);
+    console.log('mot pravy:');
+    console.log(M_Pravy_lokal);
+    console.log('vse:');
+    hodNow[M_Levy] = M_Levy_lokal.toFixed(0);
+    hodNow[M_Pravy] =(-1)* M_Pravy_lokal.toFixed(0);
     let stri = "";
     for(let i = 0; i < 8; i++)
     {
@@ -393,13 +427,16 @@ function update()
             //websocket.send( motorSend(i,hodOld[i]));
             stri  = stri + motorSend(i,hodOld[i]);
         }
+        console.log(hodNow[i]);
     }
+    console.log('hodNow[i]');
+    
     
     if(stri != "")
     {
         websocket.send(stri);
         console.log(stri);
-    }
+    }   
     setTimeout(arguments.callee, 500);
 
 }
@@ -407,9 +444,39 @@ function update()
 function loop()
 {
 	requestAnimationFrame(loop);
-	//update();
+	update();
     
 }
 //setTimeout(update(), 1000);
-//loop();
-update();
+loop();
+//update();
+
+function hideRow(element2) {
+    let element = document.getElementById('t' + element2.id.toString());
+    let hidden = element.getAttribute("hidden");
+
+    if (hidden) {
+        element.removeAttribute("hidden");
+        //button.innerText = "Hide tr";
+    } else {
+        element.setAttribute("hidden", "hidden");
+        //button.innerText = "Show tr";
+    }
+}
+
+/*
+let toggle = button => {
+    let element = document.getElementById("mytr");
+    let hidden = element.getAttribute("hidden");
+
+    if (hidden) {
+       element.removeAttribute("hidden");
+       button.innerText = "Hide tr";
+    } else {
+       element.setAttribute("hidden", "hidden");
+       button.innerText = "Show tr";
+    }
+  }
+  */
+
+

@@ -34,12 +34,14 @@
                         </div> 
                     </td>
                     <td>
-                        <button id="btn1" type="button" class="buttonInactive">
+                        <button onclick="hideRow(this)" id="r1" type="button" class="buttonInactive">
                             Rameno</button>
-                        <button id="btn2" type="button" class="buttonInactive">
+                        <button onclick="hideRow(this)" id="r2" type="button" class="buttonInactive">
                             Podvozek</button>
-                            <button id="btn3" type="button" class="buttonInactive">
-                                Joistik</button>
+                        <button onclick="hideRow(this)" id="r4" type="button" class="buttonInactive">
+                            Do stran</button>
+                        <button onclick="hideRow(this)" id="r3" type="button" class="buttonInactive">
+                            Joistik</button>
                     </td>
                     <td>
                         <input type="button"  value="Reset" onclick="reset123()" class="h1">
@@ -86,7 +88,7 @@
                         </div>
                     </td>
                 </tr>
-                <tr id="tr0" style="max-height: 25%;min-height: 25%;" >
+                <tr id="tr4" style="max-height: 25%;min-height: 25%;" >
                     <td colspan=4>
                         <div class="card">
                             <p class="card-title"> M1</p>
@@ -121,30 +123,50 @@
                         </div>
                 </tr>
                 <tr id="tr3">
-                    <td>
-                    	Joystick Controls.
-<hr>
-<div id="status1" style="color: red;">Joystick 1</div>
-<div id="status2" style="color: blue;">Joystick 2</div>
-
-<hr>
-<div style="border: 1px solid red; height:300xp;width: 300px; left:10px; top:150px; transform: rotate(0deg);">
-	<img src="images/joystick-base.png" style="width:300px"/>
-	<div id="stick1" style="position: absolute; left: 115px; top: 115px; ">
-	<img src="images/joystick-red.png"/>		
-	</div>
-</div>
-
-<div style="border: 1px solid blue; width: 128px; left:10px; top:150px; transform: rotate(0deg);">
-	<img src="images/joystick-base.png"/>
-	<div id="stick2" style="position: absolute; left:32px; top:32px;">
-	<img src="images/joystick-blue.png"/>		
-	</div>
-</div>
-                    </td>
-                    </div>
-
-
+                    <table>
+                        <tr>
+                            <div id="status1" style="color: red;">Joystick 1</div>
+                            <div id="status2" style="color: blue;">Joystick 2</div>
+                            <div id="status3" style="color: blue;">Joystick 3</div>
+                            <div id="status4" style="color: blue;">Joystick 4</div>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="joystick_Ramecek">
+                                    <img src="images/joystick-base.png" class="joystick_Podklad"/>
+                                    <div id="stick3" class="joystick_Stick">
+                                    <img src="images/joystick-blue.png"/>		
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="joystick_Ramecek">
+                                    <img src="images/joystick-base.png" class="joystick_Podklad"/>
+                                    <div id="stick4" class="joystick_Stick">
+                                    <img src="images/joystick-blue.png"/>		
+                                    </div>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="joystick_Ramecek">
+                                    <img src="images/joystick-base.png" class="joystick_Podklad"/>
+                                    <div id="stick2" class="joystick_Stick">
+                                    <img src="images/joystick-blue.png"/>		
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="joystick_Ramecek">
+                                    <img src="images/joystick-base.png" class="joystick_Podklad"/>
+                                    <div id="stick1" class="joystick_Stick">
+                                    <img src="images/joystick-blue.png"/>		
+                                    </div>
+                                </div>
+                            </th>
+                        </tr>
+                    </table>
                 </tr>
             </table>
 
@@ -154,7 +176,6 @@
     </div>
     
     <script src="script.js"></script>
-    
     
 
 </body>
