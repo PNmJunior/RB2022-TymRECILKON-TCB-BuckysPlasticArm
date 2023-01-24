@@ -345,7 +345,7 @@ bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,i
     {
         resDuty a = map(spead,minSpead,maxSpead,m[mot].min, m[mot].max);
         int b = smer * m[mot].neg * m[mot].inverz;
-        Serial.println((int)b);Serial.println((int)smer);Serial.println((int)m[mot].neg);Serial.println((int)m[mot].inverz);
+        //Serial.println((int)b);Serial.println((int)smer);Serial.println((int)m[mot].neg);Serial.println((int)m[mot].inverz);
         if (b == mVpred)
         {
             v[mot].duty = a;

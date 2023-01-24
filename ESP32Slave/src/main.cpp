@@ -153,7 +153,6 @@ String password ;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 String message = "";
-//int sliderValue[8];
 
 
 // Json Variable to Hold Slider Values
@@ -173,7 +172,7 @@ String getSliderValues(int index = 100)
   }
   else if(index >= 0 && index < 8)
   {
-    st = SendSystem.motor(index,mot.outProc(index) );
+    st = SendSystem.motor(index,mot.outProc(Prevodnik[index]) );
   }
 
   return st;
@@ -207,8 +206,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     //;m:0:2;m:1:-100;t:1:pocet:"joiuyytuiopiuytrddxhhi jj   m  ijmk"
     komunProtokol komP;
     komP.begin(message);
-    Serial.println("message:");
-    Serial.println(message);
+    //Serial.println("message:");
+    //Serial.println(message);
     String outAll;
     String outClient;
     for (int s = 0; s < komP.pocetSouboru; s++)
@@ -235,10 +234,10 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
         }
         cisloM = komP.readInt();
         smer = komP.readInt();
-        Serial.print("c:");
+        /*Serial.print("c:");
         Serial.println(cisloM);
         Serial.print("h:");
-        Serial.println(smer);
+        Serial.println(smer);*/
         mot.inputProc(Prevodnik[cisloM], smer);
         outAll += komP.sendAktSoubor();
         break;
@@ -263,11 +262,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
       default:
         Serial.println("neznama vec");
         Serial.println(souName.charAt(0));
-        //outAll += getSliderValues();
+        outAll += getSliderValues();
         break;
       }
-        //Serial.println("delay");
-        //delay(1000);
     }
     //komP.clear();
   
@@ -294,11 +291,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
       //ws.text(client->id(),outClient);
       ws.textAll(outClient);
     }
-
-
     //ws._cleanBuffers();
   }
-  
 }
 
 void PrClent(IPAddress ip)

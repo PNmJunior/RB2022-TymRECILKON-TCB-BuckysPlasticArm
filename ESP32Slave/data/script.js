@@ -391,7 +391,6 @@ let joystick4 = new JoystickController("stick4", 100, 10);
 
 function update()
 {
-console.log('dos');
 	document.getElementById("status1").innerText = "Joystick 1: " + JSON.stringify(joystick1.value);
 	document.getElementById("status2").innerText = "Joystick 2: " + JSON.stringify(joystick2.value);
     document.getElementById("status3").innerText = "Joystick 3: " + JSON.stringify(joystick3.value);
@@ -401,23 +400,29 @@ console.log('dos');
     hodNow[M_2] = (-1)*joystick2.value.y;
     hodNow[M_3] = (-1)*joystick3.value.y;
     hodNow[M_4] = (-1)*joystick4.value.y;
-    hodNow[M_Kleste] = joystick4.value.x;//0.7853985 = 45st
-    var M_Levy_lokal = Number(joystick1.value.d) * Math.cos(Number(joystick1.value.uhel) + 0.7853985);
-    var M_Pravy_lokal = joystick1.value.d * Math.sin(joystick1.value.uhel + 0.7853985);
-    console.log('joystick1.d');
-    console.log(Number(joystick1.value.d));
-    console.log('joystick1.uhel');
-    console.log(Number(joystick1.value.uhel));
-    
-    
-    
-    console.log('mot levy:');
-    console.log(M_Levy_lokal);
-    console.log('mot pravy:');
-    console.log(M_Pravy_lokal);
-    console.log('vse:');
-    hodNow[M_Levy] = M_Levy_lokal.toFixed(0);
-    hodNow[M_Pravy] =(-1)* M_Pravy_lokal.toFixed(0);
+    hodNow[M_Kleste] = joystick4.value.x;
+    var M_Levy_lokal  = joystick1.value.d * rozdilLevy((-1)*radians_to_degrees(joystick1.value.uhel));
+    var M_Pravy_lokal = joystick1.value.d * rozdilPravy( (-1)*radians_to_degrees(joystick1.value.uhel));
+    /*if(joystick1.value.x > 0)
+    {
+        console.log("kladne x");
+        console.log(radians_to_degrees(joystick1.value.uhel));
+        console.log(rozdil(radians_to_degrees(joystick1.value.uhel)));
+        M_Pravy_lokal = M_Pravy_lokal * rozdil(radians_to_degrees(joystick1.value.uhel));
+    }
+    else
+    {
+        console.log("zaporne x");
+        console.log(radians_to_degrees(joystick1.value.uhel));
+        console.log(rozdil(radians_to_degrees(joystick1.value.uhel)));
+        M_Levy_lokal = M_Levy_lokal * rozdil(radians_to_degrees(joystick1.value.uhel));
+    }*/
+    hodNow[M_Levy] =   M_Levy_lokal.toFixed(0);
+    hodNow[M_Pravy] = M_Pravy_lokal.toFixed(0);
+    console.log("M_Levy");
+    console.log(hodNow[M_Levy]);
+    console.log("M_Pravy");
+    console.log(hodNow[M_Pravy]);    
     let stri = "";
     for(let i = 0; i < 8; i++)
     {
@@ -427,29 +432,118 @@ console.log('dos');
             //websocket.send( motorSend(i,hodOld[i]));
             stri  = stri + motorSend(i,hodOld[i]);
         }
-        console.log(hodNow[i]);
-    }
-    console.log('hodNow[i]');
-    
-    
+    } 
     if(stri != "")
     {
         websocket.send(stri);
         console.log(stri);
     }   
-    setTimeout(arguments.callee, 500);
-
+    setTimeout(arguments.callee, 100);
 }
+
+function rozdilPravy(uhel)
+{
+    console.log("uhel");
+    console.log(uhel);
+    var uhelRozdil = Number(uhel.toFixed(0));
+
+    if(uhelRozdil < 0)
+    {
+        uhelRozdil = uhelRozdil + 360;
+    }
+    console.log("uhelRozdil");
+    console.log(uhelRozdil);
+    if(uhelRozdil == 0 )
+    {
+        console.log("vystup0");
+        console.log(-1);
+        return -1;
+    }
+    else if(uhelRozdil > 0 && uhelRozdil < 90)
+    {
+        console.log("vystup1");
+        console.log((uhelRozdil-45)/45);
+        return (uhelRozdil-45)/45;
+    }
+    else if(uhelRozdil >= 90 && uhelRozdil <= 180)
+    {
+        console.log("vystup2");
+        console.log(1);
+        return 1;
+    }
+    else if(uhelRozdil > 180 && uhelRozdil < 270)
+    {
+        console.log("vystup3");
+        console.log((225 - uhelRozdil)/45);
+        return (225 - uhelRozdil)/45;
+    }
+    else if(uhelRozdil >= 270 && uhelRozdil <= 360)
+    {
+        console.log("vystup4");
+        console.log(-1);
+        return -1;
+    }
+    return 0;
+}
+
+
+function rozdilLevy(uhel)
+{
+    console.log("uhel");
+    console.log(uhel);
+    var uhelRozdil = Number(uhel.toFixed(0));
+
+    if(uhelRozdil < 0)
+    {
+        uhelRozdil = uhelRozdil + 360;
+    }
+    console.log("uhelRozdil");
+    console.log(uhelRozdil);
+    if((uhelRozdil >= 0 && uhelRozdil <= 90)|| uhelRozdil == 360)
+    {
+        console.log("vystup1");
+        console.log(1);
+        return 1;
+    }
+    else if(uhelRozdil > 90 && uhelRozdil < 180)
+    {
+        console.log("vystup2");
+        console.log((135 - uhelRozdil)/45);
+        return (135 - uhelRozdil)/45;
+
+    }
+    else if(uhelRozdil >= 180 && uhelRozdil <= 270)
+    {
+        console.log("vystup3");
+        console.log(-1);
+        return -1;
+    }
+    else if(uhelRozdil > 270 && uhelRozdil <= 360)
+    {
+        console.log("vystup4");
+        console.log((uhelRozdil-315)/45);
+        return (uhelRozdil-315)/45;
+    }
+    return 0;
+}
+
+
+function radians_to_degrees(radians)
+{
+  var pi = Math.PI;
+  return radians * (180/pi);
+}
+
 
 function loop()
 {
 	requestAnimationFrame(loop);
-	update();
+	//update();
     
 }
 //setTimeout(update(), 1000);
 loop();
-//update();
+update();
 
 function hideRow(element2) {
     let element = document.getElementById('t' + element2.id.toString());
@@ -463,20 +557,5 @@ function hideRow(element2) {
         //button.innerText = "Show tr";
     }
 }
-
-/*
-let toggle = button => {
-    let element = document.getElementById("mytr");
-    let hidden = element.getAttribute("hidden");
-
-    if (hidden) {
-       element.removeAttribute("hidden");
-       button.innerText = "Hide tr";
-    } else {
-       element.setAttribute("hidden", "hidden");
-       button.innerText = "Show tr";
-    }
-  }
-  */
 
 
