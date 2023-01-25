@@ -203,10 +203,12 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     Serial.println(mot);
     if (mot>=8)
     {
+        Serial.println("mot>=8");
         return false;
     }
     if (_pin>=GPIO_NUM_MAX)
     {
+        Serial.println("GPIO_NUM_MAX");
         return false;
     }
     if (ledc_timer == 0)
@@ -225,6 +227,10 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     }
     if (_max <= _min)
     {
+        Serial.println("_max <= _min");
+        Serial.print(_max);
+        Serial.print("<=");
+        Serial.println(_min);
         return false;
     }
     for (int i = 0; i < 8; i++)
