@@ -1,47 +1,53 @@
+vrh = 35;
+podstava = 43;
+rozdilVrhPods = (podstava-vrh)/2;
+echo(rozdilVrhPods);
+vyskaZkoseni = 7.4;
+vyskaCelkova = 8.8;
+vyskaPosatavce = vyskaCelkova - vyskaZkoseni;
+echo(vyskaPosatavce);
 
-
-
-
-
-
-
-
-
-
-
-
-
-//Sparně navrženo...
-uhel = 45;
-vyska = 9;
-delniRozAbs = 41.9;
-delniRozReal = 38;
+CubePoints = [
+  [  0,  0,  0 ],  //0
+  [ podstava,  0,  0 ],  //1
+  [ podstava,  podstava,  0 ],  //2
+  [  0,  podstava,  0 ],  //3
+  [  rozdilVrhPods,  rozdilVrhPods,  vyskaZkoseni ],  //4
+  [ podstava - rozdilVrhPods,  rozdilVrhPods,  vyskaZkoseni ],  //5
+  [ podstava - rozdilVrhPods,  podstava - rozdilVrhPods,  vyskaZkoseni  ],  //6
+  [  rozdilVrhPods,  podstava - rozdilVrhPods,  vyskaZkoseni ]]; //7
+  
+CubeFaces = [
+  [0,1,2,3],  // bottom
+  [4,5,1,0],  // front
+  [7,6,5,4],  // top
+  [5,6,2,1],  // right
+  [6,7,3,2],  // back
+  [7,4,0,3]]; // left
+  
+  
+vyrez = 16;
+vyrez_vyska = 4;
 
 dir_roztec = 5;
 dir_az = 10;
 dir_vel = 3.2;
+  
+rychoup();
 
-podlozka = 5;
-vyrez = 15;
-vyrez_vyska = 3.5;
-
-rych();
-
-module rych()
+module rychoup()
 {
     difference()
     {
-        translate() intersection()
+        translate([0,0,0]) union()
         {
-            translate([0,0,0]) cube([delniRozAbs,delniRozAbs,vyska]);
-            translate([0,0,0]) rotate([0,uhel,0]) cube([delniRozAbs,delniRozAbs,1000]);
-            translate([0,0,0]) rotate([-uhel,0,0]) cube([delniRozAbs,delniRozAbs,1000]);
-            translate([(delniRozAbs - delniRozReal)/2,(delniRozAbs - delniRozReal)/2,0]) cube([delniRozReal,delniRozReal,vyska]);
+            translate([0,0,0]) cube([podstava, podstava,vyskaPosatavce]);
+            translate([0,0,vyskaPosatavce]) polyhedron( CubePoints, CubeFaces );
         }
-        translate([0,delniRozAbs,0]) rotate([uhel,0,0]) cube([delniRozAbs,delniRozAbs,1000]);
-        translate([delniRozAbs,0,0]) rotate([0,-uhel,0]) cube([delniRozAbs,delniRozAbs,1000]);
-        translate([delniRozAbs/2,delniRozAbs/2,0])
+        translate([podstava/2,podstava/2,0])
         {
+            
+            translate([-vyrez,-vyrez,-vyrez_vyska]) OvalnaKrichleZ([vyrez*2,vyrez*2,vyrez_vyska*2],5,50);
             for(x = [-dir_az : dir_roztec  :dir_az])
             {
                 for(y = [-dir_az : dir_roztec  :dir_az])
@@ -50,11 +56,11 @@ module rych()
                     //translate([x,y,0]) cylinder(h=6, d=10, center=true,$fn=30);
                 }
             }
-            translate([-vyrez,-vyrez,-vyrez_vyska]) OvalnaKrichleZ([vyrez*2,vyrez*2,vyrez_vyska*2],podlozka,50);
         }
-        //translate([0,30,0]) cube([100,100,100]);
+        //translate([27,0,0]) cube(100);
     }
 }
+
 
 //Kód pro vytvoření oválných kvádrů
 module OvalnaKrichleX(Rozdmery, zakulaceni)
