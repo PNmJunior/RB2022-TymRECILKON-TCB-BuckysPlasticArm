@@ -1,3 +1,17 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Sparně navrženo...
 uhel = 45;
 vyska = 9;
 delniRozAbs = 41.9;

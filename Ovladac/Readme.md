@@ -38,8 +38,8 @@ Levý Horní = Rameno.
 
 
 ## Rychloupínák na stativ
-https://www.tripodhead.com/images/arca-specs.gif
-<img src = "fotky/arca-specs.gif">
+Nákres
+<img src = "fotky/rychloupinak_nacrtek.png">
 
 ## Schéma
 <img src = "fotky/ovladac.png">
