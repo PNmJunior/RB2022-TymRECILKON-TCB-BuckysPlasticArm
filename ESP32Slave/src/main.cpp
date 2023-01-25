@@ -89,15 +89,15 @@ const bool NastMotNeg[8] = {
   false //M_Pravy
 };//nutnost zmenit smer, razeno podle prevodniku
 
-const bool NastMotMaxMin[8][2] = {
+const byte NastMotMaxMin[8][2] = {
   {255,0},//M_LED
-  {255,0},//M_1
+  {255,100},//M_1
   {255,0},//M_2
   {255,0},//M_3
   {255,0},//M_4
-  {255,0},//M_Kleste
-  {255,0},//M_Levy
-  {255,0} //M_Pravy
+  {200,50},//M_Kleste
+  {255,100},//M_Levy
+  {255,100} //M_Pravy
 };//razeno podle prevodniku
 
 
