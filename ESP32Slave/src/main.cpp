@@ -92,12 +92,12 @@ const bool NastMotNeg[8] = {
 const byte NastMotMaxMin[8][2] = {
   {255,0},//M_LED
   {255,100},//M_1
-  {255,0},//M_2
-  {255,0},//M_3
-  {255,0},//M_4
-  {200,50},//M_Kleste
+  {255,100},//M_2
+  {255,50},//M_3
+  {255,50},//M_4
+  {170,130},//M_Kleste
   {255,100},//M_Levy
-  {255,100} //M_Pravy
+  {245,100} //M_Pravy
 };//razeno podle prevodniku
 
 
@@ -518,7 +518,8 @@ void setup()
 
   for (byte i = 0; i < 8; i++)
   {
-    mot.begin(i,  NastMotPin[i], NastMotLEDC_CHANNEL[i], NastMotInverz[i], NastMotNeg[Prevodnik[i]], NastMotMaxMin[Prevodnik[i]][0], NastMotMaxMin[Prevodnik[i]][1]);
+    byte ZpetPrevodnik = najdiVPrevodniku(i);
+    mot.begin(Prevodnik[i],  NastMotPin[Prevodnik[i]], NastMotLEDC_CHANNEL[Prevodnik[i]], NastMotInverz[Prevodnik[i]], NastMotNeg[i], NastMotMaxMin[i][0], NastMotMaxMin[i][1]);
   }
 
   if (mot.beginEnd() == 0)

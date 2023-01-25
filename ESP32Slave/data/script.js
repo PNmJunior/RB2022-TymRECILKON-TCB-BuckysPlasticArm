@@ -306,17 +306,20 @@ class JoystickController
 
 		    	if (touchmoveId == null) return;
 		    }
+            handleMoveB(event.clientX - self.dragStart.x, event.clientY - self.dragStart.y);
 
-		    const xDiff = event.clientX - self.dragStart.x;
-		    const yDiff = event.clientY - self.dragStart.y;
+        }
+
+        function handleMoveB(xD,yD)
+        {
+		    var xDiff = Number(xD);
+		    var yDiff = Number(yD);
 		    const angle = Math.atan2(yDiff, xDiff);
 			const distance = Math.min(maxDistance, Math.hypot(xDiff, yDiff));
 			const xPosition = distance * Math.cos(angle);
 			const yPosition = distance * Math.sin(angle);
 
 /*
-            const xDiff = event.clientX - self.dragStart.x;
-		    const yDiff = event.clientY - self.dragStart.y;
 		    const angle = Math.atan2(yDiff, xDiff);
 			let xPosition = 0;
 			let yPosition = 0;
@@ -349,12 +352,16 @@ class JoystickController
 		    stick.style.transform = `translate3d(${xPosition}px, ${yPosition}px, 0px)`;
 
 			// deadzone adjustment
-		    const xPercent = xPosition.toFixed(0);
-		    const yPercent = yPosition.toFixed(0);
-            
-            
-
-		    
+		    var xPercent = xPosition.toFixed(0);
+		    var yPercent = yPosition.toFixed(0);
+            if(Math.abs(xPercent) <= deadzone)
+            {
+                xPercent = 0;
+            }
+            if(Math.abs(yPercent) <= deadzone)
+            {
+                yPercent = 0;
+            }
 		    self.value = { x: xPercent, y: yPercent , uhel: angle, d:distance};
 		  }
 
@@ -384,7 +391,7 @@ class JoystickController
 	}
 }
 
-let joystick1 = new JoystickController("stick1", 100, 10);
+let joystick1 = new JoystickController("stick1", 100, 4);
 let joystick2 = new JoystickController("stick2", 100, 10);
 let joystick3 = new JoystickController("stick3", 100, 10);
 let joystick4 = new JoystickController("stick4", 100, 10);

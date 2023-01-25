@@ -227,3 +227,23 @@ input[type=range][orient=vertical]
   left: 118px; 
   top: 114px; 
 }
+
+.joystick_Tab_tr
+{
+  max-height: 350px;
+  min-height: 350px;
+  height: 350px;
+}
+
+.joystick_Tab_th
+{
+  max-width: 350px;
+  min-width: 350px;
+  width: 350px;
+}
+
+.joystick_Tab_nadpis
+{
+  max-width: 700px;
+  width: 700px;
+}
