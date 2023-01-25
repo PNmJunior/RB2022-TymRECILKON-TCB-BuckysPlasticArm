@@ -54,6 +54,46 @@ String WifiNotPassword = "@";
 
 const byte Prevodnik[8] = {5,0,1,2,3,4,6,7};
 
+const byte NastMotPin[8]= {32,33,25,23,19,13,12,26};//system
+
+const ledc_channel_t NastMotLEDC_CHANNEL[8]= 
+{LEDC_CHANNEL_0,LEDC_CHANNEL_1,LEDC_CHANNEL_2,
+LEDC_CHANNEL_3,LEDC_CHANNEL_4,LEDC_CHANNEL_5,
+LEDC_CHANNEL_6,LEDC_CHANNEL_7};//system
+
+const bool NastMotInverz[8] = {
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false
+};//realne zapojení na konektoru, razeno postupne
+
+const bool NastMotNeg[8] = {
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false
+};//nutnost zmenit smer, razeno podle prevodniku
+
+const bool NastMotMaxMin[8][2] = {
+  {255,0},
+  {255,0},
+  {255,0},
+  {255,0},
+  {255,0},
+  {255,0},
+  {255,0},
+  {255,0}
+};//razeno podle prevodniku
+
 
 disp segDisp;
 motor mot;
@@ -470,14 +510,11 @@ void setup()
   mot.beginStart();
   mot.beginTimer();
 
-  mot.begin(0, pin_m0, LEDC_CHANNEL_0, false, false, 255, 0);
-  mot.begin(1, pin_m1, LEDC_CHANNEL_1, false, false, 255, 0);
-  mot.begin(2, pin_m2, LEDC_CHANNEL_2, false, false, 255, 0);
-  mot.begin(3, pin_m3, LEDC_CHANNEL_3, false, false, 255, 0);
-  mot.begin(4, pin_m4, LEDC_CHANNEL_4, false, false, 255, 0);
-  mot.begin(5, pin_m5, LEDC_CHANNEL_5, false, false, 255, 0);
-  mot.begin(6, pin_m6, LEDC_CHANNEL_6, false, false, 255, 0);
-  mot.begin(7, pin_m7, LEDC_CHANNEL_7, false, false, 255, 0);
+  for (byte i = 0; i < 8; i++)
+  {
+    mot.begin(i,  NastMotPin[i], NastMotLEDC_CHANNEL[i], NastMotInverz[i], NastMotNeg[Prevodnik[i]], NastMotMaxMin[Prevodnik[i]][0], NastMotMaxMin[Prevodnik[i]][1]);
+  }
+
   if (mot.beginEnd() == 0)
   {
     segDisp.addText4("Err Motor");
