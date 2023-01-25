@@ -56,42 +56,48 @@ const byte Prevodnik[8] = {5,0,1,2,3,4,6,7};
 
 const byte NastMotPin[8]= {32,33,25,23,19,13,12,26};//system
 
-const ledc_channel_t NastMotLEDC_CHANNEL[8]= 
-{LEDC_CHANNEL_0,LEDC_CHANNEL_1,LEDC_CHANNEL_2,
-LEDC_CHANNEL_3,LEDC_CHANNEL_4,LEDC_CHANNEL_5,
-LEDC_CHANNEL_6,LEDC_CHANNEL_7};//system
+const ledc_channel_t NastMotLEDC_CHANNEL[8]= {
+  LEDC_CHANNEL_0,//pin 32
+  LEDC_CHANNEL_1,//pin 33
+  LEDC_CHANNEL_2,//pin 25
+  LEDC_CHANNEL_3,//pin 23
+  LEDC_CHANNEL_4,//pin 19
+  LEDC_CHANNEL_5,//pin 13
+  LEDC_CHANNEL_6,//pin 12
+  LEDC_CHANNEL_7 //pin 26
+};//system
 
 const bool NastMotInverz[8] = {
-  false,
-  false,
-  false,
-  false,
-  false,
-  false,
-  false,
-  false
+  false,//pin 32
+  false,//pin 33
+  false,//pin 25
+  false,//pin 23
+  false,//pin 19
+  false,//pin 13
+  false,//pin 12
+  false //pin 26
 };//realne zapojení na konektoru, razeno postupne
 
 const bool NastMotNeg[8] = {
-  false,
-  false,
-  false,
-  false,
-  false,
-  false,
-  false,
-  false
+  false,//M_LED
+  false,//M_1
+  false,//M_2
+  false,//M_3
+  false,//M_4
+  false,//M_Kleste
+  false,//M_Levy
+  false //M_Pravy
 };//nutnost zmenit smer, razeno podle prevodniku
 
 const bool NastMotMaxMin[8][2] = {
-  {255,0},
-  {255,0},
-  {255,0},
-  {255,0},
-  {255,0},
-  {255,0},
-  {255,0},
-  {255,0}
+  {255,0},//M_LED
+  {255,0},//M_1
+  {255,0},//M_2
+  {255,0},//M_3
+  {255,0},//M_4
+  {255,0},//M_Kleste
+  {255,0},//M_Levy
+  {255,0} //M_Pravy
 };//razeno podle prevodniku
 
 
