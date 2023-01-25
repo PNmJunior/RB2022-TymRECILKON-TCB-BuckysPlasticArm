@@ -28,6 +28,7 @@ Levý Horní = Rameno.
 - M4 = osa y.
     
 <img src = "fotky/koncept_ovladace.png">
+<img src = "fotky/3.vzorec.png">
 
 ## Jednotka joysticku
 <img src = "fotky/joystickova_jednotka.jpg">

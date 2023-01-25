@@ -471,17 +471,29 @@ function rozdilPravy(uhel)
         console.log(1);
         return 1;
     }
-    else if(uhelRozdil > 180 && uhelRozdil < 270)
+    else if(uhelRozdil > 180 && uhelRozdil < 225)
     {
         console.log("vystup3");
-        console.log((225 - uhelRozdil)/45);
-        return (225 - uhelRozdil)/45;
+        console.log((202.5 - uhelRozdil)/22.5);
+        return (202.5 - uhelRozdil)/22.5;
     }
-    else if(uhelRozdil >= 270 && uhelRozdil <= 360)
+    else if(uhelRozdil >= 255 && uhelRozdil <= 270)
     {
         console.log("vystup4");
         console.log(-1);
         return -1;
+    }
+    else if(uhelRozdil > 270 && uhelRozdil <= 315)
+    {
+        console.log("vystup5");
+        console.log((uhelRozdil-315)/45);
+        return (uhelRozdil-315)/45;
+    }
+    else if(uhelRozdil > 315 && uhelRozdil <= 360)
+    {
+        console.log("vystup6");
+        console.log((315 - uhelRozdil)/45);
+        return (315 - uhelRozdil)/45;
     }
     return 0;
 }
@@ -510,19 +522,30 @@ function rozdilLevy(uhel)
         console.log("vystup2");
         console.log((135 - uhelRozdil)/45);
         return (135 - uhelRozdil)/45;
-
     }
-    else if(uhelRozdil >= 180 && uhelRozdil <= 270)
+    else if(uhelRozdil > 180 && uhelRozdil <= 225)
     {
         console.log("vystup3");
+        console.log((uhelRozdil-225)/45);
+        return (uhelRozdil-225)/45;
+    }
+    else if(uhelRozdil > 225 && uhelRozdil < 270)
+    {
+        console.log("vystup4");
+        console.log((225 - uhelRozdil)/45);
+        return (225 - uhelRozdil)/45;
+    }
+    else if(uhelRozdil >= 270 && uhelRozdil <= 315)
+    {
+        console.log("vystup5");
         console.log(-1);
         return -1;
     }
-    else if(uhelRozdil > 270 && uhelRozdil <= 360)
+    else if(uhelRozdil > 315 && uhelRozdil <= 360)
     {
-        console.log("vystup4");
-        console.log((uhelRozdil-315)/45);
-        return (uhelRozdil-315)/45;
+        console.log("vystup6");
+        console.log((uhelRozdil-337.5)/22.5);
+        return (uhelRozdil-337.5)/22.5;
     }
     return 0;
 }
