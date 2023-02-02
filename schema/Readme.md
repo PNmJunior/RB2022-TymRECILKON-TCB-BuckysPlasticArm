@@ -2,9 +2,11 @@
 Pro tvorbu Schémy a PCB jsem použil [EasyEDA]https://easyeda.com/).
 
 Kompletní schéma je zde:
-<img src = "hlavni_svhema.png">
+<img src = "hlavni_schema.png">
 A komponenty:
 <img src = "Komponenty.png">
+Ovladač:
+<img src = "Ovladac.png">
 
 # PCB
 
