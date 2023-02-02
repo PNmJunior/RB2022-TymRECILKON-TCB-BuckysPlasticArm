@@ -8,7 +8,6 @@
 #include <komunProtokol.h>
 #include <enkoder.h>
 #include <menu.h>
-#include "SPIFFS.h"
 #include "SPIFFS.h"      //nastaveni webu
 #include <Preferences.h> //Ulozeni hesla
 
@@ -113,10 +112,13 @@ byte pocetClientu = 0 ;
 
 void MotorStopAll() // Vždy zastaví chod robota.
 {
+  String aaa;
   for (int i = 0; i < 8; i++)
   {
     mot.input(i);
+    aaa += SendSystem.motor(i,0);
   }
+  ws.textAll(aaa);
 }
 
 void IRAM_ATTR HlavniPreruseni()
@@ -200,10 +202,6 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 String message = "";
 
-
-// Json Variable to Hold Slider Values
-
-
 // Get Slider Values
 String getSliderValues(int index = 100)
 {
@@ -235,12 +233,6 @@ void initFS()
     Serial.println("SPIFFS mounted successfully");
   }
 }
-
-void inline notifyClients(String sliderValues)
-{
-  ws.textAll(sliderValues);
-}
-
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client)
 {
@@ -518,7 +510,6 @@ void setup()
 
   for (byte i = 0; i < 8; i++)
   {
-    byte ZpetPrevodnik = najdiVPrevodniku(i);
     mot.begin(Prevodnik[i],  NastMotPin[Prevodnik[i]], NastMotLEDC_CHANNEL[Prevodnik[i]], NastMotInverz[Prevodnik[i]], NastMotNeg[i], NastMotMaxMin[i][0], NastMotMaxMin[i][1]);
   }
 
@@ -625,9 +616,7 @@ void loop(void)
   }
   
   // Až dokončím komunikační protokol, bude fungovat zastavovaní brždění
-  // dataSend p;
-  // p.leng = 0;
-
+  String p;
   for (int i = 0; i < 8; i++)
   {
     if (mot.TStop(i) != 0)
@@ -635,10 +624,14 @@ void loop(void)
       if (mot.TStop(i) < millis())
       {
         mot.input(i, mStop);
-        // p = ADDdataRow(p,motorSend(i,0,0));
+        p += SendSystem.motor(i,0);
       }
     }
   }
-  // kom.send(p);
+  if (p.length() != 0)
+  {
+    ws.textAll(p);
+  }
+  
   ws.cleanupClients();
 }
