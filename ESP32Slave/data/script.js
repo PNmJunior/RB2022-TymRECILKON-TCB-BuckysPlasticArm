@@ -152,6 +152,13 @@ function initWebSocket() {
     websocket.onopen = onOpen;
     websocket.onclose = onClose;
     websocket.onmessage = onMessage;
+    if(window.isSecureContext) {
+        console.log("Zabezpeceno");
+    }
+    else
+    {
+        console.log("Nezabezpeceno");
+    }
 }
 
 function onOpen(event) {
