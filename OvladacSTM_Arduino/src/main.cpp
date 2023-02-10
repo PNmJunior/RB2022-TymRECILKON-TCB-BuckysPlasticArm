@@ -1,5 +1,4 @@
 #include <Arduino.h>
-
 #define J1x PA0
 #define J1y PA1
 #define J1t PB0
@@ -12,6 +11,8 @@
 #define J4x PA6
 #define J4y PA7
 #define J4t PB11
+
+#define ledPin PC13 //13
 
 #define J1 0
 #define J2 1
@@ -44,8 +45,8 @@ int poleNow[4][3] = {
 
 void modpinJoys(int Joys)
 {
-  pinMode(polePinu[Joys][0],INPUT);
-  pinMode(polePinu[Joys][1],INPUT);
+  pinMode(polePinu[Joys][0],INPUT_ANALOG);
+  pinMode(polePinu[Joys][1],INPUT_ANALOG);
   pinMode(polePinu[Joys][2],INPUT_PULLUP);
 }
 
@@ -57,15 +58,14 @@ void nacteni(int Joys)
   poleNow[Joys][0] = digitalRead(polePinu[Joys][0]);
 }
 
+
 void nacteni()
 {
-  Serial.begin(9600);
   for (int i = 0; i < 4; i++)
   {
     nacteni(i);
   }
 }
-
 
 
 bool zmena(int Joys)
@@ -82,7 +82,9 @@ bool zmena(int Joys)
 
 void setup() {
   // put your setup code here, to run once:
-  
+  Serial1.begin(19200); // PA10  (RX) PA9 (TX) 
+  pinMode(ledPin,OUTPUT);
+   analogReadResolution(12);
   for (int i = 0; i < 4; i++)
   {
     modpinJoys(i);
@@ -94,16 +96,21 @@ void loop() {
   nacteni();
   for (int i = 0; i < 4; i++)
   {
-    if(zmena(i))
+    //if(zmena(i))
+    if(true)
     {
-      Serial.print("J");
-      Serial.print(i + 1);
-      Serial.print(": x=");
-      Serial.print(poleNow[i][Jx]);
-      Serial.print(", y=");
-      Serial.print(poleNow[i][Jy]);
-      Serial.print(", t=");
-      Serial.println(poleNow[i][Jt]);
+      Serial1.print("J");
+      Serial1.print(i + 1);
+      Serial1.print(": x=");
+      Serial1.print(poleNow[i][Jx]);
+      Serial1.print(", y=");
+      Serial1.print(poleNow[i][Jy]);
+      Serial1.print(", t=");
+      Serial1.println(poleNow[i][Jt]);
     }
   }
+  digitalWrite(ledPin, HIGH);
+  delay(100);
+  digitalWrite(ledPin, LOW);
+  delay(100);
 }
