@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <USBComposite.h>
+
 #define J1x PA0
 #define J1y PA1
 #define J1t PB0
