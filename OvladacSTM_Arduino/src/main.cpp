@@ -85,6 +85,7 @@ void setup() {
   Serial1.begin(19200); // PA10  (RX) PA9 (TX) 
   pinMode(ledPin,OUTPUT);
    analogReadResolution(12);
+  Serial.begin(9600);
   for (int i = 0; i < 4; i++)
   {
     modpinJoys(i);
@@ -109,6 +110,7 @@ void loop() {
       Serial1.println(poleNow[i][Jt]);
     }
   }
+  Serial.println("Ahoj");
   digitalWrite(ledPin, HIGH);
   delay(100);
   digitalWrite(ledPin, LOW);
