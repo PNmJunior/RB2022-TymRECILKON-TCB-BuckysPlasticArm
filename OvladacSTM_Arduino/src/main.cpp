@@ -84,6 +84,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial1.begin(19200); // PA10  (RX) PA9 (TX) 
   pinMode(ledPin,OUTPUT);
+  //Android pomoci CDC
    analogReadResolution(12);
   Serial.begin(9600);
   for (int i = 0; i < 4; i++)
