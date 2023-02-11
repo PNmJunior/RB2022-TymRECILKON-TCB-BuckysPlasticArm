@@ -1,3 +1,4 @@
+//https://primalcortex.wordpress.com/2020/10/11/stm32-blue-pill-board-arduino-core-and-usb-serial-output-on-platformio/
 #include <Arduino.h>
 #define J1x PA0
 #define J1y PA1
