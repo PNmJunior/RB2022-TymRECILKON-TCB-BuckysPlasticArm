@@ -1,4 +1,8 @@
 #include <Arduino.h>
+#include "USBSerial.h"
+//#include "mbed.h"
+#include "stdio.h"
+
 #define J1x PA0
 #define J1y PA1
 #define J1t PB0
@@ -84,7 +88,8 @@ void setup() {
   // put your setup code here, to run once:
   Serial1.begin(19200); // PA10  (RX) PA9 (TX) 
   pinMode(ledPin,OUTPUT);
-   analogReadResolution(12);
+  analogReadResolution(12);
+  USBSerial usbSerial(0x1f00, 0x2012, 0x0001, false);
   for (int i = 0; i < 4; i++)
   {
     modpinJoys(i);
