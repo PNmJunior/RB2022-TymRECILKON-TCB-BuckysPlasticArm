@@ -82,7 +82,6 @@ function  dataMotor(mot, hod)
     return ['m',balicekInt( mot),balicekInt( hod)];
 }
 
-
 function sendAuto(a)
 {
     let str = addSoubor(a[0]);
@@ -108,6 +107,48 @@ function read(a)
     }
     console.log(pole);
     return pole;
+}
+
+function readJoy()
+{
+    let strJ1 = ""//cteni
+    let Jstartindex = 0;
+    let Jstopindex = 0;
+    let strJ2 = "";
+    let strJ3 = "";
+    let JRead ;
+    do {
+        strJ1 += ""//cteni
+        Jstartindex = strJ1.indexOf(";s")
+    } while (Jstartindex == -1);
+    strJ2 = strJ1.substring(Jstartindex);
+    do {
+        strJ2 += ""//cteni
+       Jstopindex = strJ2.indexOf(";t") 
+    } while (Jstopindex == -1);
+    Jstopindex += 2;
+    strJ1 = strJ2.substring(Jstopindex);
+    strJ3 = strJ2.substring(0,Jstopindex);
+    JRead = read(strJ3);
+    if(JRead[0][0] == 's' && JRead[1][0] == 'j' && JRead[2][0] =='t')
+    {
+        switch (JRead[1][1]) {
+            case "0":
+                
+                break;
+            case "1":
+                
+                break;
+            case "2":
+                
+                break;
+            case "3":
+                
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 

@@ -25,6 +25,9 @@ public:
     String addSoubor(udaj a);
     String addSubSoubor(udaj a);
     String motor(int mot, int hod);
+    String joystic(int joy, int x, int y, int t);
+    String joysticStart();
+    String joysticStop();
     KomProtokolSend(/* args */);
     ~KomProtokolSend();
 };
@@ -73,8 +76,22 @@ inline String KomProtokolSend::motor(int mot, int hod)
     return addSoubor(balicekText("m"))+addSubSoubor(balicekInt(mot)) + addSubSoubor(balicekInt(hod));
 }
 
-KomProtokolSend SendSystem;
+inline String KomProtokolSend::joysticStart()
+{
+    return addSoubor(balicekText("s"));
+}
 
+inline String KomProtokolSend::joysticStop()
+{
+    return addSoubor(balicekText("t"));
+}
+
+inline String KomProtokolSend::joystic(int joy, int x, int y, int t)
+{
+    return joysticStart() + addSoubor(balicekText("j"))+addSubSoubor(balicekInt(joy)) + addSubSoubor(balicekInt(x))+ addSubSoubor(balicekInt(y))+ addSubSoubor(balicekInt(t)) + joysticStop();
+}
+
+KomProtokolSend SendSystem;
 
 class komunProtokol
 {
