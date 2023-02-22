@@ -256,11 +256,11 @@ function SendESP(a)
     let Astring = String(a);
     if(Astring == "")
     {
-        console.log("Prazdne pole");
+        //console.log("Prazdne pole");
     }
     else if (ModeWork == "w")
     {
-        console.log("Posilano:"); console.log(a);
+        //console.log("Posilano:"); console.log(a);
         websocket.send(a);
     }
     else
@@ -460,18 +460,27 @@ class JoystickController
     zmena(cislo,rozd = 5)
     {
         let strinZmenaJ = String("");
-        let zozdJx = Number(self.value.x) - Number(self.old.x);
-        let zozdJy = Number(self.value.y) - NUmber(self.old.y);
+        let zozdJx = Number(this.value.x) - Number(this.old.x);
+        let zozdJy = Number(this.value.y) - Number(this.old.y);
         let dJ = Math.sqrt(zozdJx * zozdJx + zozdJy * zozdJy);
         if(dJ > rozd)
         {
-            self.old.x = self.value.x;
-            self.old.y = self.value.y;
-            strinZmenaJ = joySend(cislo,self.old.x,self.old.y,0);
+            this.old.x = this.value.x;
+            this.old.y = this.value.y;
+            strinZmenaJ = joySend(cislo,this.old.x,this.old.y,0);
         }
         return strinZmenaJ;
     }
-    
+
+    setSecund(osa_x, osa_y)
+    {
+        if(!this.active)
+        {
+            let stick = document.getElementById(this.id);
+            stick.style.transform = `translate3d(${Number(osa_x)}px, ${Number(osa_y)}px, 0px)`;
+        }
+        
+    }
 }
 
 let joystick1 = new JoystickController("stick1", 100, 4);
@@ -486,12 +495,7 @@ function update()
     document.getElementById("status3").innerText = "Joystick 3: " + JSON.stringify(joystick3.value);
     document.getElementById("status4").innerText = "Joystick 4: " + JSON.stringify(joystick4.value);
     let stri = joystick1.zmena(1) + joystick2.zmena(2) + joystick3.zmena(3) + joystick4.zmena(4);
-    console.log("Ldnxkijndjwsmkjm");
-    if(stri != "")
-    {
-        //websocket.send(stri);
-        console.log(stri);
-    }   
+    SendESP(stri);
     setTimeout(arguments.callee, 100);
 }
 
@@ -503,8 +507,20 @@ function loop()
     
 }
 //setTimeout(update(), 1000);
+let aaaa = 0;
+function test()
+{
+    aaaa = aaaa + 1;
+    console.log("Pridano");
+    console.log(aaaa);
+    joystick1.setSecund(aaaa,0);
+    setTimeout(arguments.callee, 1000);
+}
+
+
 loop();
 update();
+test();
 
 function hideRow(element2) {
     let element = document.getElementById('t' + element2.id.toString());
