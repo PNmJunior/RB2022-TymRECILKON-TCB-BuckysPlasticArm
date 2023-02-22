@@ -16,7 +16,8 @@ const M_Kleste = 5;
 const M_Levy = 6;
 const M_Pravy = 7;
 
-
+let ModeWork = 'D';
+//let ModeWork = 'R';
 function balicekInt(a)
 {
     if(a == -0)
@@ -51,6 +52,10 @@ function addSubSoubor(a)
     return SubSouborZnak + a;
 }
 
+function joySend(j,x,y,t = 0)
+{
+    return sendAuto(dataJoy(j,x,y,t));
+}
 
 function motorSend(mot,hod)
 {
@@ -65,6 +70,11 @@ function motorQestionSend(a)
 function motorAllSend()
 {
     return sendAuto(dataMotorAll());
+}
+
+function dataJoy(j,x,y,t)
+{
+    return ['j',balicekInt( j),balicekInt( x),balicekInt( y),balicekInt( t)];
 }
 
 function dataMotorAll()
@@ -176,8 +186,6 @@ var startTimeSend = performance.now();
 var startTimeIn = performance.now();
 var startTimeAll = performance.now();
 var timeOldSend = performance.now();
-var hodNow = [0,0,0,0,0,0,0,0]
-var hodOld = [0,0,0,0,0,0,0,0]
 
 function onload(event) {
     initWebSocket();
@@ -313,6 +321,8 @@ class JoystickController
 
 		let self = this;
 
+        this.old = { x: 0, y: 0 ,uhel:0, d:0};
+
 		function handleDown(event)
 		{
 		    self.active = true;
@@ -402,14 +412,6 @@ class JoystickController
 			// deadzone adjustment
 		    var xPercent = xPosition.toFixed(0);
 		    var yPercent = yPosition.toFixed(0);
-            if(Math.abs(xPercent) <= deadzone)
-            {
-                xPercent = 0;
-            }
-            if(Math.abs(yPercent) <= deadzone)
-            {
-                yPercent = 0;
-            }
 		    self.value = { x: xPercent, y: yPercent , uhel: angle, d:distance};
 		  }
 
@@ -429,7 +431,7 @@ class JoystickController
 		    self.touchId = null;
 		    self.active = false;
 		}
-
+        
 		stick.addEventListener('mousedown', handleDown);
 		stick.addEventListener('touchstart', handleDown);
 		document.addEventListener('mousemove', handleMove, {passive: false});
@@ -437,6 +439,21 @@ class JoystickController
 		document.addEventListener('mouseup', handleUp);
 		document.addEventListener('touchend', handleUp);
 	}
+    zmena(cislo,rozd = deadzone)
+    {
+        let strinZmenaJ = String("");
+        let zozdJx = self.value.x - self.old.x;
+        let zozdJy = self.value.y - self.old.y;
+        let dJ = Math.sqrt(zozdJx * zozdJx + zozdJy * zozdJy);
+        if(dJ > rozd)
+        {
+            self.old.x = self.value.x;
+            self.old.y = self.value.y;
+            strinZmenaJ = joySend(cislo,self.old.x,self.old.y,0);
+        }
+        return strinZmenaJ;
+    }
+    
 }
 
 let joystick1 = new JoystickController("stick1", 100, 4);
@@ -450,166 +467,14 @@ function update()
 	document.getElementById("status2").innerText = "Joystick 2: " + JSON.stringify(joystick2.value);
     document.getElementById("status3").innerText = "Joystick 3: " + JSON.stringify(joystick3.value);
     document.getElementById("status4").innerText = "Joystick 4: " + JSON.stringify(joystick4.value);
-    hodNow[M_LED] = joystick3.value.x;
-    hodNow[M_1] = joystick2.value.x;
-    hodNow[M_2] = (-1)*joystick2.value.y;
-    hodNow[M_3] = (-1)*joystick3.value.y;
-    hodNow[M_4] = (-1)*joystick4.value.y;
-    hodNow[M_Kleste] = joystick4.value.x;
-    var M_Levy_lokal  = joystick1.value.d * rozdilLevy((-1)*radians_to_degrees(joystick1.value.uhel));
-    var M_Pravy_lokal = joystick1.value.d * rozdilPravy( (-1)*radians_to_degrees(joystick1.value.uhel));
-    /*if(joystick1.value.x > 0)
-    {
-        console.log("kladne x");
-        console.log(radians_to_degrees(joystick1.value.uhel));
-        console.log(rozdil(radians_to_degrees(joystick1.value.uhel)));
-        M_Pravy_lokal = M_Pravy_lokal * rozdil(radians_to_degrees(joystick1.value.uhel));
-    }
-    else
-    {
-        console.log("zaporne x");
-        console.log(radians_to_degrees(joystick1.value.uhel));
-        console.log(rozdil(radians_to_degrees(joystick1.value.uhel)));
-        M_Levy_lokal = M_Levy_lokal * rozdil(radians_to_degrees(joystick1.value.uhel));
-    }*/
-    hodNow[M_Levy] =   M_Levy_lokal.toFixed(0);
-    hodNow[M_Pravy] = M_Pravy_lokal.toFixed(0);
-    console.log("M_Levy");
-    console.log(hodNow[M_Levy]);
-    console.log("M_Pravy");
-    console.log(hodNow[M_Pravy]);    
-    let stri = "";
-    for(let i = 0; i < 8; i++)
-    {
-        if(hodNow[i] != hodOld[i])
-        {
-            hodOld[i] = hodNow[i];
-            //websocket.send( motorSend(i,hodOld[i]));
-            stri  = stri + motorSend(i,hodOld[i]);
-        }
-    } 
+    let stri = joystick1.zmena(1) + joystick2.zmena(2) + joystick3.zmena(3) + joystick4.zmena(4);
+    console.log("Ldnxkijndjwsmkjm");
     if(stri != "")
     {
-        websocket.send(stri);
+        //websocket.send(stri);
         console.log(stri);
     }   
     setTimeout(arguments.callee, 100);
-}
-
-function rozdilPravy(uhel)
-{
-    console.log("uhel");
-    console.log(uhel);
-    var uhelRozdil = Number(uhel.toFixed(0));
-
-    if(uhelRozdil < 0)
-    {
-        uhelRozdil = uhelRozdil + 360;
-    }
-    console.log("uhelRozdil");
-    console.log(uhelRozdil);
-    if(uhelRozdil == 0 )
-    {
-        console.log("vystup0");
-        console.log(-1);
-        return -1;
-    }
-    else if(uhelRozdil > 0 && uhelRozdil < 90)
-    {
-        console.log("vystup1");
-        console.log((uhelRozdil-45)/45);
-        return (uhelRozdil-45)/45;
-    }
-    else if(uhelRozdil >= 90 && uhelRozdil <= 180)
-    {
-        console.log("vystup2");
-        console.log(1);
-        return 1;
-    }
-    else if(uhelRozdil > 180 && uhelRozdil < 225)
-    {
-        console.log("vystup3");
-        console.log((202.5 - uhelRozdil)/22.5);
-        return (202.5 - uhelRozdil)/22.5;
-    }
-    else if(uhelRozdil >= 255 && uhelRozdil <= 270)
-    {
-        console.log("vystup4");
-        console.log(-1);
-        return -1;
-    }
-    else if(uhelRozdil > 270 && uhelRozdil <= 315)
-    {
-        console.log("vystup5");
-        console.log((uhelRozdil-315)/45);
-        return (uhelRozdil-315)/45;
-    }
-    else if(uhelRozdil > 315 && uhelRozdil <= 360)
-    {
-        console.log("vystup6");
-        console.log((315 - uhelRozdil)/45);
-        return (315 - uhelRozdil)/45;
-    }
-    return 0;
-}
-
-
-function rozdilLevy(uhel)
-{
-    console.log("uhel");
-    console.log(uhel);
-    var uhelRozdil = Number(uhel.toFixed(0));
-
-    if(uhelRozdil < 0)
-    {
-        uhelRozdil = uhelRozdil + 360;
-    }
-    console.log("uhelRozdil");
-    console.log(uhelRozdil);
-    if((uhelRozdil >= 0 && uhelRozdil <= 90)|| uhelRozdil == 360)
-    {
-        console.log("vystup1");
-        console.log(1);
-        return 1;
-    }
-    else if(uhelRozdil > 90 && uhelRozdil < 180)
-    {
-        console.log("vystup2");
-        console.log((135 - uhelRozdil)/45);
-        return (135 - uhelRozdil)/45;
-    }
-    else if(uhelRozdil > 180 && uhelRozdil <= 225)
-    {
-        console.log("vystup3");
-        console.log((uhelRozdil-225)/45);
-        return (uhelRozdil-225)/45;
-    }
-    else if(uhelRozdil > 225 && uhelRozdil < 270)
-    {
-        console.log("vystup4");
-        console.log((225 - uhelRozdil)/45);
-        return (225 - uhelRozdil)/45;
-    }
-    else if(uhelRozdil >= 270 && uhelRozdil <= 315)
-    {
-        console.log("vystup5");
-        console.log(-1);
-        return -1;
-    }
-    else if(uhelRozdil > 315 && uhelRozdil <= 360)
-    {
-        console.log("vystup6");
-        console.log((uhelRozdil-337.5)/22.5);
-        return (uhelRozdil-337.5)/22.5;
-    }
-    return 0;
-}
-
-
-function radians_to_degrees(radians)
-{
-  var pi = Math.PI;
-  return radians * (180/pi);
 }
 
 

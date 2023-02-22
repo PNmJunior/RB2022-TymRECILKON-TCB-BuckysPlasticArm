@@ -234,6 +234,114 @@ void initFS()
   }
 }
 
+double rozdilPravy(int uhel)
+{
+  int uhelRozdil = uhel % 360;
+    if(uhelRozdil < 0)
+    {
+        uhelRozdil = uhelRozdil + 360;
+    }
+    if(uhelRozdil == 0 )
+    {
+        return -1.0;
+    }
+    else if(uhelRozdil > 0 && uhelRozdil < 90)
+    {
+        return ((double)uhelRozdil-45.0)/45.0;
+    }
+    else if(uhelRozdil >= 90 && uhelRozdil <= 180)
+    {
+        return 1.0;
+    }
+    else if(uhelRozdil > 180 && uhelRozdil < 225)
+    {
+        return (202.5 - (double)uhelRozdil)/22.5;
+    }
+    else if(uhelRozdil >= 255 && uhelRozdil <= 270)
+    {
+        return -1.0;
+    }
+    else if(uhelRozdil > 270 && uhelRozdil <= 315)
+    {
+        return ((double)uhelRozdil-315.0)/45.0;
+    }
+    else if(uhelRozdil > 315 && uhelRozdil <= 360)
+    {
+        return (315.0 - (double)uhelRozdil)/45.0;
+    }
+    return 0;
+}
+
+
+double rozdilLevy(int uhel)
+{
+    int uhelRozdil = uhel % 360;
+    if(uhelRozdil < 0)
+    {
+        uhelRozdil = uhelRozdil + 360;
+    }
+    if((uhelRozdil >= 0 && uhelRozdil <= 90)|| uhelRozdil == 360)
+    {
+        return 1.0;
+    }
+    else if(uhelRozdil > 90 && uhelRozdil < 180)
+    {
+        return (135.0 - (double)uhelRozdil)/45.0;
+    }
+    else if(uhelRozdil > 180 && uhelRozdil <= 225)
+    {
+        return ((double)uhelRozdil-225.0)/45.0;
+    }
+    else if(uhelRozdil > 225 && uhelRozdil < 270)
+    {
+        return (225.0 - (double)uhelRozdil)/45.0;
+    }
+    else if(uhelRozdil >= 270 && uhelRozdil <= 315)
+    {
+        return -1.0;
+    }
+    else if(uhelRozdil > 315 && uhelRozdil <= 360)
+    {
+        return ((double)uhelRozdil-337.5)/22.5;
+    }
+    return 0;
+}
+
+
+int joysticZaok(int i, int mez = 10)
+{
+  if (abs(i) < mez)
+  {
+    return 0;
+  }
+  else if (i > 100)
+  {
+    return 100;
+  }
+  else if (i < (-100))
+  {
+    return i;
+  }
+  return i;
+}
+
+String joysticWork(int x,int mot_x, int y, int mot_y, int rozdil = 1)
+{
+  String i;
+  if (abs(x - mot.outProc(mot_x)) > rozdil)
+  {
+    mot.inputProc(mot_x,x);
+    i += SendSystem.motor(mot_x,mot.outProc(mot_x) );
+  }
+    if (abs(y - mot.outProc(mot_y)) > rozdil)
+  {
+    mot.inputProc(mot_y,y);
+    i += SendSystem.motor(mot_y,mot.outProc(mot_y) );
+  }
+  return i;
+}
+
+
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client)
 {
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
@@ -262,6 +370,59 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
       int smer;
       switch (souName.charAt(0))
       {
+      case 'j':
+        if (komP.pocetVAktualSouboru() != 5)
+        {
+          Serial.println("Problem s velikosti j:");
+          Serial.println(komP.pocetVAktualSouboru());
+          return;
+        }
+        outAll += komP.sendAktSoubor();
+        int joy = komP.readInt();
+        int osa_x = komP.readInt();
+        int osa_y = komP.readInt();
+        int tl = komP.readInt();
+        int osa_x_zaok = joysticZaok(osa_x);
+        int osa_y_zaok = joysticZaok(osa_x);
+        switch (joy)
+        {
+        case 1:
+          int osa_x_zaok2 = joysticZaok(osa_x);
+          int osa_y_zaok2 = joysticZaok(osa_x);
+          double d = sqrt((double)(osa_x_zaok2 * osa_x_zaok2 + osa_y_zaok2 * osa_y_zaok2));
+          if (d > 100.0)
+          {
+            d = 100.0;
+          }
+          else if (d < 20)
+          {
+            d = 0.0;
+          }
+          double M_Levy_lokal = 0;
+          double M_Pravy_lokal = 0;
+          if (d != 0.0)
+          {
+            double rad = atan2(osa_y_zaok2,osa_x_zaok2);
+            double uhel = (-180/PI)* rad;
+            M_Levy_lokal = d * rozdilLevy(uhel);
+            M_Pravy_lokal = d * rozdilPravy(uhel);
+          }
+          
+          
+          outAll += joysticWork(M_Levy_lokal,M_Levy,M_Pravy_lokal,M_Pravy);
+          break;
+        case 2:
+          outAll += joysticWork(osa_x_zaok,M_1,osa_y_zaok,M_2);
+          break;
+        case 3:
+          outAll += joysticWork(osa_x_zaok,M_LED,osa_y_zaok,M_3);
+          break;
+        case 4:
+          outAll += joysticWork(osa_x_zaok,M_Kleste,osa_y_zaok,M_4);
+          break;        
+        default:
+          break;
+        }
       case 'm':
 
         if (komP.pocetVAktualSouboru() != 3)
