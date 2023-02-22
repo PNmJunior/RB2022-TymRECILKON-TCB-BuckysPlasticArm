@@ -119,46 +119,39 @@ function read(a)
     return pole;
 }
 
+const Joystart = addSoubor("s");
+const Joystop  = addSoubor("t");
+let strJ1 ="";// ";s;j:1:50:10:1;t";//cteni
+let Jstartindex = 0;
+let Jstopindex = 0;
+let strJ2 = "";
+let Jmod = -1;
+
 function readJoy()
 {
-    let strJ1 = ""//cteni
-    let Jstartindex = 0;
-    let Jstopindex = 0;
-    let strJ2 = "";
-    let strJ3 = "";
-    let JRead ;
-    do {
-        strJ1 += ""//cteni
-        Jstartindex = strJ1.indexOf(";s")
-    } while (Jstartindex == -1);
-    strJ2 = strJ1.substring(Jstartindex);
-    do {
-        strJ2 += ""//cteni
-       Jstopindex = strJ2.indexOf(";t") 
-    } while (Jstopindex == -1);
-    Jstopindex += 2;
-    strJ1 = strJ2.substring(Jstopindex);
-    strJ3 = strJ2.substring(0,Jstopindex);
-    JRead = read(strJ3);
-    if(JRead[0][0] == 's' && JRead[1][0] == 'j' && JRead[2][0] =='t')
-    {
-        switch (JRead[1][1]) {
-            case "0":
-                
-                break;
-            case "1":
-                
-                break;
-            case "2":
-                
-                break;
-            case "3":
-                
-                break;
-            default:
-                break;
-        }
+    switch (Jmod) {
+        case 0:
+            strJ1 += "";//cteni
+            Jstartindex = strJ1.indexOf(Joystart);
+            if(Jstartindex != -1)
+            {
+                Jmod = 1;
+                strJ2 = strJ1.substring(Jstartindex);
+            }
+            break;
+        case 1:
+            strJ2 += "";//cteni
+            Jstopindex = strJ2.indexOf(Joystop); 
+            if(Jstopindex != -1)
+            {
+                Jmod = 0;
+                strJ1 = strJ2.substring(Jstopindex);
+                SendESP(strJ2.substring(0,Jstopindex));
+            }
+        default:
+            break;
     }
+    setTimeout(arguments.callee, 10);
 }
 
 
@@ -204,6 +197,7 @@ function initWebSocket() {
     websocket.onclose = onClose;
     websocket.onmessage = onMessage;
     }
+    Jmod = 0;
     if(window.isSecureContext) {
         console.log("Zabezpeceno");
     }
@@ -296,6 +290,28 @@ function onMessage(event) {
         console.log(SoubIn);
         switch (readText( SoubIn[0]))
         {
+            case "j":
+                let Ji = readInt( SoubIn[1]);
+                let Jx = readInt( SoubIn[2]);
+                let Jy = readInt( SoubIn[3]);
+                let Jt = readInt( SoubIn[4]);
+                Jt = 0;
+                switch (Ji) {
+                    case 1:
+                        joystick1.setSecund(Jx,Jy);
+                        break;
+                    case 2:
+                        joystick2.setSecund(Jx,Jy);
+                        break;
+                    case 3:
+                        joystick3.setSecund(Jx,Jy);
+                        break;
+                    case 4:
+                        joystick4.setSecund(Jx,Jy);
+                        break;
+                    default:
+                        break;
+                }
             case "m":
                 let key = readInt( SoubIn[1]);
                 let myObj = readInt( SoubIn[2]);
@@ -507,20 +523,10 @@ function loop()
     
 }
 //setTimeout(update(), 1000);
-let aaaa = 0;
-function test()
-{
-    aaaa = aaaa + 1;
-    console.log("Pridano");
-    console.log(aaaa);
-    joystick1.setSecund(aaaa,0);
-    setTimeout(arguments.callee, 1000);
-}
-
 
 loop();
+readJoy();
 update();
-test();
 
 function hideRow(element2) {
     let element = document.getElementById('t' + element2.id.toString());
