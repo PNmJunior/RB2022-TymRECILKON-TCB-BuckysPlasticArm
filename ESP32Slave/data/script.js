@@ -16,8 +16,8 @@ const M_Kleste = 5;
 const M_Levy = 6;
 const M_Pravy = 7;
 
-let ModeWork = 'D';
-//let ModeWork = 'R';
+//const ModeWork = 'w';//work
+const ModeWork = 'd';//debug
 function balicekInt(a)
 {
     if(a == -0)
@@ -192,15 +192,18 @@ function onload(event) {
 }
 
 function getValues(){
-    websocket.send(motorAllSend());
+    SendESP(motorAllSend());
 }
 
 function initWebSocket() {
     console.log('Trying to open a WebSocket connection…');
+    if(ModeWork == "w")
+    {
     websocket = new WebSocket(gateway);
     websocket.onopen = onOpen;
     websocket.onclose = onClose;
     websocket.onmessage = onMessage;
+    }
     if(window.isSecureContext) {
         console.log("Zabezpeceno");
     }
@@ -227,7 +230,7 @@ function updateSliderPWM(element) {
     var sliderValue = document.getElementById(element.id).value;
     //document.getElementById("sV"+sliderNumber).innerHTML = sliderValue;
     console.log(sliderValue);
-    websocket.send(motorSend(sliderNumber, sliderValue));
+    SendESP(motorSend(sliderNumber, sliderValue));
     console.log(`Send time ${performance.now() - startTimeSend} milliseconds`);
 }
 
@@ -248,9 +251,24 @@ async function sample() {
   }
 
 
-function updateSliderPWMnull(a) {
-    websocket.send(motorSend(a, 0));
+function SendESP(a)
+{
+    let Astring = String(a);
+    if(Astring == "")
+    {
+        console.log("Prazdne pole");
+    }
+    else if (ModeWork == "w")
+    {
+        console.log("Posilano:"); console.log(a);
+        websocket.send(a);
+    }
+    else
+    {
+        console.log("Debag:"); console.log(a);
+    }
 }
+
 
 function reset123()
 {
@@ -439,11 +457,11 @@ class JoystickController
 		document.addEventListener('mouseup', handleUp);
 		document.addEventListener('touchend', handleUp);
 	}
-    zmena(cislo,rozd = deadzone)
+    zmena(cislo,rozd = 5)
     {
         let strinZmenaJ = String("");
-        let zozdJx = self.value.x - self.old.x;
-        let zozdJy = self.value.y - self.old.y;
+        let zozdJx = Number(self.value.x) - Number(self.old.x);
+        let zozdJy = Number(self.value.y) - NUmber(self.old.y);
         let dJ = Math.sqrt(zozdJx * zozdJx + zozdJy * zozdJy);
         if(dJ > rozd)
         {
