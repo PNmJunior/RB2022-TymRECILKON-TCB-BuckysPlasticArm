@@ -30,7 +30,7 @@ struct pohonSet
     resDuty max;
     resDuty min;
     byte index;
-    char smer;
+    int smer;
     long timeStop;
     ledc_timer_config_t *ledc_timer;
     ledc_channel_config_t ledc_channel;
@@ -70,8 +70,8 @@ volatile byte vyst;
     bool inputProc(byte mot, float proc);
     bool input(byte mot, int smer ,byte spead,int maxSpead ,int minSpead , int cas );
     long TStop(byte mot);
-    char outSmer(byte mot);
-    byte outSpead(byte mot,int min, int max );
+    int outSmer(byte mot);
+    int outSpead(byte mot,int min, int max );
     int outProc(byte mot);
 };
 
@@ -431,7 +431,7 @@ inline void motor::updatePWM()
 }
 
 
-char motor::outSmer(byte mot)
+int motor::outSmer(byte mot)
 {
     if(mot >= 8)
     {
@@ -441,7 +441,7 @@ char motor::outSmer(byte mot)
 }
 
 
-byte motor::outSpead(byte mot, int min = 0, int max = 255)
+int motor::outSpead(byte mot, int min = 0, int max = 255)
 {
     if(mot >= 8)
     {
@@ -457,8 +457,7 @@ int motor::outProc(byte mot)
     {
         return 0;
     }
-    char s = outSmer(mot);
-    
+    int s = outSmer(mot);
     if (s == mVzad)
     {
         return (-1)* outSpead(mot,0,100);
