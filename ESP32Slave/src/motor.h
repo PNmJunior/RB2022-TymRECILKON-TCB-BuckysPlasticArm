@@ -6,7 +6,7 @@
 #include "esp32-hal.h"
 #include "soc/soc_caps.h"
 #include "driver/ledc.h"
-typedef byte resDuty;
+typedef double resDuty;
 
 #define LEDC_mTIMER              LEDC_TIMER_3
 #define LEDC_mFrec              5000
@@ -46,17 +46,20 @@ struct pohonSet
 #define rychModLow 0
 #define rychModHigh 1
 
-
 class motor
 {
 private:
     byte set = 0;
     ledc_timer_config_t defTim;
     bool setDefTimer = 0;
+    const double zaokPomer = 0.999;
 public:
 pohonSet m[8];
 volatile pohonVol v[8];
 volatile byte vyst;
+volatile bool work;
+    resDuty mapD(resDuty x, resDuty in_min, resDuty in_max, resDuty out_min, resDuty out_max);
+    int mapZaok(resDuty x, resDuty in_min, resDuty in_max, resDuty out_min, resDuty out_max);
     byte vystup();
     void beginStart();
     bool beginTimer(uint32_t frek ,ledc_timer_t _tim  ,ledc_mode_t _speadmode );
@@ -123,6 +126,23 @@ inline byte motor::posunToNum(byte i)
     return 0;
 }
 
+resDuty motor::mapD(resDuty x, resDuty in_min, resDuty in_max, resDuty out_min, resDuty out_max)
+{
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+
+int motor::mapZaok(resDuty x, resDuty in_min, resDuty in_max, resDuty out_min, resDuty out_max)
+{
+    double o= (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    int i = o;
+    if(o - (double)i > zaokPomer)
+    {
+        i++;
+    }
+return i;
+
+}
 
 inline long motor::TStop(byte mot)
 {
@@ -300,6 +320,27 @@ bool motor::begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _
     v[mot].pin = _pin;
     Serial.print("Uspesna inicializace motoru:");
     Serial.println(mot);
+    for (int i = 0; i <= 100; i++)
+    {
+        resDuty l = mapD(i,0,100,m[mot].max,m[mot].min);
+        resDuty v = mapD(l,m[mot].max,m[mot].min,0,100);
+        int v2 = v;
+        if(v - (double)v2 > zaokPomer)
+        {
+            v2 ++;
+        }
+        if (i != v2)
+        {
+            Serial.print("Spatny prevod pro:");
+            Serial.print(i);
+            Serial.print(" na l:");
+            Serial.print(l,10);
+            Serial.print(" na v:");
+            Serial.print(v,30);
+            Serial.print(" po zaokrouhleni:");
+            Serial.println(v2);
+        }
+    }
     return true;
 }
 
@@ -320,6 +361,11 @@ bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,i
     {
         return false;
     }
+    while (work)
+    {
+        vTaskDelay(1);
+    }
+    work = true;
     m[mot].timeStop = 0;
     if (smer==mBrzda)
     {
@@ -331,7 +377,7 @@ bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,i
         {
             vyst |= m[mot].index;       
         }
-        v[mot].duty = map(spead,minSpead,maxSpead,m[mot].min, m[mot].max); 
+        v[mot].duty = mapD(spead,minSpead,maxSpead,m[mot].min, m[mot].max); 
         m[mot].timeStop = millis() + cas;
         m[mot].smer = smer;
     }
@@ -349,7 +395,7 @@ bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,i
     }
     else
     {
-        resDuty a = map(spead,minSpead,maxSpead,m[mot].min, m[mot].max);
+        resDuty a = mapD(spead,minSpead,maxSpead,m[mot].min, m[mot].max);
         int b = smer * m[mot].neg * m[mot].inverz;
         //Serial.println((int)b);Serial.println((int)smer);Serial.println((int)m[mot].neg);Serial.println((int)m[mot].inverz);
         if (b == mVpred)
@@ -360,14 +406,16 @@ bool motor::input(byte mot, int smer = mStop,byte spead = 0,int maxSpead = 255,i
         else if (b == mVzad)
         {
             vyst = vyst | m[mot].index;
-            v[mot].duty = ~a;
+            v[mot].duty = 255.0-a;
         }
         else
         {
+            work = false;
             return false;
         }
         m[mot].smer = smer;
     }
+    work = false;
     return true;
 }
 
@@ -447,7 +495,7 @@ int motor::outSpead(byte mot, int min = 0, int max = 255)
     {
         return 0;
     }
-    return map(v[mot].duty,m[mot].min, m[mot].max,min,max);
+    return mapZaok(v[mot].duty,m[mot].min, m[mot].max,min,max);
 }
 
 
@@ -457,16 +505,30 @@ int motor::outProc(byte mot)
     {
         return 0;
     }
+    while (work)
+    {
+        vTaskDelay(1);
+    }
+    work = true;
+    int vyst;
     int s = outSmer(mot);
     if (s == mVzad)
     {
-        return (-1)* outSpead(mot,0,100);
+        vyst = (-1)* outSpead(mot,0,100);
     }
     else if (s == mVpred)
     {
-        return outSpead(mot,0,100);
+        vyst = outSpead(mot,0,100);
     }
-    return 0;
+    else if(s == mStop) {
+        vyst = 0;
+    }
+    else
+    {
+        vyst = 200 + s;
+    }
+    work = false;
+    return vyst;
 }
 
 #endif 

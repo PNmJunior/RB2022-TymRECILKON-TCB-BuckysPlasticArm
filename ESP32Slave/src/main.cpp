@@ -95,8 +95,8 @@ const byte NastMotMaxMin[8][2] = {
   {255,50},//M_3
   {255,50},//M_4
   {170,130},//M_Kleste
-  {255,100},//M_Levy
-  {245,100} //M_Pravy
+  {255,50},//M_Levy
+  {245,50} //M_Pravy
 };//razeno podle prevodniku
 
 
@@ -112,6 +112,9 @@ byte pocetClientu = 0 ;
 
 void IRAM_ATTR HlavniPreruseni()
 {
+  if(!mot.work)
+  {
+    mot.work = true;
   byte d1 = mot.vystup();
   //Serial.println(d1);
   //byte d2 = B10000001;
@@ -181,6 +184,8 @@ void IRAM_ATTR HlavniPreruseni()
 
   timerRestart(My_timer);
   segDisp.vystupEX();
+  mot.work = false;
+  }
 }
 
 String ssid ;
@@ -332,12 +337,12 @@ String joysticWork(int x,int mot_x, int y, int mot_y, int rozdil = 1)
   String i;
   int mx = Prevodnik[mot_x];
   int my = Prevodnik[mot_y];
-  if (abs(x - mot.outProc(mx)) > rozdil)
+  if (abs(x - mot.outProc(mx)) >= rozdil)
   {
     mot.inputProc(mx,x);
     i += SendSystem.motor(mx,mot.outProc(mx) );
   }
-  if (abs(y - mot.outProc(my)) > rozdil)
+  if (abs(y - mot.outProc(my)) >= rozdil)
   {
     mot.inputProc(my,y);
     i += SendSystem.motor(my,mot.outProc(my) );
@@ -422,13 +427,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
           break;
         }
         case 2:
-          outAll += joysticWork(osa_x_zaok,M_1,osa_y_zaok,M_2);
+          outAll += joysticWork(osa_x_zaok,M_1,-osa_y_zaok,M_2);
           break;
         case 3:
-          outAll += joysticWork(osa_x_zaok,M_LED,osa_y_zaok,M_3);
+          outAll += joysticWork(osa_x_zaok,M_LED,-osa_y_zaok,M_3);
           break;
         case 4:
-          outAll += joysticWork(osa_x_zaok,M_Kleste,osa_y_zaok,M_4);
+          outAll += joysticWork(osa_x_zaok,M_Kleste,-osa_y_zaok,M_4);
           break;        
         default:
           break;
@@ -804,6 +809,27 @@ void loop(void)
   {
     ws.textAll(p);
   }
+
+  String l ;
+
+  for (int i = 0; i < 8; i++)
+  {
+    //Oprava chyby, kdy knihovna říka, že motor jede při nulové rychlosti a motor se pohybuje.
+    //Vznik teto nulové chyby nepodařilo vyřešit ani zaokrouhlovacím systémem
+    if ((mot.outSmer(i) == mVpred ||mot.outSmer(i) == mVzad) && mot.outSpead(i) == 0)
+    {
+        mot.input(i, mStop);
+        l += SendSystem.motor(i,0);
+    }
+  }
+  if (l.length() != 0)
+  {
+    ws.textAll(l);
+  }
+
+
+
+  
   
   ws.cleanupClients();
 }

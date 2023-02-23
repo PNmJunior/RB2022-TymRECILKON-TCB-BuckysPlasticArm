@@ -312,6 +312,7 @@ function onMessage(event) {
                     default:
                         break;
                 }
+                break;
             case "m":
                 let key = readInt( SoubIn[1]);
                 let myObj = readInt( SoubIn[2]);
@@ -351,11 +352,11 @@ class JoystickController
 		this.touchId = null;
 		
 		this.active = false;
-		this.value = { x: 0, y: 0 ,uhel:0, d:0}; 
+		this.value = { x: 0, y: 0 }; 
 
 		let self = this;
 
-        this.old = { x: 0, y: 0 ,uhel:0, d:0};
+        this.old = { x: 0, y: 0};
 
 		function handleDown(event)
 		{
@@ -446,7 +447,7 @@ class JoystickController
 			// deadzone adjustment
 		    var xPercent = xPosition.toFixed(0);
 		    var yPercent = yPosition.toFixed(0);
-		    self.value = { x: xPercent, y: yPercent , uhel: angle, d:distance};
+		    self.value = { x: xPercent, y: yPercent};
 		  }
 
 		function handleUp(event) 
@@ -461,7 +462,7 @@ class JoystickController
 		    stick.style.transform = `translate3d(0px, 0px, 0px)`;
 
 		    // reset everything
-		    self.value = { x: 0, y: 0 , uhel: 0, d:0};
+		    self.value = { x: 0, y: 0 };
 		    self.touchId = null;
 		    self.active = false;
 		}
