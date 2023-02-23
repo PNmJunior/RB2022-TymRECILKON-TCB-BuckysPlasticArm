@@ -110,17 +110,6 @@ byte posunIP = 0;
 
 byte pocetClientu = 0 ;
 
-void MotorStopAll() // Vždy zastaví chod robota.
-{
-  String aaa;
-  for (int i = 0; i < 8; i++)
-  {
-    mot.input(i);
-    aaa += SendSystem.motor(i,0);
-  }
-  ws.textAll(aaa);
-}
-
 void IRAM_ATTR HlavniPreruseni()
 {
   byte d1 = mot.vystup();
@@ -201,6 +190,19 @@ String password ;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 String message = "";
+
+
+void MotorStopAll() // Vždy zastaví chod robota.
+{
+  String aaa;
+  for (int i = 0; i < 8; i++)
+  {
+    mot.input(i);
+    aaa += SendSystem.motor(i,0);
+  }
+  ws.textAll(aaa);
+}
+
 
 // Get Slider Values
 String getSliderValues(int index = 100)
@@ -284,7 +286,7 @@ double rozdilLevy(int uhel)
     {
         return 1.0;
     }
-    else if(uhelRozdil > 90 && uhelRozdil < 180)
+    else if(uhelRozdil > 90 && uhelRozdil <= 180)
     {
         return (135.0 - (double)uhelRozdil)/45.0;
     }
@@ -328,15 +330,17 @@ int joysticZaok(int i, int mez = 10)
 String joysticWork(int x,int mot_x, int y, int mot_y, int rozdil = 1)
 {
   String i;
-  if (abs(x - mot.outProc(mot_x)) > rozdil)
+  int mx = Prevodnik[mot_x];
+  int my = Prevodnik[mot_y];
+  if (abs(x - mot.outProc(mx)) > rozdil)
   {
-    mot.inputProc(mot_x,x);
-    i += SendSystem.motor(mot_x,mot.outProc(mot_x) );
+    mot.inputProc(mx,x);
+    i += SendSystem.motor(mx,mot.outProc(mx) );
   }
-    if (abs(y - mot.outProc(mot_y)) > rozdil)
+  if (abs(y - mot.outProc(my)) > rozdil)
   {
-    mot.inputProc(mot_y,y);
-    i += SendSystem.motor(mot_y,mot.outProc(mot_y) );
+    mot.inputProc(my,y);
+    i += SendSystem.motor(my,mot.outProc(my) );
   }
   return i;
 }
@@ -371,6 +375,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
       switch (souName.charAt(0))
       {
       case 'j':
+      {
         if (komP.pocetVAktualSouboru() != 5)
         {
           Serial.println("Problem s velikosti j:");
@@ -378,17 +383,21 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
           return;
         }
         outAll += komP.sendAktSoubor();
+        Serial.println(komP.sendAktSoubor());
+        
         int joy = komP.readInt();
+        Serial.println(joy);
         int osa_x = komP.readInt();
         int osa_y = komP.readInt();
         int tl = komP.readInt();
         int osa_x_zaok = joysticZaok(osa_x);
-        int osa_y_zaok = joysticZaok(osa_x);
+        int osa_y_zaok = joysticZaok(osa_y);
         switch (joy)
         {
         case 1:
+        {
           int osa_x_zaok2 = joysticZaok(osa_x);
-          int osa_y_zaok2 = joysticZaok(osa_x);
+          int osa_y_zaok2 = joysticZaok(osa_y);
           double d = sqrt((double)(osa_x_zaok2 * osa_x_zaok2 + osa_y_zaok2 * osa_y_zaok2));
           if (d > 100.0)
           {
@@ -411,6 +420,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
           
           outAll += joysticWork(M_Levy_lokal,M_Levy,M_Pravy_lokal,M_Pravy);
           break;
+        }
         case 2:
           outAll += joysticWork(osa_x_zaok,M_1,osa_y_zaok,M_2);
           break;
@@ -423,6 +433,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
         default:
           break;
         }
+        break;
+      }
       case 'm':
 
         if (komP.pocetVAktualSouboru() != 3)
@@ -467,23 +479,22 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
     }
     //komP.clear();
   
-    Serial.println("outAll:");
+    //Serial.println("outAll:");
     Serial.println(outAll);
     //ws._cleanBuffers();
     if (outAll != "")
     {
-      Serial.println("outAllp1:");
+      //Serial.println("outAllp1:");
       ws.textAll(outAll);
       //ws._clients;
       /*
       for(const auto& c: ws.getClients()){
         c->text(outAll);
       }*/
-      Serial.println("outAllp2:");
+      //Serial.println("outAllp2:");
     }
-    Serial.print("outClient:");
-    Serial.println(client->id());
-    Serial.println(outClient);
+    //Serial.print("outClient:");Serial.println(client->id());
+    //Serial.println(outClient);
     if (outClient != "")
     {
       //client->text(outClient);

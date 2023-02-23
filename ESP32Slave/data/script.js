@@ -16,8 +16,8 @@ const M_Kleste = 5;
 const M_Levy = 6;
 const M_Pravy = 7;
 
-//const ModeWork = 'w';//work
-const ModeWork = 'd';//debug
+const ModeWork = 'w';//work
+//const ModeWork = 'd';//debug
 function balicekInt(a)
 {
     if(a == -0)
@@ -254,7 +254,7 @@ function SendESP(a)
     }
     else if (ModeWork == "w")
     {
-        //console.log("Posilano:"); console.log(a);
+        console.log("Posilano:"); console.log(a);
         websocket.send(a);
     }
     else
