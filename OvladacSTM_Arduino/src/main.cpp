@@ -1,5 +1,8 @@
 //https://primalcortex.wordpress.com/2020/10/11/stm32-blue-pill-board-arduino-core-and-usb-serial-output-on-platformio/
 #include <Arduino.h>
+#include <komunProtokol.h>
+
+
 #define J1x PA0
 #define J1y PA1
 #define J1t PB0
@@ -19,12 +22,14 @@
 #define J2 1
 #define J3 2
 #define J4 3
-#define Jx 0
-#define Jy 1
+#define Jx 1
+#define Jy 0
 #define Jt 2
 
+
 const int zmena = 2;
-const int nullDet = 50;
+const int nullDet = 20;
+
 
 const int polePinu[4][3] = {
   {J1x,J1y,J1t},
@@ -33,12 +38,14 @@ const int polePinu[4][3] = {
   {J4x,J4y,J4t}
 };
 
+
 int poleNow[4][3] = {
   {0,0,0},
   {0,0,0},
   {0,0,0},
   {0,0,0}
 };
+
 
 int poleSet[4][3] = {
   {0,0,0},
@@ -54,11 +61,13 @@ void SendPrint(String a)
   Serial1.print(a);
 }
 
+
 void SendPrintln(String a)
 {
   Serial.println(a);
   Serial1.println(a);
 }
+
 
 void nacteni(int Joys)
 {
@@ -66,11 +75,17 @@ void nacteni(int Joys)
   poleNow[Joys][0] = analogRead(polePinu[Joys][0]);
   poleNow[Joys][0] = digitalRead(polePinu[Joys][0]);
 }
+
+
 typedef double resDuty;
+
+
 resDuty mapD(resDuty x, resDuty in_min, resDuty in_max, resDuty out_min, resDuty out_max)
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+
 int AnalogToProc(int in, int set)
 {
   int o = in- set;
@@ -100,28 +115,26 @@ void Novy()
 {
   for (int j = 0; j < 4; j++)
   {
-      int x = analogRead(polePinu[j][Jx]);
-      int y = analogRead(polePinu[j][Jy]);
-      int t = digitalRead(polePinu[j][Jy]);
+    int x = analogRead(polePinu[j][Jx]);
+    int y = analogRead(polePinu[j][Jy]);
+    int t = digitalRead(polePinu[j][Jt]);
 
-      int X = AnalogToProc(x,poleSet[j][Jx]);
-      int Y = AnalogToProc(y,poleSet[j][Jy]);
-      int T = t;
+    int X = (-1)*AnalogToProc(x,poleSet[j][Jx]);
+    int Y = AnalogToProc(y,poleSet[j][Jy]);
+    int T = 1-t;
 
-      if (abs(X - poleNow[j][Jx]) > zmena || abs(Y - poleNow[j][Jy]) > zmena || abs(T - poleNow[j][Jt]) == 1);
-      {
-        poleNow[j][Jx] = X;
-        poleNow[j][Jy] = Y;
-        poleNow[j][Jt] = T;
-        String pp = "J" + String(j) + "-" + String(poleNow[j][Jx]) + "-" + String(poleNow[j][Jy]) + "-" + String(poleNow[j][Jt]);
-        SendPrintln(pp);
-      }
-      
-    
-    //SendPrintln("");
-    
+    if (abs(X - poleNow[j][Jx]) > zmena || abs(Y - poleNow[j][Jy]) > zmena || abs(T - poleNow[j][Jt]) == 1)
+    {
+      poleNow[j][Jx] = X;
+      poleNow[j][Jy] = Y;
+      poleNow[j][Jt] = T;
+      //String pp = "J" + String(j) + "*" + String(poleNow[j][Jx]) + "*" + String(poleNow[j][Jy]) + "*" + String(poleNow[j][Jt]);
+      //SendPrintln(pp);
+      SendPrint( SendSystem.joystic(j + 1,poleNow[j][Jx],poleNow[j][Jy],poleNow[j][Jt]));
+    }
   }
 }
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -133,35 +146,23 @@ void setup() {
   delay(2000);
   for (int j = 0; j < 4; j++)
   {
-    SendPrint("Set");
-    SendPrint(String(j));
+    //SendPrint("Set");SendPrint(String(j));
     for (int i = 0; i < 2; i++)
     {
       poleSet[j][i] = analogRead(polePinu[j][i]);
-      SendPrint("-");
-      SendPrint(String(poleSet[j][i]));
+      //SendPrint("*");SendPrint(String(poleSet[j][i]));
     }
+    pinMode(polePinu[j][Jt],INPUT_PULLUP);
     poleSet[j][Jt] = digitalRead(polePinu[j][Jt]);
-    SendPrint("-");
-    SendPrintln(String(poleSet[j][Jt]));
-    
+    //SendPrint("*");SendPrintln(String(poleSet[j][Jt])); 
   }
-  
-
 }
+
 
 void loop() {
   digitalWrite(ledPin, HIGH);
-  delay(500);
+  delay(50);
   digitalWrite(ledPin, LOW);
-  delay(500);
-  /*
-  SendPrint("a");
-  for (int i = 192; i < 200; i++)
-  {
-    SendPrintln(String(analogRead(i)));
-  }*/
+  delay(50);
   Novy();
-  
-  
 }
