@@ -23,6 +23,9 @@
 #define Jy 1
 #define Jt 2
 
+const int zmena = 2;
+const int nullDet = 50;
+
 const int polePinu[4][3] = {
   {J1x,J1y,J1t},
   {J2x,J2y,J2t},
@@ -30,12 +33,6 @@ const int polePinu[4][3] = {
   {J4x,J4y,J4t}
 };
 
-int poleOld[4][3] = {
-  {0,0,0},
-  {0,0,0},
-  {0,0,0},
-  {0,0,0}
-};
 int poleNow[4][3] = {
   {0,0,0},
   {0,0,0},
@@ -43,14 +40,25 @@ int poleNow[4][3] = {
   {0,0,0}
 };
 
+int poleSet[4][3] = {
+  {0,0,0},
+  {0,0,0},
+  {0,0,0},
+  {0,0,0}
+};
 
-void modpinJoys(int Joys)
+
+void SendPrint(String a)
 {
-  pinMode(polePinu[Joys][0],INPUT_ANALOG);
-  pinMode(polePinu[Joys][1],INPUT_ANALOG);
-  pinMode(polePinu[Joys][2],INPUT_PULLUP);
+  Serial.print(a);
+  Serial1.print(a);
 }
 
+void SendPrintln(String a)
+{
+  Serial.println(a);
+  Serial1.println(a);
+}
 
 void nacteni(int Joys)
 {
@@ -58,27 +66,61 @@ void nacteni(int Joys)
   poleNow[Joys][0] = analogRead(polePinu[Joys][0]);
   poleNow[Joys][0] = digitalRead(polePinu[Joys][0]);
 }
-
-
-void nacteni()
+typedef double resDuty;
+resDuty mapD(resDuty x, resDuty in_min, resDuty in_max, resDuty out_min, resDuty out_max)
 {
-  for (int i = 0; i < 4; i++)
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+int AnalogToProc(int in, int set)
+{
+  int o = in- set;
+  int out;
+  if(abs(o) < nullDet)
   {
-    nacteni(i);
+    return 0;
   }
+  else if(o > 0)
+  {
+    out = mapD(o, 0,4096 - set,0,100);
+  }
+  else
+  {
+    out = (-1)*mapD((-1)*o,0,set,0,100);
+  }
+  if (out > 100)
+  {
+    return 100;
+  }
+  //SendPrint("in"); SendPrintln(String(in));SendPrint("  out"); SendPrintln(String(out));
+  return out;
 }
 
 
-bool zmena(int Joys)
+void Novy()
 {
-  if (poleNow[Joys][0] != poleOld[Joys][0] || poleNow[Joys][1] != poleOld[Joys][1] || poleNow[Joys][2] != poleOld[Joys][2])
+  for (int j = 0; j < 4; j++)
   {
-    poleOld[Joys][0] = poleNow[Joys][0];
-    poleOld[Joys][1] = poleNow[Joys][1];
-    poleOld[Joys][2] = poleNow[Joys][2];
-    return 1;
+      int x = analogRead(polePinu[j][Jx]);
+      int y = analogRead(polePinu[j][Jy]);
+      int t = digitalRead(polePinu[j][Jy]);
+
+      int X = AnalogToProc(x,poleSet[j][Jx]);
+      int Y = AnalogToProc(y,poleSet[j][Jy]);
+      int T = t;
+
+      if (abs(X - poleNow[j][Jx]) > zmena || abs(Y - poleNow[j][Jy]) > zmena || abs(T - poleNow[j][Jt]) == 1);
+      {
+        poleNow[j][Jx] = X;
+        poleNow[j][Jy] = Y;
+        poleNow[j][Jt] = T;
+        String pp = "J" + String(j) + "-" + String(poleNow[j][Jx]) + "-" + String(poleNow[j][Jy]) + "-" + String(poleNow[j][Jt]);
+        SendPrintln(pp);
+      }
+      
+    
+    //SendPrintln("");
+    
   }
-  return 0;
 }
 
 void setup() {
@@ -86,35 +128,40 @@ void setup() {
   Serial1.begin(19200); // PA10  (RX) PA9 (TX) 
   pinMode(ledPin,OUTPUT);
   //Android pomoci CDC
-   analogReadResolution(12);
+  analogReadResolution(12);
   Serial.begin(9600);
-  for (int i = 0; i < 4; i++)
+  delay(2000);
+  for (int j = 0; j < 4; j++)
   {
-    modpinJoys(i);
+    SendPrint("Set");
+    SendPrint(String(j));
+    for (int i = 0; i < 2; i++)
+    {
+      poleSet[j][i] = analogRead(polePinu[j][i]);
+      SendPrint("-");
+      SendPrint(String(poleSet[j][i]));
+    }
+    poleSet[j][Jt] = digitalRead(polePinu[j][Jt]);
+    SendPrint("-");
+    SendPrintln(String(poleSet[j][Jt]));
+    
   }
+  
+
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  nacteni();
-  for (int i = 0; i < 4; i++)
-  {
-    //if(zmena(i))
-    if(true)
-    {
-      Serial1.print("J");
-      Serial1.print(i + 1);
-      Serial1.print(": x=");
-      Serial1.print(poleNow[i][Jx]);
-      Serial1.print(", y=");
-      Serial1.print(poleNow[i][Jy]);
-      Serial1.print(", t=");
-      Serial1.println(poleNow[i][Jt]);
-    }
-  }
-  Serial.println("Ahoj");
   digitalWrite(ledPin, HIGH);
-  delay(100);
+  delay(500);
   digitalWrite(ledPin, LOW);
-  delay(100);
+  delay(500);
+  /*
+  SendPrint("a");
+  for (int i = 192; i < 200; i++)
+  {
+    SendPrintln(String(analogRead(i)));
+  }*/
+  Novy();
+  
+  
 }
