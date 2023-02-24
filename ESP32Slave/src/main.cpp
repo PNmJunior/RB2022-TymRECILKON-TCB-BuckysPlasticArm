@@ -351,30 +351,16 @@ String joysticWork(int x,int mot_x, int y, int mot_y, int rozdil = 1)
 }
 
 
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client)
+void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
 {
-  AwsFrameInfo *info = (AwsFrameInfo *)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
-  {
-    data[len] = 0;
-    message = (char *)data;
-    //;m:0:2;m:1:-100;t:1:pocet:"joiuyytuiopiuytrddxhhi jj   m  ijmk"
     komunProtokol komP;
-    komP.begin(message);
-    //Serial.println("message:");
-    //Serial.println(message);
+    komP.begin(mess);
+    //Serial.println("mess:");Serial.println(mess);
     String outAll;
     String outClient;
     for (int s = 0; s < komP.pocetSouboru; s++)
     {
       String souName = komP.readStr();
-      if (souName.length() != 1)
-      {
-        Serial.println("Problem s velikosti:");
-        Serial.println(souName);
-        Serial.println(souName.length());
-        return;
-      }
       int cisloM;
       int smer;
       switch (souName.charAt(0))
@@ -421,8 +407,6 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
             M_Levy_lokal = d * rozdilLevy(uhel);
             M_Pravy_lokal = d * rozdilPravy(uhel);
           }
-          
-          
           outAll += joysticWork(M_Levy_lokal,M_Levy,M_Pravy_lokal,M_Pravy);
           break;
         }
@@ -450,10 +434,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
         }
         cisloM = komP.readInt();
         smer = komP.readInt();
-        /*Serial.print("c:");
-        Serial.println(cisloM);
-        Serial.print("h:");
-        Serial.println(smer);*/
+        /*Serial.print("c:");Serial.println(cisloM);Serial.print("h:");Serial.println(smer);*/
         mot.inputProc(Prevodnik[cisloM], smer);
         outAll += komP.sendAktSoubor();
         break;
@@ -482,31 +463,27 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocket
         break;
       }
     }
-    //komP.clear();
-  
-    //Serial.println("outAll:");
-    Serial.println(outAll);
-    //ws._cleanBuffers();
+    //Serial.println("outAll:");Serial.println(outAll);
     if (outAll != "")
     {
-      //Serial.println("outAllp1:");
       ws.textAll(outAll);
-      //ws._clients;
-      /*
-      for(const auto& c: ws.getClients()){
-        c->text(outAll);
-      }*/
-      //Serial.println("outAllp2:");
     }
-    //Serial.print("outClient:");Serial.println(client->id());
-    //Serial.println(outClient);
-    if (outClient != "")
+    //Serial.print("outClient:");Serial.println(client->id());Serial.println(outClient);
+    if (outClient != "" && client != NULL)
     {
-      //client->text(outClient);
-      //ws.text(client->id(),outClient);
-      ws.textAll(outClient);
+      client->text(outClient);
     }
-    //ws._cleanBuffers();
+}
+
+
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client)
+{
+  AwsFrameInfo *info = (AwsFrameInfo *)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
+  {
+    data[len] = 0;
+    message = (char *)data;
+    ZpracovaniDat(message, client);
   }
 }
 
@@ -826,10 +803,5 @@ void loop(void)
   {
     ws.textAll(l);
   }
-
-
-
-  
-  
   ws.cleanupClients();
 }
