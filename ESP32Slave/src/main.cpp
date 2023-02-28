@@ -772,13 +772,13 @@ Serial.println("Soubory");
   AsyncElegantOTA.begin(&server); // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
-  
+
   telnet.onConnect(telnetConnected);
   telnet.onDisconnect(telnetDisconnected);
   telnet.onReconnect(telnetReconnect);
 
     Serial.print("Telnet.begin: ");
-  if(telnet.begin(2323)) {
+  if(telnet.begin()) {
     Serial.println("Successful");
   } else {
     Serial.println("Failed");
