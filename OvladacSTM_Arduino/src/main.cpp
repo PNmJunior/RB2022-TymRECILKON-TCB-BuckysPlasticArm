@@ -130,7 +130,7 @@ void Novy()
       poleNow[j][Jt] = T;
       //String pp = "J" + String(j) + "*" + String(poleNow[j][Jx]) + "*" + String(poleNow[j][Jy]) + "*" + String(poleNow[j][Jt]);
       //SendPrintln(pp);
-      SendPrint( SendSystem.joystic(j + 1,poleNow[j][Jx],poleNow[j][Jy],poleNow[j][Jt]));
+      SendPrintln( SendSystem.joystic(j + 1,poleNow[j][Jx],poleNow[j][Jy],poleNow[j][Jt]));
     }
   }
 }
@@ -142,7 +142,7 @@ void setup() {
   pinMode(ledPin,OUTPUT);
   //Android pomoci CDC
   analogReadResolution(12);
-  Serial.begin(9600);
+  Serial.begin(115200);
   delay(2000);
   for (int j = 0; j < 4; j++)
   {
@@ -160,9 +160,30 @@ void setup() {
 
 
 void loop() {
+  
   digitalWrite(ledPin, HIGH);
   delay(50);
   digitalWrite(ledPin, LOW);
   delay(50);
   Novy();
+ 
+/*
+  if(Serial.available()> 0 || Serial1.available()> 0)
+  {
+    if(Serial.available()> 0 )
+    {
+  Serial.write(Serial.read());
+  Serial1.write(Serial.read());
+  }
+  if (Serial1.available()> 0)
+  {
+  Serial.write(Serial1.read());
+  Serial1.write(Serial1.read());
+  }
+  digitalWrite(ledPin, HIGH);
+  delay(50);
+  digitalWrite(ledPin, LOW);
+  delay(50);
+  }
+  */
 }
