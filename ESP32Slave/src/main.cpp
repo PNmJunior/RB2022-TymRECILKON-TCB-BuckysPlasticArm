@@ -12,6 +12,13 @@
 #include <Preferences.h> //Ulozeni hesla
 
 
+WiFiClient telnetClient;
+
+int Jstartindex = 0;
+int Jstopindex = 0;
+String strJ2 = "";
+int Jmod = -1;//-1
+
 Preferences preferences;
 
 String WifiNotPassword = "@";
@@ -456,10 +463,13 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
         }
         outClient += getSliderValues();
         break;
+        case 's':
+        case 't':
+        break;
       default:
-        Serial.println("neznama vec");
+        Serial.print("neznama vec:");
         Serial.println(souName.charAt(0));
-        outAll += getSliderValues();
+        //outAll += getSliderValues();
         break;
       }
     }
@@ -467,11 +477,19 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
     if (outAll != "")
     {
       ws.textAll(outAll);
+      //telnetClient.write(outAll.c_str());
     }
     //Serial.print("outClient:");Serial.println(client->id());Serial.println(outClient);
-    if (outClient != "" && client != NULL)
+    if (outClient != "")
     {
-      client->text(outClient);
+      if (client == NULL)
+      {
+        telnetClient.write(outClient.c_str());
+      }
+      else
+      {
+        client->text(outClient);
+      }
     }
 }
 
@@ -750,6 +768,95 @@ Serial.println("Soubory");
   AsyncElegantOTA.begin(&server); // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
+
+}
+
+
+String Joystart = SendSystem.addSoubor(SendSystem.balicekText("s"));
+String Joystop  = SendSystem.addSoubor(SendSystem.balicekText("t"));
+String strJ1 ="";// ";s;j:1:50:10:1;t";//cteni
+
+String telnetRead()
+{
+  String a = "";
+  if(telnetClient.connected() > 0)
+  {
+    /*
+    if(telnetClient.available() > 0)
+    {
+      
+        Serial.println("P5ijato");
+  Serial.println(a);
+      a = telnetClient.readStringUntil(10);
+      //delay(100);
+    }*/
+    while (telnetClient.available()> 0)
+    {
+      a += (char)telnetClient.read();
+      Serial.print(telnetClient.available());Serial.print(',');
+    }
+    //Serial.println(a);
+  }
+
+  //delay(1000);
+  return a;
+}
+
+IPAddress n;
+
+void readJoy()
+{
+
+    if (telnetClient.connected() == 0)
+  {
+    Jmod = -1;
+  }
+    switch (Jmod) {
+        case -1:
+  
+  n.fromString("192.168.0.193");
+  telnetClient.connect(n,2323);
+  Serial.print("Pripojeno: ");
+  Serial.println(telnetClient.connected());
+  if (telnetClient.connected())
+  {
+    Jmod = 0;
+  }
+  
+  break;
+        case 0:
+            strJ1 += telnetRead();//cteni
+            Jstartindex = strJ1.indexOf(Joystart);
+                //            Serial.println("v0");
+                //Serial.println(strJ1);
+            if(Jstartindex != -1)
+            {
+                Jmod = 1;
+                strJ2 = strJ1.substring(Jstartindex);
+                //Serial.println("j0");
+                //Serial.println(strJ1);
+            }
+            else{
+              break;
+            }
+          
+        case 1:
+            strJ2 += telnetRead();//cteni
+            Jstopindex = strJ2.indexOf(Joystop); 
+                            //Serial.println("v1");
+                //Serial.println(strJ1);
+            if(Jstopindex != -1)
+            {
+
+                Jmod = 0;
+                strJ1 = strJ2.substring(Jstopindex);
+                ZpracovaniDat(strJ2.substring(0,Jstopindex));
+                //Serial.print(strJ2.substring(0,Jstopindex));
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 
@@ -804,4 +911,8 @@ void loop(void)
     ws.textAll(l);
   }
   ws.cleanupClients();
+  //Serial.print("P");
+
+  readJoy();
+  //Serial.print("m");
 }

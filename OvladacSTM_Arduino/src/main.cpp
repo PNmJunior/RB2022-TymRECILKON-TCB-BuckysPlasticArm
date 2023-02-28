@@ -143,7 +143,8 @@ void setup() {
   //Android pomoci CDC
   analogReadResolution(12);
   Serial.begin(115200);
-  delay(2000);
+  Serial.dtr(0);
+  delay(100);
   for (int j = 0; j < 4; j++)
   {
     //SendPrint("Set");SendPrint(String(j));
