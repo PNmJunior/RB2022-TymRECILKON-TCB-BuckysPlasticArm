@@ -10,29 +10,7 @@
 #include <menu.h>
 #include "SPIFFS.h"      //nastaveni webu
 #include <Preferences.h> //Ulozeni hesla
-#include "ESPTelnetStream.h"
 
-#define SERIAL_SPEED  9600
-#define INFRA_SSID    "MY SSID"
-#define INFRA_PSWD    "MY PASS"
-
-ESPTelnetStream telnet;
-
-
-void telnetConnected(String ip) {
-  Serial.print(ip);
-  Serial.println(" connected.");
-}
-
-void telnetDisconnected(String ip) {
-  Serial.print(ip);
-  Serial.println(" disconnected.");
-}
-
-void telnetReconnect(String ip) {
-  Serial.print(ip);
-  Serial.println(" reconnected.");
-}
 
 Preferences preferences;
 
@@ -772,17 +750,6 @@ Serial.println("Soubory");
   AsyncElegantOTA.begin(&server); // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
-
-  telnet.onConnect(telnetConnected);
-  telnet.onDisconnect(telnetDisconnected);
-  telnet.onReconnect(telnetReconnect);
-
-    Serial.print("Telnet.begin: ");
-  if(telnet.begin()) {
-    Serial.println("Successful");
-  } else {
-    Serial.println("Failed");
-  }
 }
 
 
@@ -837,12 +804,4 @@ void loop(void)
     ws.textAll(l);
   }
   ws.cleanupClients();
-
-  telnet.loop();
-  if(Serial.available() > 0) {
-    telnet.write(Serial.read());
-  }
-  if (telnet.available() > 0) {    
-    Serial.print(char(telnet.read()));
-  }
 }
