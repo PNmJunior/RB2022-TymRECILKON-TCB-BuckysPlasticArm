@@ -8,3 +8,12 @@ Původně jsem chtěl robota ovládat pomocí Bluetooth a mnou naprogramované m
 ## Aktuápní podoba
 
 <img src = "fotodokumentace/sezona 2023/21.12.22.jpg">
+
+## Android app TelNet
+Našel jsem aplikaci naprogramovanou v java, která se zabývá transportem dat z USB Serial pomoci Telnet Server.
+Původní projekt [usb-serial-telnet-server](https://github.com/ClusterM/usb-serial-telnet-server.git)
+Tento projekt mám v plánu upravit v mém folk:
+Moje verze [usb-serial-telnet-server](https://github.com/PNmJunior/usb-serial-telnet-server.git)
+V plánu mám upravit následující:
+- Po úspěšném spuštění serveru, automatické kopírování do schránky ip a port serveru.
+- Zmenšit prodlevu mezi přijetím a přeposláním.
