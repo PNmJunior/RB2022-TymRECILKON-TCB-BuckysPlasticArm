@@ -88,7 +88,7 @@ inline String KomProtokolSend::joysticStop()
 
 inline String KomProtokolSend::joystic(int joy, int x, int y, int t)
 {
-    return joysticStart() + addSoubor(balicekText("j"))+addSubSoubor(balicekInt(joy)) + addSubSoubor(balicekInt(x))+ addSubSoubor(balicekInt(y))+ addSubSoubor(balicekInt(t)) + joysticStop();
+    return addSoubor(balicekText("j"))+addSubSoubor(balicekInt(joy)) + addSubSoubor(balicekInt(x))+ addSubSoubor(balicekInt(y))+ addSubSoubor(balicekInt(t));
 }
 
 KomProtokolSend SendSystem;

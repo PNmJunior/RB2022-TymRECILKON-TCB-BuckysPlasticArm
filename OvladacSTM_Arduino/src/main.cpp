@@ -113,6 +113,8 @@ int AnalogToProc(int in, int set)
 
 void Novy()
 {
+  String s = SendSystem.joysticStart();
+  bool zmenaSend = false;
   for (int j = 0; j < 4; j++)
   {
     int x = analogRead(polePinu[j][Jx]);
@@ -130,9 +132,15 @@ void Novy()
       poleNow[j][Jt] = T;
       //String pp = "J" + String(j) + "*" + String(poleNow[j][Jx]) + "*" + String(poleNow[j][Jy]) + "*" + String(poleNow[j][Jt]);
       //SendPrintln(pp);
-      SendPrintln( SendSystem.joystic(j + 1,poleNow[j][Jx],poleNow[j][Jy],poleNow[j][Jt]));
+      s += SendSystem.joystic(j + 1,poleNow[j][Jx],poleNow[j][Jy],poleNow[j][Jt]);
+      zmenaSend = true;
     }
   }
+  if (zmenaSend)
+  {
+    SendPrint(s + SendSystem.joysticStop());
+  }
+  
 }
 
 
