@@ -15,5 +15,9 @@ Původní projekt [usb-serial-telnet-server](https://github.com/ClusterM/usb-ser
 Tento projekt mám v plánu upravit v mém folk:
 Moje verze [usb-serial-telnet-server](https://github.com/PNmJunior/usb-serial-telnet-server.git)
 V plánu mám upravit následující:
-- Po úspěšném spuštění serveru, automatické kopírování do schránky ip a port serveru.
-- Zmenšit prodlevu mezi přijetím a přeposláním.
+- Po úspěšném spuštění servru, automatické kopírování do schránky ip a port servru. 
+    - Podařilo se
+- Zmenšit prodlevu mezi přijetím a přeposláním. 
+    - Nepodařilo se. 
+        - Standartně to běží v systému detekujicí konec záznamu dat.
+        - V systému časovače nelze mít menší časové sledování než 200ms, to je pro můj projekt příliš dlouhá doba.
