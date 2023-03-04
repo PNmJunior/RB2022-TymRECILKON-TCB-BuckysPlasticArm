@@ -18,6 +18,8 @@ int Jstartindex = 0;
 int Jstopindex = 0;
 String strJ2 = "";
 int Jmod = -1;//-1
+const int JdataNact = 14;
+char Jzasoba[JdataNact] ;
 
 Preferences preferences;
 
@@ -790,12 +792,27 @@ String telnetRead()
       a = telnetClient.readStringUntil(10);
       //delay(100);
     }*/
-    while (telnetClient.available()> 0)
+    int sizeJ = telnetClient.available();
+    while (sizeJ > 0)
     {
-      a += (char)telnetClient.read();
-      Serial.print(telnetClient.available());Serial.print(',');
+      if (sizeJ >= JdataNact)
+      {
+        if (telnetClient.read((uint8_t * )Jzasoba,JdataNact) != JdataNact)
+        {
+          Serial.println("Probles s nacteni telnet");
+        }
+        else
+        {
+          a += Jzasoba;
+          Serial.print("14,");
+        }
+      }
+      else{
+        a += (char)telnetClient.read();
+        Serial.print(telnetClient.available());Serial.print(',');
+      }
+      sizeJ = telnetClient.available();
     }
-    //Serial.println(a);
   }
 
   //delay(1000);
