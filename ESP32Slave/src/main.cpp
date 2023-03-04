@@ -14,8 +14,10 @@
 
 WiFiClient telnetClient;
 
+
 int Jstartindex = 0;
 int Jstopindex = 0;
+String strJ1 ="";
 String strJ2 = "";
 int Jmod = -1;//-1
 
@@ -769,12 +771,15 @@ Serial.println("Soubory");
   server.begin();
   Serial.println("HTTP server started");
 
+
+
+strJ1 ="";
+strJ2 = "";
 }
 
 
 String Joystart = SendSystem.addSoubor(SendSystem.balicekText("s"));
 String Joystop  = SendSystem.addSoubor(SendSystem.balicekText("t"));
-String strJ1 ="";// ";s;j:1:50:10:1;t";//cteni
 
 String telnetRead()
 {
@@ -790,10 +795,30 @@ String telnetRead()
       a = telnetClient.readStringUntil(10);
       //delay(100);
     }*/
-    while (telnetClient.available()> 0)
+    
+    int size = telnetClient.available();
+    Serial.print(size);Serial.print('/');
+    
+    if(size > 0)
     {
-      a += (char)telnetClient.read();
-      Serial.print(telnetClient.available());Serial.print(',');
+      /*
+      while (size >= 12)
+      {
+        char aaa[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+        telnetClient.read((uint8_t *)aaa,12);
+        a += aaa;
+        size = telnetClient.available();
+        Serial.print('12,');
+      }*/
+      while (telnetClient.available()> 0)
+      {
+        a += (char)telnetClient.read();
+        Serial.print(telnetClient.available());Serial.print(',');
+      }
+    }
+    else
+    {
+      Jmod= -1;
     }
     //Serial.println(a);
   }
@@ -814,6 +839,7 @@ void readJoy()
     switch (Jmod) {
         case -1:
   
+  //n.fromString("192.168.43.105");
   n.fromString("192.168.0.193");
   telnetClient.connect(n,2323);
   Serial.print("Pripojeno: ");
@@ -828,7 +854,7 @@ void readJoy()
             strJ1 += telnetRead();//cteni
             Jstartindex = strJ1.indexOf(Joystart);
                 //            Serial.println("v0");
-                //Serial.println(strJ1);
+                Serial.print(strJ1);Serial.println("f");
             if(Jstartindex != -1)
             {
                 Jmod = 1;
@@ -844,14 +870,14 @@ void readJoy()
             strJ2 += telnetRead();//cteni
             Jstopindex = strJ2.indexOf(Joystop); 
                             //Serial.println("v1");
-                //Serial.println(strJ1);
+                Serial.print(strJ1);Serial.println("v");
             if(Jstopindex != -1)
             {
 
                 Jmod = 0;
                 strJ1 = strJ2.substring(Jstopindex);
                 ZpracovaniDat(strJ2.substring(0,Jstopindex));
-                //Serial.print(strJ2.substring(0,Jstopindex));
+                Serial.print(strJ2.substring(0,Jstopindex));
             }
             break;
         default:
@@ -900,7 +926,7 @@ void loop(void)
   {
     //Oprava chyby, kdy knihovna říka, že motor jede při nulové rychlosti a motor se pohybuje.
     //Vznik teto nulové chyby nepodařilo vyřešit ani zaokrouhlovacím systémem
-    if ((mot.outSmer(i) == mVpred ||mot.outSmer(i) == mVzad) && mot.outSpead(i) == 0)
+    if (mot.outSmer(i) != mStop && mot.outSpead(i) == 0)
     {
         mot.input(i, mStop);
         l += SendSystem.motor(i,0);
