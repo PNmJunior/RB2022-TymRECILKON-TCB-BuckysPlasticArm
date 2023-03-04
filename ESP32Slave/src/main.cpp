@@ -17,9 +17,25 @@ WiFiClient telnetClient;
 int Jstartindex = 0;
 int Jstopindex = 0;
 String strJ2 = "";
-int Jmod = -1;//-1
 const int JdataNact = 14;
 char Jzasoba[JdataNact] ;
+
+String ipTelnet;
+int portTelnet;
+IPAddress ipTel;
+String ModTelnetT_init = "?";//inicializace
+String ModTelnetT_connecting = "connecting";//pripoj novy
+String ModTelnetT_connect = "connect";//pripojeno
+String ModTelnetT_disconnect = "disconnect";//pripojeno a moznost odpojit
+String ModTelnetT_disconnectServer = "disconnectServer";//server se odpoji
+String ModTelnetT = ModTelnetT_connect;
+const int Jmod_not = -3;
+const int Jmod_disconnectSever = -2;
+const int Jmod_connecting = -1;
+const int Jmod_workA = 0;
+const int Jmod_workB = 1;
+int Jmod = Jmod_not;//-1
+
 
 Preferences preferences;
 
@@ -374,6 +390,62 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
       int smer;
       switch (souName.charAt(0))
       {
+      case 'i':
+      {
+        komP.pocetVAktualSouboru();
+        if (komP.pocetVAktualSouboru() != 3)
+        {
+          Serial.println("Problem s velikosti i:");
+          Serial.println(komP.pocetVAktualSouboru());
+          return;
+        }
+        String ip = komP.readStr();
+        String bu = komP.readStr();
+        if (bu == ModTelnetT)
+        {
+          switch (Jmod)
+          {
+          case Jmod_not:
+          {
+            int dvojtecka = ip.indexOf(":");
+            int aaaa;
+            if (dvojtecka == -1)
+            {
+              Serial.println("a");
+              break;
+            }
+            ipTel.fromString(ip.substring(0,dvojtecka));
+            aaaa = ip.substring(dvojtecka + 1).toInt();
+            if(portTelnet == -1)
+            {
+              Serial.println("c");
+              break;
+            }
+            portTelnet = aaaa;
+            ipTelnet = ip;
+            ModTelnetT = ModTelnetT_connecting;
+            Jmod = Jmod_connecting;
+          }
+            break;
+          case Jmod_workA:
+          case Jmod_workB:
+          case Jmod_disconnectSever:
+          case Jmod_connecting:
+          
+            ModTelnetT = ModTelnetT_connect;
+            Jmod = Jmod_not;
+            break;
+          default:
+            break;
+          }
+          
+        }
+        
+        outAll += SendSystem.telnetIp(ipTelnet,ModTelnetT);
+        
+        Serial.println("iioii");
+        break;
+      }
       case 'j':
       {
         if (komP.pocetVAktualSouboru() != 5)
@@ -823,23 +895,31 @@ IPAddress n;
 
 void readJoy()
 {
-
-    if (telnetClient.connected() == 0)
+  if((Jmod == Jmod_workA || Jmod == Jmod_workA ) && telnetClient.connected() == 0)
   {
-    Jmod = -1;
+    telnetClient.stop();
+    Jmod = Jmod_disconnectSever;
+    ModTelnetT = ModTelnetT_disconnectServer;
+    ws.textAll(SendSystem.telnetIp(ipTelnet,ModTelnetT));
+
+
   }
     switch (Jmod) {
         case -1:
-  
-  n.fromString("192.168.0.193");
-  telnetClient.connect(n,2323);
+  telnetClient.connect(ipTel,portTelnet);
   Serial.print("Pripojeno: ");
   Serial.println(telnetClient.connected());
   if (telnetClient.connected())
   {
-    Jmod = 0;
+    Jmod = Jmod_workA;
+    ModTelnetT = ModTelnetT_disconnect;
+    ws.textAll(SendSystem.telnetIp(ipTelnet,ModTelnetT));
+
   }
   
+  break;
+  case Jmod_not:
+  telnetClient.stop();
   break;
         case 0:
             strJ1 += telnetRead();//cteni

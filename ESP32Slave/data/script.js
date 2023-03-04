@@ -57,6 +57,18 @@ function joySend(j,x,y,t = 0)
     return sendAuto(dataJoy(j,x,y,t));
 }
 
+function dataTelnetIpSend(ip, textBut)
+{
+    return ['i',balicekText(ip), balicekText(textBut)]
+}
+
+function telnetIpSend(ip,textBut)
+{
+    return sendAuto(dataTelnetIpSend(ip,textBut));
+}
+
+
+
 function motorSend(mot,hod)
 {
     return sendAuto(dataMotor(mot,hod));
@@ -127,6 +139,16 @@ let Jstopindex = 0;
 let strJ2 = "";
 let Jmod = -1;
 
+function sendTelnet()
+{
+    let lll = String(document.getElementById("fip").value);
+    if(lll == "")
+    {
+        lll = " ";
+    }
+    SendESP(telnetIpSend(lll,document.getElementById("bip").textContent.toString()));
+}
+
 function readJoy()
 {
     switch (Jmod) {
@@ -148,6 +170,7 @@ function readJoy()
                 strJ1 = strJ2.substring(Jstopindex);
                 SendESP(strJ2.substring(0,Jstopindex));
             }
+            break;
         default:
             break;
     }
@@ -290,6 +313,10 @@ function onMessage(event) {
         console.log(SoubIn);
         switch (readText( SoubIn[0]))
         {
+            case "i":
+                document.getElementById("fip").value = readText( SoubIn[1]);
+                document.getElementById("bip").textContent  =readText( SoubIn[2]);
+                break;
             case "j":
                 let Ji = readInt( SoubIn[1]);
                 let Jx = readInt( SoubIn[2]);
