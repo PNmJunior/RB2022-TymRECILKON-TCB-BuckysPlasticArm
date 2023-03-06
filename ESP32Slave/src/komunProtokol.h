@@ -28,6 +28,7 @@ public:
     String joystic(int joy, int x, int y, int t);
     String joysticStart();
     String joysticStop();
+    String telnetIp(String ip,String bt);
     KomProtokolSend(/* args */);
     ~KomProtokolSend();
 };
@@ -88,7 +89,12 @@ inline String KomProtokolSend::joysticStop()
 
 inline String KomProtokolSend::joystic(int joy, int x, int y, int t)
 {
-    return joysticStart() + addSoubor(balicekText("j"))+addSubSoubor(balicekInt(joy)) + addSubSoubor(balicekInt(x))+ addSubSoubor(balicekInt(y))+ addSubSoubor(balicekInt(t)) + joysticStop();
+    return addSoubor(balicekText("j"))+addSubSoubor(balicekInt(joy)) + addSubSoubor(balicekInt(x))+ addSubSoubor(balicekInt(y))+ addSubSoubor(balicekInt(t));
+}
+
+inline String KomProtokolSend::telnetIp(String ip,String bt)
+{
+    return addSoubor(balicekText("i"))+addSubSoubor(balicekText(ip)) + addSubSoubor(balicekText(bt));
 }
 
 KomProtokolSend SendSystem;

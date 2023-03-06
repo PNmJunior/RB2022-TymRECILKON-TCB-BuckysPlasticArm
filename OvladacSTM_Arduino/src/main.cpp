@@ -113,6 +113,8 @@ int AnalogToProc(int in, int set)
 
 void Novy()
 {
+  String s = SendSystem.joysticStart();
+  bool zmenaSend = false;
   for (int j = 0; j < 4; j++)
   {
     int x = analogRead(polePinu[j][Jx]);
@@ -130,9 +132,15 @@ void Novy()
       poleNow[j][Jt] = T;
       //String pp = "J" + String(j) + "*" + String(poleNow[j][Jx]) + "*" + String(poleNow[j][Jy]) + "*" + String(poleNow[j][Jt]);
       //SendPrintln(pp);
-      SendPrint( SendSystem.joystic(j + 1,poleNow[j][Jx],poleNow[j][Jy],poleNow[j][Jt]));
+      s += SendSystem.joystic(j + 1,poleNow[j][Jx],poleNow[j][Jy],poleNow[j][Jt]);
+      zmenaSend = true;
     }
   }
+  if (zmenaSend)
+  {
+    SendPrint(s + SendSystem.joysticStop());
+  }
+  
 }
 
 
@@ -142,8 +150,9 @@ void setup() {
   pinMode(ledPin,OUTPUT);
   //Android pomoci CDC
   analogReadResolution(12);
-  Serial.begin(9600);
-  delay(2000);
+  Serial.begin(115200);
+  Serial.dtr(0);
+  delay(100);
   for (int j = 0; j < 4; j++)
   {
     //SendPrint("Set");SendPrint(String(j));
@@ -160,9 +169,30 @@ void setup() {
 
 
 void loop() {
+  
   digitalWrite(ledPin, HIGH);
   delay(50);
   digitalWrite(ledPin, LOW);
   delay(50);
   Novy();
+ 
+/*
+  if(Serial.available()> 0 || Serial1.available()> 0)
+  {
+    if(Serial.available()> 0 )
+    {
+  Serial.write(Serial.read());
+  Serial1.write(Serial.read());
+  }
+  if (Serial1.available()> 0)
+  {
+  Serial.write(Serial1.read());
+  Serial1.write(Serial1.read());
+  }
+  digitalWrite(ledPin, HIGH);
+  delay(50);
+  digitalWrite(ledPin, LOW);
+  delay(50);
+  }
+  */
 }
