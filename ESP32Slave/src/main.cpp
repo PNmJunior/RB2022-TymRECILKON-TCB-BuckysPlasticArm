@@ -1,10 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
-//#include <AsyncTCP.h>
-//#include <ESPAsyncWebServer.h>
-#include <ESPWebServerSecure.hpp>
-#include "cert.h"
-#include "private_key.h"
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 #include <disp.h>
 #include <motor.h>
@@ -735,14 +732,6 @@ Serial.println("Soubory");
   segDisp.addText4IP(WiFi.localIP(),10000);
   initWebSocket();
   Serial.println("initWebSocket");
-
-    // TLS: Before configuring the server, you need to set the certificate
-  server.setServerKeyAndCert(
-    example_key_der,     // Raw DER key data as byte array
-    example_key_der_len, // Length of the key array
-    example_der,     // Raw DER certificate (no certificate chain!) as byte array
-    example_der_len  // Length of the certificate array
-  );
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(SPIFFS, "/index.html", "text/html"); });
