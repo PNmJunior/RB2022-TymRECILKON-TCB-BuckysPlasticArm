@@ -2,7 +2,6 @@
 #include <Arduino.h>
 #include <komunProtokol.h>
 
-
 #define J1x PA0
 #define J1y PA1
 #define J1t PB0
@@ -54,6 +53,14 @@ int poleSet[4][3] = {
   {0,0,0}
 };
 
+String s1;
+String s2;
+String s3;
+String s4;
+String **s;
+
+const int maxVelBalicku = 64;
+const int maxVelBalickuPracovni = maxVelBalicku - 2 -2 -4;//56 = maxVelBalicku - ;s -;t - rezerva
 
 void SendPrint(String a)
 {
@@ -113,8 +120,7 @@ int AnalogToProc(int in, int set)
 
 void Novy()
 {
-  String s = SendSystem.joysticStart();
-  bool zmenaSend = false;
+  int velikost =0;
   for (int j = 0; j < 4; j++)
   {
     int x = analogRead(polePinu[j][Jx]);
@@ -132,15 +138,29 @@ void Novy()
       poleNow[j][Jt] = T;
       //String pp = "J" + String(j) + "*" + String(poleNow[j][Jx]) + "*" + String(poleNow[j][Jy]) + "*" + String(poleNow[j][Jt]);
       //SendPrintln(pp);
-      s += SendSystem.joystic(j + 1,poleNow[j][Jx],poleNow[j][Jy],poleNow[j][Jt]);
-      zmenaSend = true;
+      s[j]->operator=(SendSystem.joystic(j + 1,poleNow[j][Jx],poleNow[j][Jy],poleNow[j][Jt]));
+      velikost += s[j]->length();
+    }
+    else
+    {
+      s[j]->operator=("");
     }
   }
-  if (zmenaSend)
+  if (velikost == 0)
   {
-    SendPrint(s + SendSystem.joysticStop());
+    //nic
+    
   }
-  
+  else if (velikost > maxVelBalickuPracovni)
+  {
+    SendPrint(SendSystem.joysticStart() + s[0]->c_str() + s[1]->c_str() + SendSystem.joysticStop());
+    delay(50);
+    SendPrint(SendSystem.joysticStart() + s[2]->c_str() + s[3]->c_str() + SendSystem.joysticStop());
+  }
+  else
+  {
+    SendPrint(SendSystem.joysticStart() + s[0]->c_str() + s[1]->c_str()  + s[2]->c_str() + s[3]->c_str() + SendSystem.joysticStop());
+  }
 }
 
 
@@ -165,6 +185,15 @@ void setup() {
     poleSet[j][Jt] = digitalRead(polePinu[j][Jt]);
     //SendPrint("*");SendPrintln(String(poleSet[j][Jt])); 
   }
+  s1 = "";
+  s2 = "";
+  s3 = "";
+  s4 = "";
+  s =(String **) malloc(4*sizeof(String*));
+  s[0] = &s1;
+  s[1] = &s2;
+  s[2] = &s3;
+  s[3] = &s4;
 }
 
 
