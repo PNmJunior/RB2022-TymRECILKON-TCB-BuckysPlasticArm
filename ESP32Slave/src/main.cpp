@@ -12,13 +12,15 @@
 #include <Preferences.h> //Ulozeni hesla
 
 
-WiFiClient telnetClient;
+//WiFiClient telnetClient;
+AsyncClient tClient;
 
 int Jstartindex = 0;
 int Jstopindex = 0;
 String strJ2 = "";
 const int JdataNact = 14;
 char Jzasoba[JdataNact] ;
+String NullJoystick;
 
 String ipTelnet;
 int portTelnet;
@@ -30,7 +32,6 @@ String ModTelnetT_disconnect = "disconnect";//pripojeno a moznost odpojit
 String ModTelnetT_disconnectServer = "disconnectServer";//server se odpoji
 String ModTelnetT = ModTelnetT_connect;
 const int Jmod_not = -3;
-const int Jmod_disconnectSever = -2;
 const int Jmod_connecting = -1;
 const int Jmod_workA = 0;
 const int Jmod_workB = 1;
@@ -383,6 +384,11 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
     //Serial.println("mess:");Serial.println(mess);
     String outAll;
     String outClient;
+
+    
+
+
+
     for (int s = 0; s < komP.pocetSouboru; s++)
     {
       String souName = komP.readStr();
@@ -425,15 +431,20 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
             ipTelnet = ip;
             ModTelnetT = ModTelnetT_connecting;
             Jmod = Jmod_connecting;
+            //IPAddress l;
+            //l.fromString(ipTelnet.c_str());
+            //tClient.connect(l,portTelnet);
+            bool mmm=tClient.connect(ipTel,portTelnet);
+            Serial.print("con:");Serial.print(mmm);Serial.print("ip:");Serial.print(ipTel.toString());Serial.print("con:");Serial.print(portTelnet);
           }
             break;
           case Jmod_workA:
           case Jmod_workB:
-          case Jmod_disconnectSever:
           case Jmod_connecting:
-          
-            ModTelnetT = ModTelnetT_connect;
-            Jmod = Jmod_not;
+            tClient.close();
+            Serial.println("disBut");
+            //ModTelnetT = ModTelnetT_connect;
+            //Jmod = Jmod_not;
             break;
           default:
             break;
@@ -558,7 +569,7 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
     {
       if (client == NULL)
       {
-        telnetClient.write(outClient.c_str());
+        tClient.write(outClient.c_str());
       }
       else
       {
@@ -610,6 +621,7 @@ void onEvent2(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType
     PrClent(client->remoteIP());
   case WS_EVT_ERROR:
   Serial.printf("errr from %s\n", client->remoteIP().toString().c_str());
+    Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
     segDisp.addText4("errr",1000);
     PrClent(client->remoteIP());
     break;
@@ -722,10 +734,102 @@ void MenuWifiSet(komunFace komF)
 }
 
 
+String Joystart = SendSystem.addSoubor(SendSystem.balicekText("s"));
+String Joystop  = SendSystem.addSoubor(SendSystem.balicekText("t"));
+String strJ1 ="";// ";s;j:1:50:10:1;t";//cteni
+
+
+void telnetOnConectid(void * rag, AsyncClient * c)
+{
+  c->onError(NULL, NULL);
+    Jmod = Jmod_workA;
+    ModTelnetT = ModTelnetT_disconnect;
+    ws.textAll(SendSystem.telnetIp(ipTelnet,ModTelnetT));
+    Serial.println(tClient.getAckTimeout());
+    Serial.println(tClient.getRxTimeout());
+}
+
+
+void telnetOnDisconectid(void * rag, AsyncClient * c)
+{
+  c->close();
+            ModTelnetT = ModTelnetT_connect;
+            Jmod = Jmod_not;
+    ws.textAll(SendSystem.telnetIp(ipTelnet,ModTelnetT));
+    Serial.println("disAuto");
+}
+
+
+String telnetControl(String mess)
+{
+  for (int i = 0; i < mess.length(); i++)
+  {
+    if (mess[i] < ' ' || mess[i] > '~')
+    {
+      Serial.println("Nalezeny spatne znaky:");
+      Serial.println(mess);
+      for (int v = 0; v < mess.length(); v++)
+      {
+        Serial.print((int)mess[v]);Serial.print(',');
+      }
+      
+      return NullJoystick;
+    }
+  }
+  return mess;
+}
+
+
+void telnetOnData(void * rag, AsyncClient * c, void * data, size_t len)
+{
+  bool p = false;
+  char * d = (char*)data;
+  //Serial.println(d);
+  switch (Jmod)
+  {
+  case Jmod_workA:
+    strJ1 += d;//cteni
+    break;
+    case Jmod_workB:
+    strJ2 += d;//cteni
+    break;
+  default:
+    break;
+  }
+  do
+  {
+  p = false;
+    switch (Jmod)
+    {
+      case Jmod_workA:
+        Jstartindex = strJ1.indexOf(Joystart);
+        if(Jstartindex != -1)
+        {
+            Jmod = 1;
+            strJ2 = strJ1.substring(Jstartindex);
+        }
+        else{
+          break;
+        }
+        case 1:
+          Jstopindex = strJ2.indexOf(Joystop); 
+          if(Jstopindex != -1)
+          {
+            p = true;
+              Jmod = 0;
+              strJ1 = strJ2.substring(Jstopindex);
+              ZpracovaniDat(telnetControl( strJ2.substring(0,Jstopindex)));
+          }
+          break;
+      default:
+          break;
+    }
+  } while (p);
+}
+
 void setup()
 {
   // put your setup code here, to run once:
-  
   pinMode(pin_PR_Clock, OUTPUT);
   pinMode(pin_PR_Data1, OUTPUT);
   pinMode(pin_PR_Data2, OUTPUT);
@@ -842,118 +946,11 @@ Serial.println("Soubory");
   AsyncElegantOTA.begin(&server); // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
-
-}
-
-
-String Joystart = SendSystem.addSoubor(SendSystem.balicekText("s"));
-String Joystop  = SendSystem.addSoubor(SendSystem.balicekText("t"));
-String strJ1 ="";// ";s;j:1:50:10:1;t";//cteni
-
-String telnetRead()
-{
-  String a = "";
-  if(telnetClient.connected() > 0)
-  {
-    /*
-    if(telnetClient.available() > 0)
-    {
-      
-        Serial.println("P5ijato");
-  Serial.println(a);
-      a = telnetClient.readStringUntil(10);
-      //delay(100);
-    }*/
-    int sizeJ = telnetClient.available();
-    while (sizeJ > 0)
-    {
-      if (sizeJ >= JdataNact)
-      {
-        if (telnetClient.read((uint8_t * )Jzasoba,JdataNact) != JdataNact)
-        {
-          Serial.println("Probles s nacteni telnet");
-        }
-        else
-        {
-          a += Jzasoba;
-          Serial.print("14,");
-        }
-      }
-      else{
-        a += (char)telnetClient.read();
-        Serial.print(telnetClient.available());Serial.print(',');
-      }
-      sizeJ = telnetClient.available();
-    }
-  }
-
-  //delay(1000);
-  return a;
-}
-
-IPAddress n;
-
-void readJoy()
-{
-  if((Jmod == Jmod_workA || Jmod == Jmod_workA ) && telnetClient.connected() == 0)
-  {
-    telnetClient.stop();
-    Jmod = Jmod_disconnectSever;
-    ModTelnetT = ModTelnetT_disconnectServer;
-    ws.textAll(SendSystem.telnetIp(ipTelnet,ModTelnetT));
-
-
-  }
-    switch (Jmod) {
-        case -1:
-  telnetClient.connect(ipTel,portTelnet);
-  Serial.print("Pripojeno: ");
-  Serial.println(telnetClient.connected());
-  if (telnetClient.connected())
-  {
-    Jmod = Jmod_workA;
-    ModTelnetT = ModTelnetT_disconnect;
-    ws.textAll(SendSystem.telnetIp(ipTelnet,ModTelnetT));
-
-  }
-  
-  break;
-  case Jmod_not:
-  telnetClient.stop();
-  break;
-        case 0:
-            strJ1 += telnetRead();//cteni
-            Jstartindex = strJ1.indexOf(Joystart);
-                //            Serial.println("v0");
-                //Serial.println(strJ1);
-            if(Jstartindex != -1)
-            {
-                Jmod = 1;
-                strJ2 = strJ1.substring(Jstartindex);
-                //Serial.println("j0");
-                //Serial.println(strJ1);
-            }
-            else{
-              break;
-            }
-          
-        case 1:
-            strJ2 += telnetRead();//cteni
-            Jstopindex = strJ2.indexOf(Joystop); 
-                            //Serial.println("v1");
-                //Serial.println(strJ1);
-            if(Jstopindex != -1)
-            {
-
-                Jmod = 0;
-                strJ1 = strJ2.substring(Jstopindex);
-                ZpracovaniDat(strJ2.substring(0,Jstopindex));
-                //Serial.print(strJ2.substring(0,Jstopindex));
-            }
-            break;
-        default:
-            break;
-    }
+  tClient = AsyncClient();
+  tClient.onConnect(telnetOnConectid);
+  tClient.onDisconnect(telnetOnDisconectid);
+  tClient.onData(telnetOnData);
+  NullJoystick = SendSystem.joystic(1,0,0,0) + SendSystem.joystic(2,0,0,0) + SendSystem.joystic(3,0,0,0) + SendSystem.joystic(4,0,0,0) ;
 }
 
 
@@ -1008,8 +1005,4 @@ void loop(void)
     ws.textAll(l);
   }
   ws.cleanupClients();
-  //Serial.print("P");
-
-  readJoy();
-  //Serial.print("m");
 }
