@@ -58,21 +58,28 @@ String s2;
 String s3;
 String s4;
 String **s;
+String next;
 
 const int maxVelBalicku = 64;
 const int maxVelBalickuPracovni = maxVelBalicku - 2 -2 -4;//56 = maxVelBalicku - ;s -;t - rezerva
 
 void SendPrint(String a)
 {
+  if(a.length() > 0)
+  {
   Serial.print(a);
   Serial1.print(a);
+  }
 }
 
 
 void SendPrintln(String a)
 {
+  if(a.length() > 0)
+  {
   Serial.println(a);
   Serial1.println(a);
+  }
 }
 
 
@@ -149,17 +156,17 @@ void Novy()
   if (velikost == 0)
   {
     //nic
-    
+    next = "";
   }
   else if (velikost > maxVelBalickuPracovni)
   {
     SendPrint(SendSystem.joysticStart() + s[0]->c_str() + s[1]->c_str() + SendSystem.joysticStop());
-    delay(50);
-    SendPrint(SendSystem.joysticStart() + s[2]->c_str() + s[3]->c_str() + SendSystem.joysticStop());
+    next = SendSystem.joysticStart() + s[2]->c_str() + s[3]->c_str() + SendSystem.joysticStop();
   }
   else
   {
     SendPrint(SendSystem.joysticStart() + s[0]->c_str() + s[1]->c_str()  + s[2]->c_str() + s[3]->c_str() + SendSystem.joysticStop());
+    next = "";
   }
 }
 
@@ -201,6 +208,7 @@ void loop() {
   
   digitalWrite(ledPin, HIGH);
   delay(50);
+  SendPrint(next);
   digitalWrite(ledPin, LOW);
   delay(50);
   Novy();
