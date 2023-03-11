@@ -158,7 +158,7 @@ void Novy()
     //nic
     next = "";
   }
-  else if (velikost > maxVelBalickuPracovni)
+  else if (velikost > 50)
   {
     SendPrint(SendSystem.joysticStart() + s[0]->c_str() + s[1]->c_str() + SendSystem.joysticStop());
     next = SendSystem.joysticStart() + s[2]->c_str() + s[3]->c_str() + SendSystem.joysticStop();
