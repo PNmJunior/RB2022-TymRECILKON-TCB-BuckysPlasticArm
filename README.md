@@ -8,3 +8,7 @@ Původně jsem chtěl robota ovládat pomocí Bluetooth a mnou naprogramované m
 ## Aktuápní podoba
 
 <img src = "fotodokumentace/sezona 2023/21.12.22.jpg">
+
+## HTTPS
+
+Vzhledem k tomu, že se mi nepodařilo najít https server knihovnu s rozumnou odezvou (pod 50ms), rozhodl jsem se nejít cestou https serveru.
