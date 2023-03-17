@@ -745,7 +745,7 @@ Serial.println("Soubory");
             { MotorStopAll(); });
 
   server.on("/test", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(SPIFFS, "/joy.html", "text/html"); });
+            {  });
   server.serveStatic("/", SPIFFS, "/");
   AsyncElegantOTA.begin(&server); // Start ElegantOTA
   server.begin();
