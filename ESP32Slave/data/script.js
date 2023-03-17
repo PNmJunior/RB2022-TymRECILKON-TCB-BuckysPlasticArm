@@ -181,7 +181,7 @@ var startTimeAll = performance.now();
 var timeOldSend = performance.now();
 
 function onload(event) {
-    initWebSocket();
+    //initWebSocket();
 }
 
 function getValues(){
@@ -190,6 +190,9 @@ function getValues(){
 
 function initWebSocket() {
     console.log('Trying to open a WebSocket connection…');
+    gateway = `ws://${String(document.getElementById("RobotIp").value)}/ws`;
+    console.log(gateway);
+    document.getElementById("bip").textContent = "pripojeno";
     if(ModeWork == "w")
     {
     websocket = new WebSocket(gateway);
