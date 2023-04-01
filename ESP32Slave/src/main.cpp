@@ -385,10 +385,15 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
     String outAll;
     String outClient;
 
+    if (client == NULL)
+    {
+      Serial.print("telnet:");Serial.println(millis());
+    }
+    else
+    {
+      Serial.print("client:");Serial.println(millis());
+    }
     
-
-
-
     for (int s = 0; s < komP.pocetSouboru; s++)
     {
       String souName = komP.readStr();
@@ -782,6 +787,7 @@ String telnetControl(String mess)
 
 void telnetOnData(void * rag, AsyncClient * c, void * data, size_t len)
 {
+  //Serial.print("telnet:");Serial.println(micros());
   bool p = false;
   char * d = (char*)data;
   //Serial.println(d);
