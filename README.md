@@ -21,3 +21,7 @@ V plánu mám upravit následující:
     - Nepodařilo se. 
         - Standartně to běží v systému detekujicí konec záznamu dat.
         - V systému časovače nelze mít menší časové sledování než 200ms, to je pro můj projekt příliš dlouhá doba.
+
+## Ukončení TelNet větve
+Aplikace posilala data jek přes Telnet, tak se napojuji na webSocketServer.[Odkaz na větev v aplikace](https://github.com/PNmJunior/usb-serial-telnet-server/tree/Telnet-and-webSocket) Vypisoval jsme si čas přijetí. Data se vysílají z STM32 každých 100ms. Vždy přišly data dříve z webSocketu a to od 11ms do 600ms. To znamená, že běžně data z Telnetu měly zpoždění až tři záznamy. Navíc webSocket se posila data v reálném čase, zatímco telnet posila data po balíčcích.
+Tímto ukončuji větev Telnet
