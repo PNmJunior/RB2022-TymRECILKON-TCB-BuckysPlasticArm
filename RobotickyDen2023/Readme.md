@@ -1,2 +1,3 @@
 # Providla
-Zatim není k dispozici pravidla pro rok 2023, tak mám zde pro 2022.
+Aktuální pravidla pro sezonu 2023
+https://robotickyden.cz/2023/
