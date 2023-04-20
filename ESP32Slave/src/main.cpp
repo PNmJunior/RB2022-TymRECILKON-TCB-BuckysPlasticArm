@@ -10,7 +10,9 @@
 #include <menu.h>
 #include "SPIFFS.h"      //nastaveni webu
 #include <Preferences.h> //Ulozeni hesla
+#include <consol.h>
 
+consol cons;
 
 Preferences preferences;
 
@@ -365,6 +367,27 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
       int smer;
       switch (souName.charAt(0))
       {
+      case 'c':
+      {
+        if (komP.pocetVAktualSouboru() != 2)
+        {
+          Serial.println("Problem s velikosti c:");
+          Serial.println(komP.pocetVAktualSouboru());
+          return;
+        }
+        String llll = komP.readStr();
+        if(llll.indexOf('#') == 0)
+        {
+          outClient += SendSystem.chat(cons.work("",client));
+        }
+        else{
+          outAll += komP.sendAktSoubor();
+          segDisp.addText4(llll,5000);
+        }
+        
+        
+      }
+      break;
       case 'j':
       {
         if (komP.pocetVAktualSouboru() != 5)

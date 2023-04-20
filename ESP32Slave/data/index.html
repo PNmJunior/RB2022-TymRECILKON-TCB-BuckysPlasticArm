@@ -42,6 +42,8 @@
                             Do stran</button>
                         <button onclick="hideRow(this)" id="r3" type="button" class="buttonInactive">
                             Joistik</button>
+                        <button onclick="hideRow(this)" id="r5" type="button" class="buttonInactive">
+                            Chat</button>
                     </td>
                     <td>
                         <input type="button"  value="Reset" onclick="reset123()" class="h1">
@@ -165,6 +167,14 @@
                                     </div>
                                 </div>
                             </th>
+                        </tr>
+                        <tr id="tr5" style="max-height: 25%;min-height: 25%;" >
+                            <td colspan=4>
+                                <input type="text" id="fchat" name="chat">
+                                <button onclick="sendChat(this)"  type="button" id="bip">Posli Zpravu</button>
+                                <!--<label id="ftextChat" name="textChat"></label>/-->
+                                <textarea id="ftextChat" cols="40" rows="5" disabled></textarea>
+                            </td>
                         </tr>
                     </table>
                 </tr>

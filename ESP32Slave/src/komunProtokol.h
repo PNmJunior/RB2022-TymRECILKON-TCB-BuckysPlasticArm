@@ -28,6 +28,7 @@ public:
     String joystic(int joy, int x, int y, int t);
     String joysticStart();
     String joysticStop();
+    String chat(String l);
     KomProtokolSend(/* args */);
     ~KomProtokolSend();
 };
@@ -79,6 +80,11 @@ inline String KomProtokolSend::motor(int mot, int hod)
 inline String KomProtokolSend::joysticStart()
 {
     return addSoubor(balicekText("s"));
+}
+
+inline String KomProtokolSend::chat(String l)
+{
+    return addSoubor(balicekText("c")) + addSubSoubor(balicekText(l));
 }
 
 inline String KomProtokolSend::joysticStop()

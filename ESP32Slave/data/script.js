@@ -72,6 +72,17 @@ function motorAllSend()
     return sendAuto(dataMotorAll());
 }
 
+function chatSend(t)
+{
+    return sendAuto(dataChat(t));
+}
+
+function dataChat(t)
+{
+    return ['c',balicekText( t)];
+}
+
+
 function dataJoy(j,x,y,t)
 {
     return ['j',balicekInt( j),balicekInt( x),balicekInt( y),balicekInt( t)];
@@ -229,6 +240,16 @@ function updateSliderPWM(element) {
 }
 
 
+function sendChat()
+{
+    let lll = String(document.getElementById("fchat").value);
+    if(lll != "")
+    {
+        SendESP(chatSend(lll));
+    }
+    
+}
+
 function delay(delayInms) {
     return new Promise(resolve => {
       setTimeout(() => {
@@ -290,6 +311,9 @@ function onMessage(event) {
         console.log(SoubIn);
         switch (readText( SoubIn[0]))
         {
+            case "c":
+                document.getElementById("ftextChat").value = ">>"+readText(SoubIn[1])+"\n" + document.getElementById("ftextChat").value;
+                break;
             case "j":
                 let Ji = readInt( SoubIn[1]);
                 let Jx = readInt( SoubIn[2]);
