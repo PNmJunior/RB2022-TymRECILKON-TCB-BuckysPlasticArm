@@ -209,7 +209,7 @@ input[type=range][orient=vertical]
 .joystick_Ramecek
 {
   border: 1px solid red; 
-  height:300xp;
+  height:300px;
   width: 300px; 
   left:10px; 
   top:150px; 
@@ -246,4 +246,12 @@ input[type=range][orient=vertical]
 {
   max-width: 700px;
   width: 700px;
+}
+
+
+.chat_out
+{
+  
+  min-width:100%;
+  width: 100%;
 }

@@ -7,6 +7,8 @@ const nahradaSouborZnak =" ///1||| ";
 const SubSouborZnak =":";
 const nahradaSubSouborZnak= " ///2||| " ;
 
+const conzolChar = '#'
+
 const M_LED = 0;
 const M_1 = 1;
 const M_2 = 2;
@@ -16,8 +18,8 @@ const M_Kleste = 5;
 const M_Levy = 6;
 const M_Pravy = 7;
 
-const ModeWork = 'w';//work
-//const ModeWork = 'd';//debug
+//const ModeWork = 'w';//work
+const ModeWork = 'd';//debug
 function balicekInt(a)
 {
     if(a == -0)
@@ -249,6 +251,17 @@ function sendChat()
     }
     
 }
+
+function sendChatPrikaz()
+{
+    let lll = String(document.getElementById("fchat").value);
+    if(lll != "")
+    {
+        SendESP(chatSend(conzolChar+lll));
+    }
+    
+}
+
 
 function delay(delayInms) {
     return new Promise(resolve => {
