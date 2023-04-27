@@ -501,7 +501,28 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client)
 {
-  AwsFrameInfo *info = (AwsFrameInfo *)arg;
+   AwsFrameInfo *info = (AwsFrameInfo *)arg;
+   /*
+     Serial.println(" Note: Applications will only see WS_TEXT and WS_BINARY.");
+     Serial.println(" All other types are handled by the library. ");
+    Serial.println(info->message_opcode);
+    Serial.println(" Frame number of a fragmented message. ");
+    Serial.println( info->num);
+    Serial.println("Is this the last frame in a fragmented message ?");
+    Serial.println(info->final);
+    Serial.println("Is this frame masked? ");
+    Serial.println(info->masked);
+    Serial.println(" Message type as defined by enum AwsFrameType.\nThis value is the same as message_opcode for non-fragmented\nmessages, but may also be WS_CONTINUATION in a fragmented message. ");
+    Serial.println(info->opcode);
+    Serial.println("Length of the current frame.\nThis equals the total length of the message if num == 0 && final == true ");
+    Serial.println( info->len);
+    Serial.println(" Mask key ");
+    Serial.println(info->mask[0]);Serial.println(info->mask[1]);Serial.println(info->mask[2]);Serial.println(info->mask[3]);
+    Serial.println(" Offset of the data inside the current frame. ");
+    Serial.println(info->index);
+*/
+
+ 
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
     data[len] = 0;
