@@ -376,7 +376,7 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
           return;
         }
         String llll = komP.readStr();
-        if(llll.indexOf('#') == 0)
+        if(cons.isPrikaz(llll))
         {
           outClient += SendSystem.chat(cons.work("",client));
         }
