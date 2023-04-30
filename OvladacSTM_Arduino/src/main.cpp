@@ -172,6 +172,12 @@ void Novy()
     int X = (-1)*AnalogToProc(j);
     int Y = AnalogToProc(j,Jx_To_Jy);
     int T = 1-t;
+    delay(1000);
+    Serial.println(j);
+    Serial.println(X);
+    Serial.println(Y);
+    Serial.println(T);
+
 
     if (abs(X - sendOld[j][SendOldJx]) > zmena || abs(Y - sendOld[j][SendOldJy]) > zmena || abs(T - sendOld[j][SendOldJt]) == 1)
     {
@@ -181,13 +187,14 @@ void Novy()
       sendOld[j][SendOldJx] = X;
       sendOld[j][SendOldJy] = Y;
       sendOld[j][SendOldJt] = T;
+      
     }
     else
     {
       vystup[j]=false;
     }
   }
-
+  Serial.println(vystuppocet);
   if (vystuppocet == 4)
   {
     Serial.print(
