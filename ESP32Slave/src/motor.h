@@ -76,6 +76,9 @@ volatile bool work;
     int outSmer(byte mot);
     int outSpead(byte mot,int min, int max );
     int outProc(byte mot);
+    int maxView();
+    bool maxSet(int _max);
+    
 };
 
 
