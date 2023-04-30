@@ -352,6 +352,55 @@ String joysticWork(int x,int mot_x, int y, int mot_y, int rozdil = 1)
   return i;
 }
 
+String joystickRizeni(int osa_x, int osa_y)
+{
+  int osa_x_zaok2 = joysticZaok(osa_x);
+  int osa_y_zaok2 = joysticZaok(osa_y);
+  double d = sqrt((double)(osa_x_zaok2 * osa_x_zaok2 + osa_y_zaok2 * osa_y_zaok2));
+  if (d > 100.0)
+  {
+    d = 100.0;
+  }
+  else if (d < 20)
+  {
+    d = 0.0;
+  }
+  double M_Levy_lokal = 0;
+  double M_Pravy_lokal = 0;
+  if (d != 0.0)
+  {
+    double rad = atan2(osa_y_zaok2,osa_x_zaok2);
+    double uhel = (-180/PI)* rad;
+    M_Levy_lokal = d * rozdilLevy(uhel);
+    M_Pravy_lokal = d * rozdilPravy(uhel);
+  }
+  return joysticWork(M_Levy_lokal,M_Levy,M_Pravy_lokal,M_Pravy);
+}
+
+String joystickAllWork(int joy,int osa_x, int osa_y, int tl)
+{
+  int osa_x_zaok = joysticZaok(osa_x);
+  int osa_y_zaok = joysticZaok(osa_y);
+  switch (joy)
+  {
+  case 1:
+  {
+    return joystickRizeni(osa_x, osa_y);
+    break;
+  }
+  case 2:
+    return joysticWork(osa_x_zaok,M_1,-osa_y_zaok,M_2);
+    break;
+  case 3:
+    return joysticWork(osa_x_zaok,M_LED,-osa_y_zaok,M_3);
+    break;
+  case 4:
+    return joysticWork(osa_x_zaok,M_Kleste,-osa_y_zaok,M_4);
+    break;        
+  default:
+    break;
+  }
+}
 
 void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
 {
@@ -388,6 +437,25 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
         
       }
       break;
+      case 'J':
+        if (komP.pocetVAktualSouboru() != 13)
+        {
+          Serial.println("Problem s velikosti J:");
+          Serial.println(komP.pocetVAktualSouboru());
+          return;
+        } 
+        outAll += komP.sendAktSoubor();
+        Serial.println(komP.sendAktSoubor()); 
+        for (int j = 0; j < 4; j++)
+        {
+        int osa_x = komP.readInt();
+        int osa_y = komP.readInt();
+        int tl = komP.readInt();
+        outAll += joystickAllWork(j + 1,osa_x, osa_y,tl);
+        }
+            
+
+      break;
       case 'j':
       {
         if (komP.pocetVAktualSouboru() != 5)
@@ -404,49 +472,9 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
         int osa_x = komP.readInt();
         int osa_y = komP.readInt();
         int tl = komP.readInt();
-        int osa_x_zaok = joysticZaok(osa_x);
-        int osa_y_zaok = joysticZaok(osa_y);
-        switch (joy)
-        {
-        case 1:
-        {
-          int osa_x_zaok2 = joysticZaok(osa_x);
-          int osa_y_zaok2 = joysticZaok(osa_y);
-          double d = sqrt((double)(osa_x_zaok2 * osa_x_zaok2 + osa_y_zaok2 * osa_y_zaok2));
-          if (d > 100.0)
-          {
-            d = 100.0;
-          }
-          else if (d < 20)
-          {
-            d = 0.0;
-          }
-          double M_Levy_lokal = 0;
-          double M_Pravy_lokal = 0;
-          if (d != 0.0)
-          {
-            double rad = atan2(osa_y_zaok2,osa_x_zaok2);
-            double uhel = (-180/PI)* rad;
-            M_Levy_lokal = d * rozdilLevy(uhel);
-            M_Pravy_lokal = d * rozdilPravy(uhel);
-          }
-          outAll += joysticWork(M_Levy_lokal,M_Levy,M_Pravy_lokal,M_Pravy);
-          break;
-        }
-        case 2:
-          outAll += joysticWork(osa_x_zaok,M_1,-osa_y_zaok,M_2);
-          break;
-        case 3:
-          outAll += joysticWork(osa_x_zaok,M_LED,-osa_y_zaok,M_3);
-          break;
-        case 4:
-          outAll += joysticWork(osa_x_zaok,M_Kleste,-osa_y_zaok,M_4);
-          break;        
-        default:
-          break;
-        }
-        break;
+        outAll += joystickAllWork(joy,osa_x, osa_y,tl);
       }
+      break;
       case 'm':
 
         if (komP.pocetVAktualSouboru() != 3)

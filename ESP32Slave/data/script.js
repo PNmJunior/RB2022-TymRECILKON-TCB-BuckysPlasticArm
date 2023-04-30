@@ -18,8 +18,8 @@ const M_Kleste = 5;
 const M_Levy = 6;
 const M_Pravy = 7;
 
-//const ModeWork = 'w';//work
-const ModeWork = 'd';//debug
+const ModeWork = 'w';//work
+//const ModeWork = 'd';//debug
 function balicekInt(a)
 {
     if(a == -0)
@@ -77,6 +77,21 @@ function motorAllSend()
 function chatSend(t)
 {
     return sendAuto(dataChat(t));
+}
+
+function joyAllSend(x1,  y1,  t1,  x2,  y2,  t2,  x3,  y3,  t3,  x4,  y4,  t4)
+{
+    return sendAuto(dataJoyAll( x1,  y1,  t1,  x2,  y2,  t2,  x3,  y3,  t3,  x4,  y4,  t4));
+}
+
+function dataJoyAll( x1,  y1,  t1,  x2,  y2,  t2,  x3,  y3,  t3,  x4,  y4,  t4)
+{
+    return['J',
+    balicekInt(x1), balicekInt(y1), balicekInt(t1), 
+    balicekInt(x2), balicekInt(y2), balicekInt(t2), 
+    balicekInt(x3), balicekInt(y3), balicekInt(t3), 
+    balicekInt(x4), balicekInt(y4), balicekInt(t4)
+    ];
 }
 
 function dataChat(t)
@@ -312,6 +327,26 @@ function stisknuto()
     motorAllSend();
 }
 
+function Jwork(ji,jx,jy, jt)
+{
+    switch (Ji) {
+        case 1:
+            joystick1.setSecund(Jx,Jy);
+            break;
+        case 2:
+            joystick2.setSecund(Jx,Jy);
+            break;
+        case 3:
+            joystick3.setSecund(Jx,Jy);
+            break;
+        case 4:
+            joystick4.setSecund(Jx,Jy);
+            break;
+        default:
+            break;
+    }
+}
+
 
 function onMessage(event) {
     startTimeIn = performance.now();
@@ -327,28 +362,21 @@ function onMessage(event) {
             case "c":
                 document.getElementById("ftextChat").value = ">>"+readText(SoubIn[1])+"\n" + document.getElementById("ftextChat").value;
                 break;
+            case "J":
+                for(let i = 0; i < 4; i++)
+                {
+                    let Jx = readInt( SoubIn[1+3*i]);
+                    let Jy = readInt( SoubIn[2+3*i]);
+                    let Jt = readInt( SoubIn[3+3*i]);
+                    Jwork(i+1,jx,jy,jt);
+                }
+                break;
             case "j":
                 let Ji = readInt( SoubIn[1]);
                 let Jx = readInt( SoubIn[2]);
                 let Jy = readInt( SoubIn[3]);
                 let Jt = readInt( SoubIn[4]);
-                Jt = 0;
-                switch (Ji) {
-                    case 1:
-                        joystick1.setSecund(Jx,Jy);
-                        break;
-                    case 2:
-                        joystick2.setSecund(Jx,Jy);
-                        break;
-                    case 3:
-                        joystick3.setSecund(Jx,Jy);
-                        break;
-                    case 4:
-                        joystick4.setSecund(Jx,Jy);
-                        break;
-                    default:
-                        break;
-                }
+                Jwork(ji,jx,jy,jt);
                 break;
             case "m":
                 let key = readInt( SoubIn[1]);
@@ -511,9 +539,8 @@ class JoystickController
 		document.addEventListener('mouseup', handleUp);
 		document.addEventListener('touchend', handleUp);
 	}
-    zmena(cislo,rozd = 5)
+    zmena(rozd = 5)
     {
-        let strinZmenaJ = String("");
         let zozdJx = Number(this.value.x) - Number(this.old.x);
         let zozdJy = Number(this.value.y) - Number(this.old.y);
         let dJ = Math.sqrt(zozdJx * zozdJx + zozdJy * zozdJy);
@@ -521,9 +548,9 @@ class JoystickController
         {
             this.old.x = this.value.x;
             this.old.y = this.value.y;
-            strinZmenaJ = joySend(cislo,this.old.x,this.old.y,0);
+            return [this.old.x,this.old.y,0];
         }
-        return strinZmenaJ;
+        return null;
     }
 
     setSecund(osa_x, osa_y)
@@ -548,8 +575,37 @@ function update()
 	document.getElementById("status2").innerText = "Joystick 2: " + JSON.stringify(joystick2.value);
     document.getElementById("status3").innerText = "Joystick 3: " + JSON.stringify(joystick3.value);
     document.getElementById("status4").innerText = "Joystick 4: " + JSON.stringify(joystick4.value);
-    let stri = joystick1.zmena(1) + joystick2.zmena(2) + joystick3.zmena(3) + joystick4.zmena(4);
-    SendESP(stri);
+    let joyout1 = joystick1.zmena();
+    let joyout2 = joystick2.zmena();
+    let joyout3 = joystick3.zmena();
+    let joyout4 = joystick4.zmena();
+    if(joyout1 != null && joyout2 != null && joyout3 != null && joyout4 != null )
+    {
+        SendESP(joyAllSend(
+            joyout1[0],joyout1[1],joyout1[2],
+            joyout2[0],joyout2[1],joyout2[2],
+            joyout3[0],joyout3[1],joyout3[2],
+            joyout4[0],joyout4[1],joyout4[2],
+            ));
+    }
+    else{
+        if(joyout1 != null)
+        {
+            SendESP(joySend(1,joyout1[0],joyout1[1], joyout1[2]));
+        }
+        if(joyout2 != null)
+        {
+            SendESP(joySend(2,joyout2[0],joyout2[1], joyout2[2]));
+        }
+        if(joyout3 != null)
+        {
+            SendESP(joySend(3,joyout3[0],joyout3[1], joyout3[2]));
+        }
+        if(joyout4 != null)
+        {
+            SendESP(joySend(4,joyout4[0],joyout4[1], joyout4[2]));
+        }
+    }
     setTimeout(arguments.callee, 100);
 }
 

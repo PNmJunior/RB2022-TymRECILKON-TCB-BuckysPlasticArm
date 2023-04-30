@@ -26,6 +26,7 @@ public:
     String addSubSoubor(udaj a);
     String motor(int mot, int hod);
     String joystic(int joy, int x, int y, int t);
+    String joystickAll(int x1,int y1, int t1,int x2,int y2, int t2,int x3,int y3, int t3,int x4,int y4, int t4);
     String joysticStart();
     String joysticStop();
     String chat(String l);
@@ -82,6 +83,15 @@ inline String KomProtokolSend::joysticStart()
     return addSoubor(balicekText("s"));
 }
 
+inline String KomProtokolSend::joystickAll(int x1, int y1, int t1, int x2, int y2, int t2, int x3, int y3, int t3, int x4, int y4, int t4)
+{
+    return addSoubor(balicekText("J"))+
+    addSubSoubor(balicekInt(x1)) + addSubSoubor(balicekInt(y1))+ addSubSoubor(balicekInt(t1))+ 
+    addSubSoubor(balicekInt(x2)) + addSubSoubor(balicekInt(y2))+ addSubSoubor(balicekInt(t2))+ 
+    addSubSoubor(balicekInt(x3)) + addSubSoubor(balicekInt(y3))+ addSubSoubor(balicekInt(t3))+ 
+    addSubSoubor(balicekInt(x4)) + addSubSoubor(balicekInt(y4))+ addSubSoubor(balicekInt(t4));
+}
+
 inline String KomProtokolSend::chat(String l)
 {
     return addSoubor(balicekText("c")) + addSubSoubor(balicekText(l));
@@ -94,7 +104,7 @@ inline String KomProtokolSend::joysticStop()
 
 inline String KomProtokolSend::joystic(int joy, int x, int y, int t)
 {
-    return joysticStart() + addSoubor(balicekText("j"))+addSubSoubor(balicekInt(joy)) + addSubSoubor(balicekInt(x))+ addSubSoubor(balicekInt(y))+ addSubSoubor(balicekInt(t)) + joysticStop();
+    return addSoubor(balicekText("j"))+addSubSoubor(balicekInt(joy)) + addSubSoubor(balicekInt(x))+ addSubSoubor(balicekInt(y))+ addSubSoubor(balicekInt(t));
 }
 
 KomProtokolSend SendSystem;
