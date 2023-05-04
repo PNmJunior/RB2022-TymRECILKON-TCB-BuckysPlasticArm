@@ -45,11 +45,11 @@ const int polePinu[4][3] = {
 #define Jx_stred_min 4
 #define Jx_hod 5
 
-#define Jy_max 6
-#define Jy_stred 7
-#define Jy_stred_max 8
-#define Jy_stred_min 9
-#define Jy_min 10
+#define Jy_min 6
+#define Jy_max 7
+#define Jy_stred 8
+#define Jy_stred_max 9
+#define Jy_stred_min 10
 #define Jy_hod 11
 
 #define Jt_hod 12
@@ -142,11 +142,15 @@ void kontrol(int j, int x, int y)
   if ( poleSys[j][Jy_min] > y)
   {
     poleSys[j][Jy_min] = y;
+    Serial.print("minY");Serial.print(y);
+    delay(1000);
     deatZoneVypocet(j,Jx_To_Jy);
   }
-  else if ( poleSys[j][Jx_max] < y)
+  else if ( poleSys[j][Jy_max] < y)
   {
     poleSys[j][Jy_max] = y;
+    Serial.print("maxY");Serial.print(y);
+    delay(1000);
     deatZoneVypocet(j,Jx_To_Jy);
   }
 }
@@ -172,7 +176,7 @@ void Novy()
     int X = (-1)*AnalogToProc(j);
     int Y = AnalogToProc(j,Jx_To_Jy);
     int T = 1-t;
-    delay(1000);
+    //delay(1000);
     Serial.println(j);
     Serial.println(X);
     Serial.println(Y);
@@ -212,11 +216,34 @@ void Novy()
     String pl = SendSystem.joysticStart();
     for (int j = 0; j < 4; j++)
     {
-      pl += SendSystem.joystic(j,sendOld[j][SendOldJx],sendOld[j][SendOldJy],sendOld[j][SendOldJt]);
+      if(vystup[j])
+      {
+        pl += SendSystem.joystic(j+1,sendOld[j][SendOldJx],sendOld[j][SendOldJy],sendOld[j][SendOldJt]);
+      }
     }
     Serial.print(pl + SendSystem.joysticStop());
-
   }
+Serial.println();
+  for (int a = 0; a < 4; a++)
+  {
+    for (int b = 0; b < 13; b++)
+    {
+      Serial.print(poleSys[a][b]);
+      Serial.print(',');
+    }
+    Serial.println();
+  }
+
+    for (int a= 0; a < 4; a++)
+  {
+    for (int b= 0; b < 3;b++)
+    {
+      Serial.print(sendOld[a][b]);
+      Serial.print(',');
+    }
+    Serial.println();
+  }
+  
 }
 
 
@@ -271,9 +298,9 @@ void setup() {
     int t = digitalRead(polePinu[j][Jt]);
     poleSys[j][Jt_hod] = t;
 
-    sendOld[j][SendOldJx] = poleSys[j][Jx_hod];
-    sendOld[j][SendOldJy] = poleSys[j][Jy_hod];
-    sendOld[j][SendOldJt] = poleSys[j][Jt_hod];
+    sendOld[j][SendOldJx] = 0;
+    sendOld[j][SendOldJy] = 0;
+    sendOld[j][SendOldJt] = 0;
   }
 }
 
