@@ -3,17 +3,17 @@
 #include <komunProtokol.h>
 
 
-#define J1x PA0
-#define J1y PA1
+#define J1x PA1
+#define J1y PA0
 #define J1t PB0
-#define J2x PA2
-#define J2y PA3
+#define J2x PA3
+#define J2y PA2
 #define J2t PB1
-#define J3x PA4
-#define J3y PA5
+#define J3x PA5
+#define J3y PA4
 #define J3t PB10
-#define J4x PA6
-#define J4y PA7
+#define J4x PA7
+#define J4y PA6
 #define J4t PB11
 
 #define ledPin PC13 //13
@@ -142,15 +142,11 @@ void kontrol(int j, int x, int y)
   if ( poleSys[j][Jy_min] > y)
   {
     poleSys[j][Jy_min] = y;
-    Serial.print("minY");Serial.print(y);
-    delay(1000);
     deatZoneVypocet(j,Jx_To_Jy);
   }
   else if ( poleSys[j][Jy_max] < y)
   {
     poleSys[j][Jy_max] = y;
-    Serial.print("maxY");Serial.print(y);
-    delay(1000);
     deatZoneVypocet(j,Jx_To_Jy);
   }
 }
@@ -173,15 +169,16 @@ void Novy()
 
 
 
-    int X = (-1)*AnalogToProc(j);
-    int Y = AnalogToProc(j,Jx_To_Jy);
+    int X = AnalogToProc(j);
+    int Y = (-1)*AnalogToProc(j,Jx_To_Jy);
     int T = 1-t;
     //delay(1000);
+    /*
     Serial.println(j);
     Serial.println(X);
     Serial.println(Y);
     Serial.println(T);
-
+    */
 
     if (abs(X - sendOld[j][SendOldJx]) > zmena || abs(Y - sendOld[j][SendOldJy]) > zmena || abs(T - sendOld[j][SendOldJt]) == 1)
     {
@@ -198,7 +195,7 @@ void Novy()
       vystup[j]=false;
     }
   }
-  Serial.println(vystuppocet);
+  //Serial.println(vystuppocet);
   if (vystuppocet == 4)
   {
     Serial.print(
@@ -223,6 +220,7 @@ void Novy()
     }
     Serial.print(pl + SendSystem.joysticStop());
   }
+  /*
 Serial.println();
   for (int a = 0; a < 4; a++)
   {
@@ -243,7 +241,7 @@ Serial.println();
     }
     Serial.println();
   }
-  
+  */
 }
 
 
