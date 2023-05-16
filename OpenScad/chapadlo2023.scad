@@ -1,25 +1,10 @@
 //Kleste();
 //Redukce();
-
-//KlestePrava();
+KlestePrava();
 //Simul();
 
-//Print4();
-module Print4()
-{
-    difference()
-    {
-    translate([0,0,00]) rotate([0,270,0]) 
-    {
- KlesteLeva();
-translate([0,-40,0]) KlestePrava(); 
-    } 
-    translate([-50,-70,-128]) cube(100);
-    } 
-}
 
-
-Print5();
+//Print5();
 
 
 module Print5()
@@ -83,58 +68,50 @@ module KlesteLeva()
 
 module KlestePrava()
 {    
-    translate([-28,2,42]) rotate([0,20,0])
+    translate([-31,62,95]) rotate([0,10,0])
     {
         rotate([180,0,20]) Redukce();
     }
     translate([0,0,0]) Kleste();    
 }
 
-
-module Kleste()
+//lista();
+module lista(sirkaBLista = 20, vyskaCelkLista = 50, delkaLista = 100)
 {
-    c = 10;
-    b = 8;
-    bb = b-1;
-    a= c+b/2;
-    dd = 10;
     
-    j=20+b/3;
-    v = 20;
-    translate([-2,0,0])
+    vyskaLista = 10;
+    vyskaVyrezLista = 20;
+    sirkaLista = 10;
+    sirkaLista2 = sirkaLista/sqrt(2);
+    translate([0,0,sirkaLista/2]) difference()
     {
         translate([0,0,0])
         {
-            translate([0,0,0]) sphere(d= dd);
-            translate([0,0,0]) rotate([90,0,0]) cylinder(h=v,d=bb,center = false);
-            translate([0,0,0]) rotate([0,180,0]) cylinder(h=12,d1=dd,d2=0,center = false);
+            translate([0,0,0]) cube([delkaLista,sirkaBLista,vyskaCelkLista - sirkaLista/2]);
+            translate([0,sirkaLista/2,-sirkaLista/2]) rotate([45,0,0]) cube([delkaLista,sirkaLista2,sirkaLista2]);
+            
         }
-        translate([j,0,0])
-        {
-            translate([0,0,0]) sphere(d= dd);
-            translate([0,0,0]) rotate([90,0,0]) cylinder(h=v,d=bb,center = false);
-            translate([0,0,0]) rotate([0,180,0]) cylinder(h=12,d1=dd,d2=0,center = false);
-        }
-        translate([-j,0,0])
-        {
-            translate([0,0,0]) sphere(d= dd);
-            translate([0,0,0]) rotate([90,0,0]) cylinder(h=v,d=bb,center = false);
-            translate([0,0,0]) rotate([0,-90,0]) cylinder(h=15,d1=dd,d2=0,center = false);
-            translate([0,0,0]) rotate([0,180,0]) cylinder(h=12,d1=dd,d2=0,center = false);
-        }
-        translate([2*j,0,0])
-        {
-            translate([0,0,0]) sphere(d= dd);
-            translate([0,0,0]) rotate([90,0,0]) cylinder(h=v,d=bb,center = false);
-            translate([0,0,0]) rotate([0,90,0]) cylinder(h=15,d1=dd,d2=0,center = false);
-            translate([0,0,0]) rotate([0,180,0]) cylinder(h=12,d1=dd,d2=0,center = false);
-        }
+        translate([0,4,0])  cube([delkaLista,sirkaBLista,vyskaVyrezLista]);
+        translate([0,-5,vyskaVyrezLista + 5])  cube([delkaLista,sirkaBLista,vyskaCelkLista-vyskaVyrezLista - vyskaLista/2-10]);
     }
-    translate([j+j+bb/2-2,-v,0]) rotate([0,-90,0]) cylinder(h=bb+3*j,d=bb,center = false);
+    
+    
+}
+
+module Kleste()
+{
+
+    v = 20;
 
     alfa=15;
-    translate([0,-v,-4])  cylinder(h=40,d=10,center = false);
-    translate([0,alfa,30]) rotate([90,0,0]) cylinder(h=alfa+v,d=10,center = false);
+    
+    delkaList = 100;
+    //translate([0,-v,-4])  cylinder(h=40,d=10,center = false);
+    translate([0,0,90]) rotate([-90,0,0]) cylinder(h=25+30+20,d=10,center = false);
+    translate([-delkaList/2,0,0]) lista(20,55,delkaList);
+    translate([-delkaList/2,30,25]) lista(15,30,delkaList);
+    translate([-5,0,30]) cube([10,30,60]);
+    translate([-5,0,50]) cube([10,45,40]);
 }
 
 
