@@ -1,3 +1,62 @@
+module pieSlice(a, r, h){
+  // a:angle, r:radius, h:height
+  rotate_extrude(angle=a) square([r,h]);
+}
+//pieSlice(110,20,3);
+
+
+
+module motor()
+{
+    motorKul = 54;//53.8
+    motorVyska = 40.2;//40.1
+    motorSirka  = 29.3;
+    motorDiraVel = 2;
+    motorDiraY = 36;
+    motorDiraX = 31;
+    motorVM = 25.4;
+    motorVV = 33.6;
+    motorVS = 5.2;
+    motorVelkeUhel = 45;
+    motorVelke = 40.5;
+    motorMale = 36.1;
+    motorAsimetrie = (motorVV - motorVS/2)-motorKul/2;
+    echo(motorAsimetrie);
+    $fn=50;
+    
+    rotate([0,90,0]) translate([-motorVyska/2,-motorAsimetrie,0]) 
+    {
+        difference()
+        {
+            cylinder(motorSirka, d = motorKul, $fn=50);
+            translate([-(motorVyska/2+40),-motorKul/2,0]) cube([40,motorKul,motorSirka]);
+            translate([motorVyska/2,-motorKul/2,0]) cube([40,motorKul,motorSirka]);
+            
+        }
+        translate([-motorDiraX/2, - motorDiraY/2,-50 + motorSirka/2])
+        {
+            translate([0,0,0]) cylinder(h = 100, d = motorDiraVel, $fn=50);
+            translate([motorDiraX,0,0]) cylinder(h = 100, d = motorDiraVel, $fn=50);
+            translate([0,motorDiraY,0]) cylinder(h = 100, d = motorDiraVel, $fn=50);
+            translate([motorDiraX,motorDiraY,0]) cylinder(h = 100, d = motorDiraVel, $fn=50);
+        }
+        translate([0,motorAsimetrie,-50 + motorSirka/2])
+        {
+            cylinder(h = 100, d = motorMale);
+            rotate([0,0,-90 + motorVelkeUhel/2]) pieSlice(180-motorVelkeUhel, motorVelke/2, 100);
+            rotate([0,0,180-90 + motorVelkeUhel/2]) pieSlice(180-motorVelkeUhel, motorVelke/2, 100);
+        }
+        
+    }
+    
+}
+
+motor();
+
+
+
+
+
 //Kód pro vytvoření oválných kvádrů
 module OvalnaKrichleX(Rozdmery, zakulaceni,st = 10)
 {
