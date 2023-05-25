@@ -1,5 +1,6 @@
 include<gears.scad>
 
+
 vyrezTyckyVerky = 5.6;
 vyrezTyckyMaly = 3.9;
 
