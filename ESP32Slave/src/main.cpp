@@ -11,6 +11,9 @@
 #include "SPIFFS.h"      //nastaveni webu
 #include <Preferences.h> //Ulozeni hesla
 #include <consol.h>
+#include "managerClient.h"
+
+managerClient manaCl;
 
 consol cons;
 
@@ -334,25 +337,27 @@ int joysticZaok(int i, int mez = 10)
   return i;
 }
 
-String joysticWork(int x,int mot_x, int y, int mot_y, int rozdil = 1)
+String joysticWork(int x,int mot_x, int y, int mot_y, int prikaz, int rozdil = 1)
 {
   String i;
   int mx = Prevodnik[mot_x];
   int my = Prevodnik[mot_y];
   if (abs(x - mot.outProc(mx)) >= rozdil)
   {
+    mot.prikazSet(mx,prikaz);
     mot.inputProc(mx,x);
     i += SendSystem.motor(mx,mot.outProc(mx) );
   }
   if (abs(y - mot.outProc(my)) >= rozdil)
   {
+    mot.prikazSet(my,prikaz);
     mot.inputProc(my,y);
     i += SendSystem.motor(my,mot.outProc(my) );
   }
   return i;
 }
 
-String joystickRizeni(int osa_x, int osa_y)
+String joystickRizeni(int osa_x, int osa_y,int prikaz)
 {
   int osa_x_zaok2 = joysticZaok(osa_x);
   int osa_y_zaok2 = joysticZaok(osa_y);
@@ -374,28 +379,26 @@ String joystickRizeni(int osa_x, int osa_y)
     M_Levy_lokal = d * rozdilLevy(uhel);
     M_Pravy_lokal = d * rozdilPravy(uhel);
   }
-  return joysticWork(M_Levy_lokal,M_Levy,M_Pravy_lokal,M_Pravy);
+  return joysticWork(M_Levy_lokal,M_Levy,M_Pravy_lokal,M_Pravy, prikaz);
 }
 
-String joystickAllWork(int joy,int osa_x, int osa_y, int tl)
+String joystickAllWork(int joy,int osa_x, int osa_y, int tl, int prikaz)
 {
   int osa_x_zaok = joysticZaok(osa_x);
   int osa_y_zaok = joysticZaok(osa_y);
   switch (joy)
   {
   case 1:
-  {
-    return joystickRizeni(osa_x, osa_y);
+    return joystickRizeni(osa_x, osa_y, prikaz);
     break;
-  }
   case 2:
-    return joysticWork(osa_x_zaok,M_1,-osa_y_zaok,M_2);
+    return joysticWork(osa_x_zaok,M_1,-osa_y_zaok,M_2, prikaz);
     break;
   case 3:
-    return joysticWork(osa_x_zaok,M_LED,-osa_y_zaok,M_3);
+    return joysticWork(osa_x_zaok,M_LED,-osa_y_zaok,M_3,prikaz);
     break;
   case 4:
-    return joysticWork(osa_x_zaok,M_Kleste,-osa_y_zaok,M_4);
+    return joysticWork(osa_x_zaok,M_Kleste,-osa_y_zaok,M_4,prikaz);
     break;        
   default:
     break;
@@ -416,6 +419,24 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
       int smer;
       switch (souName.charAt(0))
       {
+      case 'q':
+      {
+        if (komP.pocetVAktualSouboru() != 2)
+        {
+          Serial.println("Problem s velikosti q:");
+          Serial.println(komP.pocetVAktualSouboru());
+          return;
+        }
+        int t = komP.readInt(); 
+        if(manaCl.timeTrue(client->id(), t))
+        {
+
+        }
+        else
+        {
+          return;
+        }
+      }
       case 'c':
       {
         if (komP.pocetVAktualSouboru() != 2)
@@ -451,10 +472,8 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
         int osa_x = komP.readInt();
         int osa_y = komP.readInt();
         int tl = komP.readInt();
-        outAll += joystickAllWork(j + 1,osa_x, osa_y,tl);
+        outAll += joystickAllWork(j + 1,osa_x, osa_y,tl,client->id());
         }
-            
-
       break;
       case 'j':
       {
@@ -472,7 +491,7 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
         int osa_x = komP.readInt();
         int osa_y = komP.readInt();
         int tl = komP.readInt();
-        outAll += joystickAllWork(joy,osa_x, osa_y,tl);
+        outAll += joystickAllWork(joy,osa_x, osa_y,tl,client->id());
       }
       break;
       case 'm':
@@ -486,6 +505,7 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
         cisloM = komP.readInt();
         smer = komP.readInt();
         /*Serial.print("c:");Serial.println(cisloM);Serial.print("h:");Serial.println(smer);*/
+        mot.prikazSet(Prevodnik[cisloM], client->id());
         mot.inputProc(Prevodnik[cisloM], smer);
         outAll += komP.sendAktSoubor();
         break;
@@ -731,7 +751,8 @@ void setup()
   timerAlarmEnable(My_timer); // Just Enable
   
   Serial.println("Inicializace a spusteni hlavniho presuseni");
-  mot.beginStart();
+  manaCl.begin();
+  mot.beginStart(&manaCl);
   mot.beginTimer();
 
   for (byte i = 0; i < 8; i++)
@@ -854,12 +875,6 @@ void loop(void)
       }
     }
   }
-  if (p.length() != 0)
-  {
-    ws.textAll(p);
-  }
-
-  String l ;
 
   for (int i = 0; i < 8; i++)
   {
@@ -868,12 +883,22 @@ void loop(void)
     if ((mot.outSmer(i) == mVpred ||mot.outSmer(i) == mVzad) && mot.outSpead(i) == 0)
     {
         mot.input(i, mStop);
-        l += SendSystem.motor(i,0);
+        p += SendSystem.motor(i,0);
     }
   }
-  if (l.length() != 0)
+
+  for (int i = 0; i < 8; i++)
   {
-    ws.textAll(l);
+    if (mot.prikazTimeOut(i))
+    {
+        mot.input(i, mStop);
+        p += SendSystem.motor(i,0);
+    }
+  }
+
+  if (p.length() != 0)
+  {
+    ws.textAll(p);
   }
   ws.cleanupClients();
 }
