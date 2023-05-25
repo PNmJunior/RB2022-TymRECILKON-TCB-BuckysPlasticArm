@@ -4,10 +4,6 @@ module pieSlice(a, r, h){
 }
 //pieSlice(110,20,3);
 
-
-
-module motor()
-{
     motorKul = 54;//53.8
     motorVyska = 40.2;//40.1
     motorSirka  = 29.3;
@@ -18,13 +14,18 @@ module motor()
     motorVV = 33.6;
     motorVS = 5.2;
     motorVelkeUhel = 45;
-    motorVelke = 40.5;
-    motorMale = 36.1;
+    motorVelke = 41;//40.5
+    motorMale = 36.5;//36.1
     motorAsimetrie = (motorVV - motorVS/2)-motorKul/2;
+$fn=50;
+
+module motor()
+{
+
     echo(motorAsimetrie);
     $fn=50;
     
-    rotate([0,90,0]) translate([-motorVyska/2,-motorAsimetrie,0]) 
+    rotate([0,0,180]) translate([-motorVyska/2,-motorAsimetrie,]) 
     {
         difference()
         {
@@ -42,7 +43,7 @@ module motor()
         }
         translate([0,motorAsimetrie,-50 + motorSirka/2])
         {
-            cylinder(h = 100, d = motorMale);
+            cylinder(h = 100, d = motorMale, $fn=50);
             rotate([0,0,-90 + motorVelkeUhel/2]) pieSlice(180-motorVelkeUhel, motorVelke/2, 100);
             rotate([0,0,180-90 + motorVelkeUhel/2]) pieSlice(180-motorVelkeUhel, motorVelke/2, 100);
         }
@@ -51,11 +52,52 @@ module motor()
     
 }
 
-motor();
+//motor();
+
+module troj()
+{
+    translate([-40,30,0]) rotate([0,0,-25]) cube([40,100,30]);
+    
+    
+}
 
 
 
 
+module nosnik()
+{
+    vyska = 4;
+    vyskaVyrez = 3;
+    difference()
+    {
+        translate([0,0,0])
+        {
+            translate([0,16,0]) OvalnaKrichleZ([50,50,4],2);
+            
+            
+        }
+        translate([(50-motorVyska)/2,0,vyskaVyrez]) motor();
+        translate([0,0,-10])
+        {
+            translate([25,40,0]) cylinder(h = 20, d = 3);
+            translate([25,50,0]) cylinder(h = 20, d = 3);
+            translate([25,60,0]) cylinder(h = 20, d = 3);
+            translate([15,35,0]) cylinder(h = 20, d = 3);
+            translate([35,35,0]) cylinder(h = 20, d = 3);
+            translate([17.5,45,0]) cylinder(h = 20, d = 3);
+            translate([32.5,45,0]) cylinder(h = 20, d = 3);
+        }
+        
+        translate([0,0,-10])
+        {
+            troj();
+            mirror([1,0,0]) translate([-motorVyska-10,0,0]) troj();
+        }   
+    }
+}
+
+translate([0,0,0]) nosnik();
+translate([60,0,0]) nosnik();
 
 //Kód pro vytvoření oválných kvádrů
 module OvalnaKrichleX(Rozdmery, zakulaceni,st = 10)
