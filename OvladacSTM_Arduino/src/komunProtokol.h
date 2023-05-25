@@ -30,7 +30,6 @@ public:
     String joysticStart();
     String joysticStop();
     String chat(String l);
-    String synchro();
     KomProtokolSend(/* args */);
     ~KomProtokolSend();
 };
@@ -106,11 +105,6 @@ inline String KomProtokolSend::joysticStop()
 inline String KomProtokolSend::joystic(int joy, int x, int y, int t)
 {
     return addSoubor(balicekText("j"))+addSubSoubor(balicekInt(joy)) + addSubSoubor(balicekInt(x))+ addSubSoubor(balicekInt(y))+ addSubSoubor(balicekInt(t));
-}
-
-inline String KomProtokolSend::synchro()
-{
-    return addSoubor(balicekText("q"))+addSubSoubor(balicekInt(millis()/100));
 }
 
 KomProtokolSend SendSystem;
