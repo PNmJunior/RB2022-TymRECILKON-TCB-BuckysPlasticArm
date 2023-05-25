@@ -1,6 +1,6 @@
 //include<gears-master/gears.scad>
-use <MCAD/involute_gears.scad>
 
+use <MCAD/involute_gears.scad>
 
 vyrezTyckyVerky = 5.5;
 vyrezTyckyMaly = 3.7;
@@ -46,10 +46,10 @@ module Vyrezy(pocetDer,vyrezTyckyVyska = 10, vyrezTyckyPocatecniVyska = -1, vyre
 //Vyrezy(2);
 
 
-module kolecko(vyskaKolecka = 5, prumerKolecka = 30, VelikostZubu = 4)
-{
 
-backlash = 2;
+module test_backlash ()
+{
+    backlash = 2;
     teeth = 15;
 
     translate ([-29.166666,0,0])
@@ -83,11 +83,11 @@ backlash = 2;
     }
 
     color([0,0,1,0.5])
-    translate([0,0,-5])
-    cylinder ($fn=20,r=backlash / 4,h=25);
+    translate([0,0,-5])    cylinder ($fn=20,r=backlash / 4,h=25);
 }
 
-kolecko();
+test_backlash();
+
 
 
 module nosnik(pocetDer, kolo, vyska = 3, vyskaTycky = 10)
