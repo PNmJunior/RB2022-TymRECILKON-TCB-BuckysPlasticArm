@@ -1,6 +1,4 @@
-//include<gears-master/gears.scad>
-
-use <MCAD/involute_gears.scad>
+include<gear.scad>
 
 vyrezTyckyVerky = 5.5;
 vyrezTyckyMaly = 3.7;
@@ -45,49 +43,10 @@ module Vyrezy(pocetDer,vyrezTyckyVyska = 10, vyrezTyckyPocatecniVyska = -1, vyre
 }
 //Vyrezy(2);
 
-
-
-module test_backlash ()
+module kolecko()
 {
-    backlash = 2;
-    teeth = 15;
-
-    translate ([-29.166666,0,0])
-    {
-        translate ([58.3333333,0,0])
-        rotate ([0,0,-360/teeth/4])
-        gear (
-            number_of_teeth = teeth,
-            circular_pitch=700*pi/180,
-            gear_thickness = 12,
-            rim_thickness = 15,
-            rim_width = 5,
-            hub_thickness = 17,
-            hub_diameter=15,
-            bore_diameter=5,
-            backlash = 2,
-            circles=8);
-
-        rotate ([0,0,360/teeth/4])
-        gear (
-            number_of_teeth = teeth,
-            circular_pitch=700*pi/180,
-            gear_thickness = 12,
-            rim_thickness = 15,
-            rim_width = 5,
-            hub_thickness = 17,
-            hub_diameter=15,
-            bore_diameter=5,
-            backlash = 2,
-            circles=8);
-    }
-
-    color([0,0,1,0.5])
-    translate([0,0,-5])    cylinder ($fn=20,r=backlash / 4,h=25);
+	
 }
-
-test_backlash();
-
 
 
 module nosnik(pocetDer, kolo, vyska = 3, vyskaTycky = 10)
