@@ -1,7 +1,7 @@
-include<gear.scad>
+include<gears.scad>
 
-vyrezTyckyVerky = 5.5;
-vyrezTyckyMaly = 3.7;
+vyrezTyckyVerky = 5.6;
+vyrezTyckyMaly = 3.9;
 
 module vyrezTycky(vyrezTyckyVyska = 10, vyrezTyckyPocatecniVyska = -1, vyrezTyckyVelikostSterbiny = 1)
 {
@@ -40,16 +40,22 @@ module Vyrezy(pocetDer,vyrezTyckyVyska = 10, vyrezTyckyPocatecniVyska = -1, vyre
             translate([i,0,0]) cylinder(h =  vyrezTyckyVyska, d = 3, $fn=50);
         }
     }
+    translate([20,0,3]) cylinder(h =  vyrezTyckyVyska, d = 15, $fn=50);
 }
 //Vyrezy(2);
 
-module kolecko()
+module kolecko(vyskaKolo = 6)
 {
-	
+    difference()
+    {
+        resize([34.4,34.4,vyskaKolo])linear_extrude(6) spur_gear(N = 15, p = 12,pa=14.2);
+        cylinder(h = vyskaKolo, r = 9);
+    }
 }
+ //kolecko();
+//translate([30,0,0]) rotate([0,0,11]) kolecko();
 
-
-module nosnik(pocetDer, kolo, vyska = 3, vyskaTycky = 10)
+module nosnik(pocetDer, kolo, vyska = 3, vyskaTycky = 10, vyskaKola = 6)
 {
     $fn=50;
     difference()
@@ -57,8 +63,21 @@ module nosnik(pocetDer, kolo, vyska = 3, vyskaTycky = 10)
         translate([0,0,0])
         {
             cylinder( h = vyska, d = 10);
-            cylinder( h = vyskaTycky, d = vyrezTyckySitka()+4);
+            cylinder( h = vyskaTycky, d = vyrezTyckySitka()+3);
             translate([0,-5,0]) OvalnaKrichleZ([23-10+pocetDer*10,10,vyska],2);
+            if(kolo == 1)
+            {
+                kolecko(vyskaKola);
+            }
+            if(kolo == 2)
+            {
+               rotate([0,0,0]) kolecko(vyskaKola);
+            }
+            if(kolo != 0)
+            {
+                translate([-10,-2,0]) cube([20,4,vyskaKola]);
+                translate([-2,-10,0]) cube([4,20,vyskaKola]);
+            }
             
         }
         
@@ -69,10 +88,20 @@ module nosnik(pocetDer, kolo, vyska = 3, vyskaTycky = 10)
     
 }
 
-//nosnik(2,0);//Zakladni nosnik
+//Horni 1.nosnik;
+translate([20,15,0]) nosnik(2,0);
 
+//Horni 2.nosnik;
+translate([20,30,0]) nosnik(2,0);
+//intersection()
+//{
+//Dolni 1.nosnik;
+translate([0,0,0]) nosnik(3,1);
 
+//Dolni 2.nosnik;
+translate([0,50,0]) nosnik(3,2);
 
+//}
 
 //Kód pro vytvoření oválných kvádrů
 module OvalnaKrichleX(Rozdmery, zakulaceni,st = 10)
