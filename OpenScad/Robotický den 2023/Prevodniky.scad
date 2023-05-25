@@ -1,5 +1,9 @@
-    vyrezTyckyVerky = 5.5;
-    vyrezTyckyMaly = 3.7;
+include<gears-master/gears.scad>
+
+
+
+vyrezTyckyVerky = 5.5;
+vyrezTyckyMaly = 3.7;
 
 module vyrezTycky(vyrezTyckyVyska = 10, vyrezTyckyPocatecniVyska = -1, vyrezTyckyVelikostSterbiny = 1)
 {
@@ -62,7 +66,7 @@ module nosnik(pocetDer, kolo, vyska = 3, vyskaTycky = 10)
     
 }
 
-nosnik(2,0);
+nosnik(2,0);//Zakladni nosnik
 
 
 
