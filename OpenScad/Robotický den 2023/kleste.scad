@@ -7,7 +7,8 @@ rameno = 23;
 kostka = 60;
 alfa=15;
 
-tiskBool = false;
+$fn=30;
+//tiskBool = false;
 tiskBool = true;
 
 //Kleste();
@@ -143,7 +144,7 @@ module plocha(rozd)
     odzSO = odzS + 3;
     difference()
     {
-        cube(rozd);
+        OvalnaKrichleY(rozd,2);
         //pro osu y
         for(x = [mezera:mezera:rozd[0] - mezera])
         {
@@ -160,7 +161,7 @@ module plocha(rozd)
         {
             for(z = [odz:odzSO:rozd[2] - odz])
             {
-                translate([x,-10,z]) cube([odxS,100, odzS]);
+                translate([x,-10,z]) OvalnaKrichleY([odxS,100, odzS],2);
                 
             }
             
@@ -214,12 +215,12 @@ module Kleste()
                     }
                 }
                 vyskaPPP = 22;
-               translate([posun -25,0,0]) cube([35,vrstva, vyskaPPP]); 
+               translate([posun -25,0,0]) OvalnaKrichleY([35,vrstva, vyskaPPP]); 
                 translate([posun -15,0,0]) cube([vrstva, 10,vyskaPPP]);
                 translate([posun ,0,0]) cube([vrstva, 20,vyskaPPP]);
                 difference()
                 {
-                translate([0,0,0])cube([odstup,kostka/2-rameno + pena+ vrstva + rezer, vrstva]);
+                translate([0,0,0])OvalnaKrichleZ([odstup,kostka/2-rameno + pena+ vrstva + rezer, vrstva]);
                     translate([odstup,0,0]) rotate([0,0,40]) cube(100);
                     for(x = [40:7:70])
                     {
@@ -252,4 +253,101 @@ module Redukce()
         translate([3,0,-1.5]) cylinder(h=10,d=3,center=false,$fn=64);
         translate([20,0,-1.5]) cylinder(h=10,d=3,center=false,$fn=64);   
     }
+}
+
+
+
+//Kód pro vytvoření oválných kvádrů
+module OvalnaKrichleX(Rozdmery, zakulaceni = 1,st = 30)
+{
+	union() {
+	translate([0,zakulaceni,0]) cube([Rozdmery[0],Rozdmery[1] - zakulaceni * 2,Rozdmery[2]],center=false);
+	translate([0,0,zakulaceni]) cube([Rozdmery[0],Rozdmery[1],Rozdmery[2] - zakulaceni * 2],center=false);
+	translate([0,zakulaceni,zakulaceni]) rotate([0,90,0]) cylinder( Rozdmery[0],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([0,Rozdmery[1] - zakulaceni,zakulaceni]) rotate([0,90,0]) cylinder( Rozdmery[0],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([0,zakulaceni,Rozdmery[2] - zakulaceni]) rotate([0,90,0]) cylinder( Rozdmery[0],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([0,Rozdmery[1] - zakulaceni,Rozdmery[2] - zakulaceni]) rotate([0,90,0]) cylinder( Rozdmery[0],   zakulaceni, zakulaceni,false,$fn=st);
+	}
+}
+
+
+module OvalnaKrichleY(Rozdmery, zakulaceni = 1,st = 30)
+{
+	union() {
+	translate([zakulaceni,0,0]) cube([Rozdmery[0] - zakulaceni * 2,Rozdmery[1],Rozdmery[2]],center=false);
+	translate([0,0,zakulaceni]) cube([Rozdmery[0],Rozdmery[1],Rozdmery[2] - zakulaceni * 2],center=false);
+	translate([zakulaceni,0,zakulaceni]) rotate([270,0,0]) cylinder( Rozdmery[1],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([Rozdmery[0] - zakulaceni,0,zakulaceni]) rotate([270,0,0]) cylinder( Rozdmery[1],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([zakulaceni,0,Rozdmery[2] - zakulaceni]) rotate([270,0,0]) cylinder( Rozdmery[1],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([Rozdmery[0] - zakulaceni,0,Rozdmery[2] - zakulaceni]) rotate([270,0,0]) cylinder( Rozdmery[1],   zakulaceni, zakulaceni,false,$fn=st);
+	}
+}
+
+
+module OvalnaKrichleZ(Rozdmery, zakulaceni = 1,st = 30)
+{
+	union() {
+	translate([zakulaceni,0,0]) cube([Rozdmery[0] - zakulaceni * 2,Rozdmery[1],Rozdmery[2]],center=false);
+	translate([0,zakulaceni,0]) cube([Rozdmery[0],Rozdmery[1]  - zakulaceni * 2,Rozdmery[2]],center=false);
+	translate([zakulaceni,zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([Rozdmery[0] - zakulaceni,zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([zakulaceni,Rozdmery[1] - zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=st);
+	translate([Rozdmery[0] - zakulaceni,Rozdmery[1] - zakulaceni,0]) rotate([0,0,0]) cylinder( Rozdmery[2],   zakulaceni, zakulaceni,false,$fn=st);
+	}
+}
+
+
+module OvalnaKrichle(Rozdmery, zakulaceni, osaX, osaY, osaZ, st = 10)
+{
+	cont = false;
+	intersection()
+	{
+		if(osaX == true)
+		{
+			OvalnaKrichleX(Rozdmery,zakulaceni,st);
+			cont = true;
+		}
+		if(osaY == true)
+		{
+			OvalnaKrichleY(Rozdmery,zakulaceni,st);
+			cont = true;
+		}
+		if(osaZ == true)
+		{
+			OvalnaKrichleZ(Rozdmery,zakulaceni,st);
+			cont = true;
+		}
+		if(cont == false)
+		{
+			cube(Rozdmery,center=false);
+		}
+	}
+}
+
+
+module OvalnaKrichleCisla(Rozdmery, osaX, osaY, osaZ ,st = 10 )
+{
+	cont = false;
+	intersection()
+	{
+		if(osaX != 0)
+		{
+			OvalnaKrichleX(Rozdmery,osaX,st);
+			cont = true;
+		}
+		if(osaY != 0)
+		{
+			OvalnaKrichleY(Rozdmery,osaY,st);
+			cont = true;
+		}
+		if(osaZ != 0)
+		{
+			OvalnaKrichleZ(Rozdmery,osaZ,st);
+			cont = true;
+		}
+		if(cont == false)
+		{
+			cube(Rozdmery,center=false);
+		}
+	}
 }
