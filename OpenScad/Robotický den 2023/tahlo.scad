@@ -1,8 +1,8 @@
 
 
     vyskaCelek = 6.2;
-    malyprum = 5;
-    velkyprum = 6;
+    malyprum = 5.2;
+    velkyprum = 6.5;
     vyskaVyrez = vyskaCelek - 4;
     delkaV = 40;
     sirkaV = 6;

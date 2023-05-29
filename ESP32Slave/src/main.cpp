@@ -96,7 +96,7 @@ const byte NastMotMaxMin[8][2] = {
   {255,100},//M_2
   {255,50},//M_3
   {255,50},//M_4
-  {170,130},//M_Kleste
+  {255,200},//M_Kleste
   {255,50},//M_Levy
   {245,50} //M_Pravy
 };//razeno podle prevodniku
