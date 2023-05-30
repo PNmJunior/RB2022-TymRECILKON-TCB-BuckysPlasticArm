@@ -25,7 +25,7 @@ tiskBool = true;
 module tisk()
 {
     
-    translate([0,50,0]) rotate([-90,0,0]) KlesteLeva();
+    translate([0,45,0]) rotate([-90,0,0]) KlesteLeva();
     translate([0,0,0]) rotate([90,0,0]) KlestePrava(); 
     
 }
@@ -86,8 +86,8 @@ module Print()
 
 module Simul()
 {
-    i = 0;
-    //i = $t;
+    //i = 0;
+    i = $t;
     kk = alfa+i*rameno;
     translate([0,kk,40]) KlesteLeva();
     //translate([0,-30-$t*2*rameno,0]) KlestePrava();  
@@ -220,14 +220,16 @@ module Kleste()
                 translate([posun ,0,0]) cube([vrstva, 20,vyskaPPP]);
                 difference()
                 {
-                translate([0,0,0])OvalnaKrichleZ([odstup,kostka/2-rameno + pena+ vrstva + rezer, vrstva]);
+                translate([0,0,0])cube([odstup,kostka/2-rameno + pena+ vrstva + rezer, vrstva]);
                     translate([odstup,0,0]) rotate([0,0,40]) cube(100);
-                    for(x = [40:7:70])
+                    translate([8,20,00]) rotate([0,0,00])  OvalnaKrichleZ([12,12,12],2);
+                    for(x = [30:3:74])
                     {
-                        translate([x,kostka/2-rameno + pena+ vrstva + rezer,0]) cylinder(h = 100, d = 5);
+                        translate([x,kostka/2-rameno + pena+ vrstva + rezer,0]) cylinder(h = 100, d = 2.3);
                         
                     }
-                    
+                    translate([45,kostka/2-rameno + pena+ vrstva + rezer-10,0]) cylinder(h = 100, d = 3);
+                    translate([65,kostka/2-rameno + pena+ vrstva + rezer-10,0]) cylinder(h = 100, d = 3);
                 }
             }
             
