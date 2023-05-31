@@ -44,8 +44,8 @@ String WifiNotPassword = "@";
 #define pin_EnkDP 36
 
 
-#define M_LED 0//5
-#define M_1 1//0
+#define M_LED 0//0
+#define M_1 1//5
 #define M_2 2//1
 #define M_3 3//2
 #define M_4 4//3
@@ -53,7 +53,7 @@ String WifiNotPassword = "@";
 #define M_Levy 6//6
 #define M_Pravy 7//7
 
-const byte Prevodnik[8] = {5,0,1,2,3,4,6,7};
+const byte Prevodnik[8] = {0,5,1,2,3,4,6,7};
 
 const byte NastMotPin[8]= {32,33,25,23,19,13,12,26};//system
 
@@ -96,7 +96,7 @@ const byte NastMotMaxMin[8][2] = {
   {255,100},//M_2
   {255,50},//M_3
   {255,50},//M_4
-  {255,200},//M_Kleste
+  {170,130},//M_Kleste
   {255,50},//M_Levy
   {245,50} //M_Pravy
 };//razeno podle prevodniku
