@@ -1,13 +1,21 @@
-# BuckysPlasticArm2022 - Robotický den 2022 - Tým RECYKLON - Úklid hraček
+# BuckysPlasticArm
 
-BuckysPlasticArm je robot, ve kterém jsem použil robotické rameno KSR10. 
-Přidal jsem k němu podvozek z Totemu a jako řídicí elektroniku jsem použil ESP32. Hmotnost je 1,5kg. Robot zažil hned několik změn konceptů. 
-Posledním konceptem je, že v podvozku je dobíjecí baterie z notebooku a v původním prostoru pro baterie je elektronika. 
-Původně jsem chtěl robota ovládat pomocí Bluetooth a mnou naprogramované mobilní aplikace, ale rozhodl jsem se pro webové rozhraní vytvoření ESP32. [Z původního projktu z kterého jsem čerpal](https://randomnerdtutorials.com/esp32-web-server-websocket-sliders/), jsem toho hodně přepracoval a vyladil. Velmi jsem urychlil komunikaci (asi desetkrát) a umožnil jsem robota ovládat z několika zařízení najednou.
+Robota BuckysPlasticArm jsem vždy koncipoval jako prostředek k rozvíjený znalostí v oblasti IOT. Robot je řízen přes webové rozhraní v kombinaci s joysticky. Veškerá komunikace je vedena přes webserver umístěný na robotovi v podobě ESP32, který zároveň ovládá celého robota.
+Zapojení webserveru má svoje výhody ale i nevýhody. Jednou nespornou výhodou je možnost se podílet více zařízeními na ovládání robota. Navíc se stačí jen připojit do stejné sítě a v prohlížeči zadat ip adresu, kterou ukazuje robot. 
+Nevýhodou není ani webserver, ale spojení přes wifi, která není stavěná na spojitou komunikaci. To značně komplikuje situaci webserveru. 
+Nesmím zapomenout na historii robota. Tento robot se jako rychlo projekt zúčastnil minulý rok Robotického dne na disciplíně Toy Cleanup Beginner. Za dobu existence robota už měl tři různé konstrukce, dva různé hardwary a nekonečně uprav v softwaru. Přírůstkem jsou joysticky. Toto zařízení má čtyři joysticky PS4 a signál zpracovává STM32, které posílá data přes mobilní aplikaci, mnou modifikovanou, přes router do robota. Je úplné k nevíře, že řízení pomoci webu a joysticků je v reálném čase.
+Robot je sestaven pomoci stavebnice KSR10. 
+[Základy projektu](https://randomnerdtutorials.com/esp32-web-server-websocket-sliders/)
+
+## QR
+<img src = "fotodokumentace/QR.png">
+
 
 ## Aktuápní podoba
 
-<img src = "fotodokumentace/sezona 2023/21.12.22.jpg">
+<img src = "fotodokumentace/sezona 2023/31.05.23a.jpg">
+<img src = "fotodokumentace/sezona 2023/31.05.23b.jpg">
+<img src = "fotodokumentace/sezona 2023/31.05.23c.jpg">
 
 # Popis větví projektu
 ## [main](https://github.com/PNmJunior/RB2022-TymRECYLKON-TCB-BuckysPlasticArm/tree/main) 
