@@ -135,33 +135,24 @@ module KlestePrava()
 
 module plocha(rozd)
 {
-    mezera = 2.5;
-    odx = 10;
-    odxS = (rozd[0]-odx*3)/4;
-    odxSO = odxS + 3;
-    odz = 10;
-    odzS = 10;
-    odzSO = odzS + 3;
+    mezera = 3.5;
+
     difference()
     {
         OvalnaKrichleY(rozd,2);
         //pro osu y
-        for(x = [mezera:mezera:rozd[0] - mezera])
-        {
-            translate([x,rozd[1]*2,rozd[2]-mezera]) rotate([90,0,0]) cylinder(h = 100,d = 1);
-            translate([x,rozd[1]*2,mezera]) rotate([90,0,0]) cylinder(h = 100,d = 1);
-        }
-        for(z = [mezera:mezera:rozd[2] - mezera])
-        {
-            translate([rozd[0]-mezera,rozd[1]*2,z]) rotate([90,0,0]) cylinder(h = 100,d = 1);
-            translate([mezera,rozd[1]*2,z]) rotate([90,0,0]) cylinder(h = 100,d = 1);
-        }
+        translate([mezera,rozd[1]*2,rozd[2]-mezera]) rotate([90,0,0]) cylinder(h = 100,d = 3);
+        translate([mezera,rozd[1]*2,mezera]) rotate([90,0,0]) cylinder(h = 100,d = 3);
+        translate([rozd[0]-mezera,rozd[1]*2,rozd[2]-mezera]) rotate([90,0,0]) cylinder(h = 100,d = 3);
+        translate([rozd[0]-mezera,rozd[1]*2,mezera]) rotate([90,0,0]) cylinder(h = 100,d = 3);
         
-        for(x = [odx:odxSO:rozd[0] - odx])
+     
+        
+        for(x = [mezera:(rozd[0] - mezera*2)/4:rozd[0] - mezera])
         {
-            for(z = [odz:odzSO:rozd[2] - odz])
+            for(z = [mezera:(rozd[2] - mezera*2)/2:rozd[2] - mezera])
             {
-                translate([x,-10,z]) OvalnaKrichleY([odxS,100, odzS],2);
+                translate([x + mezera,-10,z + mezera]) OvalnaKrichleY([(rozd[0] - mezera*2)/4 - mezera*2,100, (rozd[2] - mezera*2)/2 - mezera*2],2);
                 
             }
             
@@ -170,7 +161,7 @@ module plocha(rozd)
     
     
 }
-
+Kleste();
 module Kleste()
 {
 
@@ -187,11 +178,14 @@ module Kleste()
     //translate([0,-v,-4])  cylinder(h=40,d=10,center = false);
     translate([0,alfa,0]) 
     {
+        translate([0,0,12]) rotate([0,0,90]) mirror([1,0,0]) RedukBeta();
         //rotate([90,0,0]) cylinder(h=alfa+v,d=10,center = false);
         translate([0,-(kostka/2-rameno + pena+ vrstva + rezer),0]) {
+            
             translate([0,0,vyskaCenter-vyskaPlochy])
             {
-            
+                translate([0,0,0]) OvalnaKrichleX([vrstva,kostka/2-rameno + pena+ vrstva + rezer,vyskaPlochy]);
+                
                 plocha([sirkaPlochy ,vrstva,vyskaPlochy]);
                 if(tiskBool == false)
                 {
@@ -199,6 +193,13 @@ module Kleste()
                     translate([0,+ vrstva,0]) color("red",0.5) cube([sirkaPlochy ,pena,vyskaPlochy]);
                 }
             }
+            translate([-20,0,vrstva+5]) OvalnaKrichleY([22,vrstva,20-5]);
+            
+            
+            
+            
+            
+            
             translate([0,0,vyskaCenter])
             {
                 translate([0,vrstva/2,0]) rotate([0,90,0]) cylinder(h = odstup,d = vrstva);
@@ -214,22 +215,19 @@ module Kleste()
                         translate([0,-vrstva/2,-vrstva/2])cube([delkaPredHaku, vrstva, vyskaPredHaku + vrstva]);
                     }
                 }
-                vyskaPPP = 22;
-               translate([posun -25,0,0]) OvalnaKrichleY([35,vrstva, vyskaPPP]); 
-                translate([posun -15,0,0]) cube([vrstva, 10,vyskaPPP]);
-                translate([posun ,0,0]) cube([vrstva, 20,vyskaPPP]);
                 difference()
                 {
                 translate([0,0,0])cube([odstup,kostka/2-rameno + pena+ vrstva + rezer, vrstva]);
                     translate([odstup,0,0]) rotate([0,0,40]) cube(100);
-                    translate([8,20,00]) rotate([0,0,00])  OvalnaKrichleZ([12,12,12],2);
-                    for(x = [30:3:74])
+                    
+                    for(x = [5:3:72])
                     {
                         translate([x,kostka/2-rameno + pena+ vrstva + rezer,0]) cylinder(h = 100, d = 2.3);
                         
                     }
-                    translate([45,kostka/2-rameno + pena+ vrstva + rezer-10,0]) cylinder(h = 100, d = 3);
-                    translate([65,kostka/2-rameno + pena+ vrstva + rezer-10,0]) cylinder(h = 100, d = 3);
+                    translate([20,kostka/2-rameno + pena+ vrstva + rezer-10,0]) cylinder(h = 100, d = 4);
+                    translate([40,kostka/2-rameno + pena+ vrstva + rezer-10,0]) cylinder(h = 100, d = 4);
+                    translate([60,kostka/2-rameno + pena+ vrstva + rezer-10,0]) cylinder(h = 100, d = 4);
                 }
             }
             
@@ -256,9 +254,9 @@ module Redukce()
         translate([20,0,-1.5]) cylinder(h=10,d=3,center=false,$fn=64);   
     }
 }
-RedukBeta();
+//RedukBeta();
 
-module RedukBeta( naklon = 20, OddalY = 3, hranX = 20, prodluzY = 10 )
+module RedukBeta( naklon = 20, OddalY = 3, hranX = 30, prodluzY = 10 )
 {
     difference()
     {
