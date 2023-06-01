@@ -29,7 +29,7 @@ module tisk()
     translate([0,0,0]) rotate([90,0,0]) KlestePrava(); 
     
 }
-tisk();
+//tisk();
 
 module Print4()
 {
@@ -256,8 +256,51 @@ module Redukce()
         translate([20,0,-1.5]) cylinder(h=10,d=3,center=false,$fn=64);   
     }
 }
+RedukBeta();
 
+module RedukBeta( naklon = 20, OddalY = 3, hranX = 20 )
+{
+    difference()
+    {
+        translate([0,OddalY,0]) rotate([naklon,0,0]) difference()
+        {
+            vyskaPolstarku = 1.5;
+            prumVyrezDer = 3;
+            z_pods = 0;
+            dira1 = [5+prumVyrezDer/2 + vyskaPolstarku, 2.5+prumVyrezDer/2,z_pods ];
+            dira2 = [10.5+prumVyrezDer/2 + vyskaPolstarku, 19.5+prumVyrezDer/2,z_pods ];
+            rozdDer = dira1 - dira2;
+            uhel = -asin(rozdDer[0]/rozdDer[1]);
+            vyskaDesky = 2.5;
+            prumObjimMax = 6;
+            vystMax = 0.5;
+            delkaPodUhlem = sqrt(rozdDer[0]*rozdDer[0] + rozdDer[1]*rozdDer[1]) + prumObjimMax;
+            
+            
+            translate([0,0,0])
+            {
+                translate([dira1[0]  - prumObjimMax/1.5 ,dira1[1] - prumObjimMax/3,0])rotate([0,0,uhel]) OvalnaKrichleZ([25,delkaPodUhlem,vyskaDesky],prumVyrezDer);
+                echo(rozdDer);
+                echo(uhel);
+                translate([0,0,-0.5])
+                {
+                translate(dira1) cylinder(h = vystMax*2+ vyskaDesky , d = prumObjimMax);
+                translate(dira2) cylinder(h = vystMax*2+ vyskaDesky , d = prumObjimMax);
+                }
+            }
 
+            translate([0,0,-50])
+            {
+                translate(dira1) cylinder(h = 100 , d = prumVyrezDer);
+                translate(dira2) cylinder(h = 100 , d = prumVyrezDer);
+            }
+            
+        }
+        translate([0,-100,-50]) cube(100);
+        translate([hranX,0,-50]) cube(100);
+    }
+    
+}
 
 //Kód pro vytvoření oválných kvádrů
 module OvalnaKrichleX(Rozdmery, zakulaceni = 1,st = 30)
