@@ -258,7 +258,7 @@ module Redukce()
 }
 RedukBeta();
 
-module RedukBeta( naklon = 20, OddalY = 3, hranX = 20 )
+module RedukBeta( naklon = 20, OddalY = 3, hranX = 20, prodluzY = 10 )
 {
     difference()
     {
@@ -279,7 +279,7 @@ module RedukBeta( naklon = 20, OddalY = 3, hranX = 20 )
             
             translate([0,0,0])
             {
-                translate([dira1[0]  - prumObjimMax/1.5 ,dira1[1] - prumObjimMax/3,0])rotate([0,0,uhel]) OvalnaKrichleZ([25,delkaPodUhlem,vyskaDesky],prumVyrezDer);
+                translate([dira1[0]  - prumObjimMax/0.9 ,-OddalY-prumVyrezDer,0])rotate([0,0,uhel]) OvalnaKrichleZ([25,delkaPodUhlem  + prodluzY-prumVyrezDer/2,vyskaDesky],prumVyrezDer);
                 echo(rozdDer);
                 echo(uhel);
                 translate([0,0,-0.5])
