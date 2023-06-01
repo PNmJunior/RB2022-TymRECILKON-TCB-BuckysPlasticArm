@@ -74,6 +74,12 @@ function motorAllSend()
     return sendAuto(dataMotorAll());
 }
 
+function synchroSend()
+{
+    
+    return sendAuto(dataSynchro());
+}
+
 function chatSend(t)
 {
     return sendAuto(dataChat(t));
@@ -108,6 +114,11 @@ function dataJoy(j,x,y,t)
 function dataMotorAll()
 {
     return ['A'];
+}
+
+function dataSynchro()
+{
+    return ['q',balicekInt(((performance.now() - synchroTimeSend) / 100 ).toFixed(0))];
 }
 
 function dataMotorQestion(mot)
@@ -203,6 +214,7 @@ var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
 window.addEventListener('load', onload);
 
+var synchroTimeSend = performance.now();
 var startTimeSend = performance.now();
 var startTimeIn = performance.now();
 var startTimeAll = performance.now();
@@ -296,7 +308,7 @@ async function sample() {
 
 function SendESP(a)
 {
-    let Astring = String(a);
+    let Astring = synchroSend() + String(a);
     if(Astring == "")
     {
         //console.log("Prazdne pole");
@@ -552,6 +564,10 @@ class JoystickController
         }
         return null;
     }
+    prace()
+    {
+        return self.active;
+    }
 
     setSecund(osa_x, osa_y)
     {
@@ -588,23 +604,30 @@ function update()
             joyout4[0],joyout4[1],joyout4[2],
             ));
     }
-    else{
+    else if (joyout1 != null || joyout2 != null || joyout3 != null || joyout4 != null )
+    {
+        let mmmm;
         if(joyout1 != null)
         {
-            SendESP(joySend(1,joyout1[0],joyout1[1], joyout1[2]));
+            mmmm += joySend(1,joyout1[0],joyout1[1], joyout1[2]);
         }
         if(joyout2 != null)
         {
-            SendESP(joySend(2,joyout2[0],joyout2[1], joyout2[2]));
+            mmmm += joySend(2,joyout2[0],joyout2[1], joyout2[2]);
         }
         if(joyout3 != null)
         {
-            SendESP(joySend(3,joyout3[0],joyout3[1], joyout3[2]));
+            mmmm += joySend(3,joyout3[0],joyout3[1], joyout3[2]);
         }
         if(joyout4 != null)
         {
-            SendESP(joySend(4,joyout4[0],joyout4[1], joyout4[2]));
+            mmmm += joySend(4,joyout4[0],joyout4[1], joyout4[2]);
         }
+        SendESP(mmmm)
+    }
+    else if(joyout1.prace() || joyout2.prace() || joyout3.prace() || joyout4.prace() )
+    {
+        SendESP("");
     }
     setTimeout(arguments.callee, 100);
 }

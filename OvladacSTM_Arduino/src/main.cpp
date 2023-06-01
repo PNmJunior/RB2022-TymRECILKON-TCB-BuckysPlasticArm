@@ -199,7 +199,7 @@ void Novy()
   if (vystuppocet == 4)
   {
     Serial.print(
-      SendSystem.joysticStart() +
+      SendSystem.joysticStart() + SendSystem.synchro() +
       SendSystem.joystickAll(
       sendOld[J1][SendOldJx],sendOld[J1][SendOldJy],sendOld[J1][SendOldJt],
       sendOld[J2][SendOldJx],sendOld[J2][SendOldJy],sendOld[J2][SendOldJt],
@@ -210,7 +210,7 @@ void Novy()
   }
   else if(vystuppocet >= 1)
   {
-    String pl = SendSystem.joysticStart();
+    String pl = SendSystem.joysticStart() +  SendSystem.synchro();
     for (int j = 0; j < 4; j++)
     {
       if(vystup[j])
@@ -219,6 +219,24 @@ void Novy()
       }
     }
     Serial.print(pl + SendSystem.joysticStop());
+  }
+  else
+  {
+    bool pouziti = false;
+    for (int i = 0; i < 4; i++)
+    {
+      if(sendOld[i][SendOldJx] != 0 || sendOld[i][SendOldJy] != 0)
+      {
+        pouziti = true;
+      }
+    }
+
+    if (pouziti)
+    {
+      Serial.print(SendSystem.joysticStart() + SendSystem.synchro() + SendSystem.joysticStop());
+    }
+    
+    
   }
   /*
 Serial.println();

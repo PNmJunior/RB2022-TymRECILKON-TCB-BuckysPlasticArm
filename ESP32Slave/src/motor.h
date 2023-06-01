@@ -6,6 +6,8 @@
 #include "esp32-hal.h"
 #include "soc/soc_caps.h"
 #include "driver/ledc.h"
+#include "managerClient.h"
+
 typedef double resDuty;
 
 #define LEDC_mTIMER              LEDC_TIMER_3
@@ -34,6 +36,7 @@ struct pohonSet
     long timeStop;
     ledc_timer_config_t *ledc_timer;
     ledc_channel_config_t ledc_channel;
+    int prikazovac;
 };
 
 
@@ -53,15 +56,19 @@ private:
     ledc_timer_config_t defTim;
     bool setDefTimer = 0;
     const double zaokPomer = 0.999;
+    managerClient *manangCl;
+
 public:
-pohonSet m[8];
-volatile pohonVol v[8];
-volatile byte vyst;
-volatile bool work;
+    pohonSet m[8];
+    volatile pohonVol v[8];
+    volatile byte vyst;
+    volatile bool work;
+    int prikazTimeOut(int i);
+    void prikazSet(int mot, int prikaz);
     resDuty mapD(resDuty x, resDuty in_min, resDuty in_max, resDuty out_min, resDuty out_max);
     int mapZaok(resDuty x, resDuty in_min, resDuty in_max, resDuty out_min, resDuty out_max);
     byte vystup();
-    void beginStart();
+    void beginStart(managerClient *mCl);
     bool beginTimer(uint32_t frek ,ledc_timer_t _tim  ,ledc_mode_t _speadmode );
     bool begin(byte mot, int _pin, ledc_channel_t channel,bool _inverz,bool _neg, byte _max, byte _min, ledc_timer_config_t *ledc_timer );
     bool beginEnd();
@@ -129,6 +136,20 @@ inline byte motor::posunToNum(byte i)
     return 0;
 }
 
+inline int motor::prikazTimeOut(int i)
+{
+    if ((m[i].smer != mStopLow && m[i].smer != mStopHigh))
+    {
+        return manangCl->timeOut(m[i].prikazovac);
+    }
+    return false;
+}
+
+inline void motor::prikazSet(int mot, int prikaz)
+{
+    m[mot].prikazovac = prikaz;
+}
+
 resDuty motor::mapD(resDuty x, resDuty in_min, resDuty in_max, resDuty out_min, resDuty out_max)
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -190,8 +211,9 @@ static void example_ledc_init(void)
 */
 
 
-void motor::beginStart()
+void motor::beginStart(managerClient *mCl)
 {
+    manangCl = mCl;
     vyst = 0;
     set = 0;
     setDefTimer = false;
