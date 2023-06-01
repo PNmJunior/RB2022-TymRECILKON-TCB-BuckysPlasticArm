@@ -25,11 +25,11 @@ tiskBool = true;
 module tisk()
 {
     
-    translate([0,45,0]) rotate([-90,0,0]) KlesteLeva();
+    translate([0,110,0]) rotate([-90,0,0]) KlesteLeva();
     translate([0,0,0]) rotate([90,0,0]) KlestePrava(); 
     
 }
-//tisk();
+tisk();
 
 module Print4()
 {
@@ -89,47 +89,25 @@ module Simul()
     //i = 0;
     i = $t;
     kk = alfa+i*rameno;
-    translate([0,kk,40]) KlesteLeva();
+    translate([0,kk,50]) KlesteLeva();
     //translate([0,-30-$t*2*rameno,0]) KlestePrava();  
-   translate([0,-kk,40]) KlestePrava();   
+   translate([0,-kk,50]) KlestePrava();   
     //translate([11,-52,-20])rotate([0,0,45])  cube(40);
     //translate([23,-62,-20])rotate([0,0,45])  cube(40);
     translate([0,-kostka/2,0]) color("black",0.5) cube(kostka);    
 }
 
 posun = 30;
+//KlesteLeva();
 module KlesteLeva()
-{   difference()
-   { 
-    translate([0,0,0])
-        {
-        translate([-28+posun,-2,42]) rotate([0,20,0])
-            { 
-                rotate([0,0,-20]) Redukce();
-
-            }
-            mirror([0,1,0])translate([0,0,0]) Kleste();
-            
-        }
-        translate([0,alfa ,0]) cube(100);
-    }
+{  
+    mirror([0,1,0]) Kleste();
 }
-
+//KlestePrava();
 
 module KlestePrava()
 {    
-    difference()
-    {
-        translate([0,0,0])
-        {
-            translate([-28+posun,2,42]) rotate([0,20,0])
-            {
-                rotate([180,0,20]) Redukce();
-            }
-            translate([0,0,0]) Kleste(); 
-        }   
-        translate([0,-alfa-100 ,0]) cube(100);
-    }
+    Kleste();
 }
 
 
@@ -139,7 +117,7 @@ module plocha(rozd)
 
     difference()
     {
-        OvalnaKrichleY(rozd,2);
+        cube(rozd);
         //pro osu y
         translate([mezera,rozd[1]*2,rozd[2]-mezera]) rotate([90,0,0]) cylinder(h = 100,d = 3);
         translate([mezera,rozd[1]*2,mezera]) rotate([90,0,0]) cylinder(h = 100,d = 3);
@@ -148,11 +126,11 @@ module plocha(rozd)
         
      
         
-        for(x = [mezera:(rozd[0] - mezera*2)/4:rozd[0] - mezera])
+        for(x = [mezera:(rozd[0] - mezera*2)/4:rozd[0] - mezera*2])
         {
-            for(z = [mezera:(rozd[2] - mezera*2)/2:rozd[2] - mezera])
+            for(z = [mezera:(rozd[2] - mezera*2)/3:rozd[2] - mezera*2])
             {
-                translate([x + mezera,-10,z + mezera]) OvalnaKrichleY([(rozd[0] - mezera*2)/4 - mezera*2,100, (rozd[2] - mezera*2)/2 - mezera*2],2);
+                translate([x + mezera/2,-10,z + mezera/2]) OvalnaKrichleY([(rozd[0] - mezera*2)/4 - mezera,100, (rozd[2] - mezera*2)/3 - mezera],2);
                 
             }
             
@@ -161,15 +139,16 @@ module plocha(rozd)
     
     
 }
-Kleste();
+//Kleste();
 module Kleste()
 {
 
     v = pena + vrstva;
     vyskaCenter = 20;
-    vyskaPlochy = 40;
-    sirkaPlochy = 60;
+    vyskaPlochy = 70;
+    sirkaPlochy = 55;
     rezer = 10;
+    vrstvaP = 2;
     odstup = sirkaPlochy + 40;
 
     //translate([j+j+bb/2-2,-v,0]) rotate([0,-90,0]) cylinder(h=bb+3*j,d=bb,center = false);
@@ -181,18 +160,33 @@ module Kleste()
         translate([0,0,12]) rotate([0,0,90]) mirror([1,0,0]) RedukBeta();
         //rotate([90,0,0]) cylinder(h=alfa+v,d=10,center = false);
         translate([0,-(kostka/2-rameno + pena+ vrstva + rezer),0]) {
-            vyskaBeta = 63;
+            vyskaBeta = vyskaPlochy;
             translate([0,0,vyskaCenter-vyskaBeta])
             {
+                sirkaPlochyB = sirkaPlochy-10;
                 difference()
                 {
                     SpecCislo = kostka/2-rameno + pena+ vrstva + rezer;
                 translate([0,0,0]) 
                     {
-                        OvalnaKrichleX([vrstva,SpecCislo,vyskaBeta]);
-                        rotate([0,15,0]) cube([10,SpecCislo,2.5]);
+                        cube([vrstva,SpecCislo,vyskaBeta]);
+                        rotate([0,18,0]) cube([10,SpecCislo,3]);
+                        
+                        
+                        translate([vrstva/2 + 10,0,0])
+                        {
+                            cube([sirkaPlochy-10,vrstvaP,10]);
+                            rotate([-18,0,0]) cube([sirkaPlochyB,10,3]);
+                        }
+                        
                     }
-                    translate([-2,00,-9]) rotate([0,5,0]) cube([20,kostka/2-rameno + pena+ vrstva + rezer,10]);
+                    translate([vrstva/2 + 10,0,0])
+                    {
+                        translate([0,-2,-9]) rotate([-5,0,0]) cube([sirkaPlochyB,20,10]);
+                        
+                    }
+                    translate([-2,00,-9]) rotate([0,5,0]) cube([20,SpecCislo,10]);
+                    translate([sirkaPlochy + vrstva+0.67,2-0.22,0]) rotate([-5,0,0])rotate([0,-90+18,0]) cube([20,SpecCislo+2,20]);
                     translate([0,0,10]) for(y=[SpecCislo/6: SpecCislo/3: SpecCislo*(5/6)])
                     {
                         translate([0,y,0]) rotate([0,90,0]) cylinder(h = 20,d = 3);
@@ -202,7 +196,13 @@ module Kleste()
                     translate([0,0,5]) for(y=[SpecCislo/3: SpecCislo/3: SpecCislo*(2/3)])
                     {
                         translate([0,y,0]) rotate([0,90,0]) cylinder(h = 20,d = 3);
-                        translate([0,y,0]) rotate([0,90,0]) cylinder(h = 2,d = 6);
+                        translate([0,y,0]) rotate([0,90,0]) cylinder(h = 1,d = 6);
+                        
+                    }
+                    translate([0,15,6.5]) for(x=[20: 10: sirkaPlochyB +10 ])
+                    {
+                        translate([x,0,0]) rotate([90,0,0]) cylinder(h = 20,d = 3);
+                        //translate([0,0,0]) rotate([0,90,0]) cylinder(h = 2,d = 6);
                         
                     }
                 }
@@ -213,17 +213,22 @@ module Kleste()
             {
                 
                 
-                plocha([sirkaPlochy ,vrstva,vyskaPlochy]);
+                vyskaP = vyskaPlochy -10;
+                translate([vrstva/2,0,10]) plocha([sirkaPlochy ,vrstvaP,vyskaP]);
+                //translate([vrstva/2,0,0]) cube([sirkaPlochy,vrstvaP,10]);
                 if(tiskBool == false)
                 {
                     
                     translate([0,+ vrstva,0]) color("red",0.5) cube([sirkaPlochy ,pena,vyskaPlochy]);
                 }
             }
-            translate([-20,0,vrstva+5]) OvalnaKrichleY([22,vrstva,20-5]);
+            translate([-23,0,vrstva+5]) OvalnaKrichleY([24,vrstva,20-5]);
             
+            translate([-10,0,vrstva+5]) cube([vrstva,15,15]);
+            translate([-23,0,20]) cube([24,12,vrstva]);
             
-            
+            translate([-10,0,vrstva+5]) cube([10,15,vrstva]);
+            translate([-10,0,20]) cube([10,15,vrstva]);
             
             
             
