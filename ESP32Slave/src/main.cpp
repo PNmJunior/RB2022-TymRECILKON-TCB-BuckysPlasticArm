@@ -49,14 +49,14 @@ String WifiNotPassword = "@";
 
 #define M_LED 0//0
 #define M_1 1//5
-#define M_2 2//3
-#define M_3 3//1
+#define M_2 2//4
+#define M_3 3//3
 #define M_4 4//2
-#define M_Kleste 5//4
+#define M_Kleste 5//1
 #define M_Levy 6//6
 #define M_Pravy 7//7
 
-const byte Prevodnik[8] = {0,1,2,3,4,5,6,7};
+const byte Prevodnik[8] = {0,5,4,3,2,1,6,7};
 
 const byte NastMotPin[8]= {32,33,25,23,19,13,12,26};//system
 
@@ -339,20 +339,20 @@ int joysticZaok(int i, int mez = 10)
 
 String joysticWork(int x,int mot_x, int y, int mot_y, int prikaz, int rozdil = 1)
 {
-  String i  = "";
+  String i;
   int mx = Prevodnik[mot_x];
   int my = Prevodnik[mot_y];
   if (abs(x - mot.outProc(mx)) >= rozdil)
   {
     mot.prikazSet(mx,prikaz);
     mot.inputProc(mx,x);
-    SendSystem.motor(mx,mot.outProc(mx) );
+    i += SendSystem.motor(mx,mot.outProc(mx) );
   }
   if (abs(y - mot.outProc(my)) >= rozdil)
   {
     mot.prikazSet(my,prikaz);
     mot.inputProc(my,y);
-    SendSystem.motor(my,mot.outProc(my) );
+    i += SendSystem.motor(my,mot.outProc(my) );
   }
   return i;
 }
