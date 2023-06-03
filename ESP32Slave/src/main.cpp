@@ -246,6 +246,19 @@ void initFS()
   }
 }
 
+double mapd(double x, double in_min, double in_max, double out_min, double out_max) {
+ /* Serial.println(x);
+  Serial.println(in_min);
+Serial.println(in_max);
+  Serial.println(out_min);
+Serial.println(out_max);
+Serial.println((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);*/
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+#define motRychRovne 0.7
+#define motRychStrana 0.25
+
 double rozdilPravy(int uhel)
 {
   int uhelRozdil = uhel % 360;
@@ -253,33 +266,22 @@ double rozdilPravy(int uhel)
     {
         uhelRozdil = uhelRozdil + 360;
     }
-    if(uhelRozdil == 0 )
+
+    if(uhelRozdil >= 0 && uhelRozdil <= 90)
     {
-        return -1.0;
+        return mapd(uhelRozdil, 0,90,-motRychStrana,motRychRovne);
     }
-    else if(uhelRozdil > 0 && uhelRozdil < 90)
+    else if(uhelRozdil > 90 && uhelRozdil <= 180)
     {
-        return ((double)uhelRozdil-45.0)/45.0;
+        return mapd(uhelRozdil,90,180,motRychRovne,motRychStrana);
     }
-    else if(uhelRozdil >= 90 && uhelRozdil <= 180)
+    else if(uhelRozdil > 180 && uhelRozdil <= 270)
     {
-        return 1.0;
+        return mapd(uhelRozdil,180,270,motRychStrana,-motRychRovne);
     }
-    else if(uhelRozdil > 180 && uhelRozdil < 225)
+    else if(uhelRozdil > 270 && uhelRozdil <= 360)
     {
-        return (202.5 - (double)uhelRozdil)/22.5;
-    }
-    else if(uhelRozdil >= 255 && uhelRozdil <= 270)
-    {
-        return -1.0;
-    }
-    else if(uhelRozdil > 270 && uhelRozdil <= 315)
-    {
-        return ((double)uhelRozdil-315.0)/45.0;
-    }
-    else if(uhelRozdil > 315 && uhelRozdil <= 360)
-    {
-        return (315.0 - (double)uhelRozdil)/45.0;
+        return mapd(uhelRozdil,270,360,-motRychRovne,-motRychStrana);
     }
     return 0;
 }
@@ -292,29 +294,22 @@ double rozdilLevy(int uhel)
     {
         uhelRozdil = uhelRozdil + 360;
     }
-    if((uhelRozdil >= 0 && uhelRozdil <= 90)|| uhelRozdil == 360)
+
+    if((uhelRozdil >= 0 && uhelRozdil <= 90))
     {
-        return 1.0;
+        return mapd(uhelRozdil, 0,90,motRychStrana,motRychRovne);
     }
     else if(uhelRozdil > 90 && uhelRozdil <= 180)
     {
-        return (135.0 - (double)uhelRozdil)/45.0;
+        return mapd(uhelRozdil,90,180,motRychRovne,-motRychStrana);
     }
-    else if(uhelRozdil > 180 && uhelRozdil <= 225)
+    else if(uhelRozdil > 180 && uhelRozdil <= 270)
     {
-        return ((double)uhelRozdil-225.0)/45.0;
+        return mapd(uhelRozdil,180,270,-motRychStrana,-motRychRovne);
     }
-    else if(uhelRozdil > 225 && uhelRozdil < 270)
+    else if(uhelRozdil > 270 && uhelRozdil <= 360)
     {
-        return (225.0 - (double)uhelRozdil)/45.0;
-    }
-    else if(uhelRozdil >= 270 && uhelRozdil <= 315)
-    {
-        return -1.0;
-    }
-    else if(uhelRozdil > 315 && uhelRozdil <= 360)
-    {
-        return ((double)uhelRozdil-337.5)/22.5;
+        return mapd(uhelRozdil,270,360,-motRychRovne,motRychStrana);
     }
     return 0;
 }
@@ -378,6 +373,7 @@ String joystickRizeni(int osa_x, int osa_y,int prikaz)
     double uhel = (-180/PI)* rad;
     M_Levy_lokal = d * rozdilLevy(uhel);
     M_Pravy_lokal = d * rozdilPravy(uhel);
+    Serial.print(String(uhel) + "u P= " + String( M_Levy_lokal) + " L=" + String(M_Pravy_lokal));
   }
   return joysticWork(M_Levy_lokal,M_Levy,M_Pravy_lokal,M_Pravy, prikaz);
 }
@@ -408,7 +404,7 @@ String joystickAllWork(int joy,int osa_x, int osa_y, int tl, int prikaz)
 void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
 {
     komunProtokol komP;
-    cons.print("okkp: " + mess);
+    //cons.print("okkp: " + mess);
     komP.begin(mess);
     //Serial.println("mess:");Serial.println(mess);
     String outAll;
@@ -431,15 +427,15 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
           return;
         }
         int t = komP.readInt(); 
-        cons.print("okkpaqa");
+        //cons.print("okkpaqa");
         if(manaCl.timeTrue(client->id(), t))
         {
-          //cons.print("okkpaqb");
+          cons.print("okkpaqb");
         }
         else
         {
           cons.print("okkpaqc");
-          //return;
+          return;
         }
       }
       break;
@@ -918,6 +914,17 @@ void loop(void)
   if (p.length() != 0)
   {
     ws.textAll(p);
+  }
+
+  if(!WiFi.isConnected())
+  {
+    for (int i = 9; i > 0; i--)
+    {
+      segDisp.addText4("ECW" + String(i));
+      delay(1000);
+    }
+    
+    ESP.restart();
   }
   ws.cleanupClients();
 }
