@@ -339,20 +339,20 @@ int joysticZaok(int i, int mez = 10)
 
 String joysticWork(int x,int mot_x, int y, int mot_y, int prikaz, int rozdil = 1)
 {
-  String i;
+  String i  = "";
   int mx = Prevodnik[mot_x];
   int my = Prevodnik[mot_y];
   if (abs(x - mot.outProc(mx)) >= rozdil)
   {
     mot.prikazSet(mx,prikaz);
     mot.inputProc(mx,x);
-    i += SendSystem.motor(mx,mot.outProc(mx) );
+    SendSystem.motor(mx,mot.outProc(mx) );
   }
   if (abs(y - mot.outProc(my)) >= rozdil)
   {
     mot.prikazSet(my,prikaz);
     mot.inputProc(my,y);
-    i += SendSystem.motor(my,mot.outProc(my) );
+    SendSystem.motor(my,mot.outProc(my) );
   }
   return i;
 }
