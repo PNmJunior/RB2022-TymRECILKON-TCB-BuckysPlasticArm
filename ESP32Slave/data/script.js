@@ -76,7 +76,7 @@ function motorAllSend()
 
 function synchroSend()
 {
-    
+    //console.log(String(dataSynchro()));
     return sendAuto(dataSynchro());
 }
 
@@ -118,7 +118,7 @@ function dataMotorAll()
 
 function dataSynchro()
 {
-    return ['q',balicekInt(((performance.now() - synchroTimeSend) / 100 ).toFixed(0))];
+    return ['q',balicekInt(Number((performance.now() - synchroTimeSend) / 100 ).toFixed(0))];
 }
 
 function dataMotorQestion(mot)
@@ -308,19 +308,16 @@ async function sample() {
 
 function SendESP(a)
 {
+    console.log(a);
     let Astring = synchroSend() + String(a);
-    if(Astring == "")
+    if (ModeWork == "w")
     {
-        //console.log("Prazdne pole");
-    }
-    else if (ModeWork == "w")
-    {
-        console.log("Posilano:"); console.log(a);
-        websocket.send(a);
+        console.log("Posilano:"); console.log(Astring);
+        websocket.send(Astring);
     }
     else
     {
-        console.log("Debag:"); console.log(a);
+        console.log("Debag:"); console.log(Astring);
     }
 }
 
@@ -339,7 +336,7 @@ function stisknuto()
     motorAllSend();
 }
 
-function Jwork(ji,jx,jy, jt)
+function Jwork(Ji,Jx,Jy, Jt)
 {
     switch (Ji) {
         case 1:
@@ -380,7 +377,7 @@ function onMessage(event) {
                     let Jx = readInt( SoubIn[1+3*i]);
                     let Jy = readInt( SoubIn[2+3*i]);
                     let Jt = readInt( SoubIn[3+3*i]);
-                    Jwork(i+1,jx,jy,jt);
+                    Jwork(i+1,Jx,Jy,Jt);
                 }
                 break;
             case "j":
@@ -388,7 +385,7 @@ function onMessage(event) {
                 let Jx = readInt( SoubIn[2]);
                 let Jy = readInt( SoubIn[3]);
                 let Jt = readInt( SoubIn[4]);
-                Jwork(ji,jx,jy,jt);
+                Jwork(Ji,Jx,Jy,Jt);
                 break;
             case "m":
                 let key = readInt( SoubIn[1]);
@@ -566,7 +563,7 @@ class JoystickController
     }
     prace()
     {
-        return self.active;
+        return this.active;
     }
 
     setSecund(osa_x, osa_y)
@@ -606,7 +603,7 @@ function update()
     }
     else if (joyout1 != null || joyout2 != null || joyout3 != null || joyout4 != null )
     {
-        let mmmm;
+        let mmmm = "";
         if(joyout1 != null)
         {
             mmmm += joySend(1,joyout1[0],joyout1[1], joyout1[2]);
@@ -625,7 +622,7 @@ function update()
         }
         SendESP(mmmm)
     }
-    else if(joyout1.prace() || joyout2.prace() || joyout3.prace() || joyout4.prace() )
+    else if(joystick1.prace() || joystick2.prace() || joystick3.prace() || joystick4.prace())
     {
         SendESP("");
     }

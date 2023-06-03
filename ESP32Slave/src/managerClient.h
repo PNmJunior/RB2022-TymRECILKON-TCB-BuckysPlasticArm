@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <consol.h>
 
 #ifndef managerCl
 #define managerCl
@@ -24,7 +25,8 @@ public:
     void ban();
     void enable();
     void banTime(long t);
-    void begin();
+    void begin(consol *con);
+    consol *cons;
     managerClient(/* args */);
     ~managerClient();
 };
@@ -39,12 +41,14 @@ inline bool managerClient::timeTrue(int index, long timeInput)
     {
         info[index].time = millis();
         info[index].timeInput = timeInput;
+        cons->print("novyKl");
     }
 
 
     long tR = (long)millis() - info[index].time;
     long tV = timeInput - info[index].timeInput;
     int rozdil = abs(tR - tV*100);
+    cons->print(rozdil);
     if(rozdil < 200)
     {
         info[index].time = millis();
@@ -65,12 +69,15 @@ inline bool managerClient::timeOut(int index)
     {
         return true;
     }
-
+    Serial.print(millis());Serial.print('-');Serial.println(info[index].time);
+Serial.println(millis() - info[index].time);
     
-    if (abs( (long)millis() - info[index].time) < 200)
+    if (abs( (long)millis() - info[index].time) < 300)
     {
+        Serial.println("CCCC");
         return false;
     }
+    Serial.println("DDDD");
     
     return true;
 }
@@ -80,8 +87,9 @@ inline void managerClient::ban()
 
 }
 
-inline void managerClient::begin()
+inline void managerClient::begin(consol *con)
 {
+    cons = con;
     for (int i = 0; i < 50; i++)
     {
         info[i].problem = 0;

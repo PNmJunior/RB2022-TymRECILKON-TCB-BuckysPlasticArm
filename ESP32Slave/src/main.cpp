@@ -95,13 +95,13 @@ const bool NastMotNeg[8] = {
 
 const byte NastMotMaxMin[8][2] = {
   {255,0},//M_LED
-  {255,100},//M_1
-  {255,100},//M_2
-  {255,50},//M_3
-  {255,50},//M_4
+  {190,60},//M_1
+  {255,115},//M_2
+  {255,80},//M_3
+  {255,55},//M_4
   {170,130},//M_Kleste
-  {255,50},//M_Levy
-  {245,50} //M_Pravy
+  {225,110},//M_Levy
+  {200,100} //M_Pravy
 };//razeno podle prevodniku
 
 
@@ -408,35 +408,41 @@ String joystickAllWork(int joy,int osa_x, int osa_y, int tl, int prikaz)
 void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
 {
     komunProtokol komP;
+    cons.print("okkp: " + mess);
     komP.begin(mess);
     //Serial.println("mess:");Serial.println(mess);
     String outAll;
     String outClient;
+    
     for (int s = 0; s < komP.pocetSouboru; s++)
     {
       String souName = komP.readStr();
       int cisloM;
       int smer;
+      //cons.print("okkpa");
       switch (souName.charAt(0))
       {
       case 'q':
       {
+        //cons.print("okkpaq");
         if (komP.pocetVAktualSouboru() != 2)
         {
-          Serial.println("Problem s velikosti q:");
-          Serial.println(komP.pocetVAktualSouboru());
+          cons.print("Problem s velikosti q:" + String(komP.pocetVAktualSouboru()));
           return;
         }
         int t = komP.readInt(); 
+        cons.print("okkpaqa");
         if(manaCl.timeTrue(client->id(), t))
         {
-
+          //cons.print("okkpaqb");
         }
         else
         {
-          return;
+          cons.print("okkpaqc");
+          //return;
         }
       }
+      break;
       case 'c':
       {
         if (komP.pocetVAktualSouboru() != 2)
@@ -751,7 +757,7 @@ void setup()
   timerAlarmEnable(My_timer); // Just Enable
   
   Serial.println("Inicializace a spusteni hlavniho presuseni");
-  manaCl.begin();
+  manaCl.begin(&cons);
   mot.beginStart(&manaCl);
   mot.beginTimer();
 
@@ -843,6 +849,7 @@ Serial.println("Soubory");
   AsyncElegantOTA.begin(&server); // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
+  cons.setSocket(&ws);
 }
 
 
