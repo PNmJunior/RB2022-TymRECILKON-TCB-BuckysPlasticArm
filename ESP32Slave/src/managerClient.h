@@ -49,7 +49,7 @@ inline bool managerClient::timeTrue(int index, long timeInput)
     long tV = timeInput - info[index].timeInput;
     int rozdil = abs(tR - tV*100);
     cons->print(rozdil);
-    if(rozdil < 200)
+    if(rozdil < 400)
     {
         info[index].time = millis();
         info[index].timeInput = timeInput;
@@ -72,7 +72,7 @@ inline bool managerClient::timeOut(int index)
     Serial.print(millis());Serial.print('-');Serial.println(info[index].time);
 Serial.println(millis() - info[index].time);
     
-    if (abs( (long)millis() - info[index].time) < 300)
+    if (abs( (long)millis() - info[index].time) < 400)
     {
         Serial.println("CCCC");
         return false;

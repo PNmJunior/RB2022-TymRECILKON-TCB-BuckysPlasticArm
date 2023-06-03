@@ -49,14 +49,14 @@ String WifiNotPassword = "@";
 
 #define M_LED 0//0
 #define M_1 1//5
-#define M_2 2//1
-#define M_3 3//2
-#define M_4 4//3
+#define M_2 2//3
+#define M_3 3//1
+#define M_4 4//2
 #define M_Kleste 5//4
 #define M_Levy 6//6
 #define M_Pravy 7//7
 
-const byte Prevodnik[8] = {0,5,1,2,3,4,6,7};
+const byte Prevodnik[8] = {0,1,2,3,4,5,6,7};
 
 const byte NastMotPin[8]= {32,33,25,23,19,13,12,26};//system
 
