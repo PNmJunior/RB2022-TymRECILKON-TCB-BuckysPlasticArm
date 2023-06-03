@@ -100,8 +100,8 @@ const byte NastMotMaxMin[8][2] = {
   {255,80},//M_3
   {255,55},//M_4
   {170,130},//M_Kleste
-  {225,110},//M_Levy
-  {200,100} //M_Pravy
+  {250,110},//M_Levy
+  {200,80} //M_Pravy
 };//razeno podle prevodniku
 
 
@@ -339,20 +339,20 @@ int joysticZaok(int i, int mez = 10)
 
 String joysticWork(int x,int mot_x, int y, int mot_y, int prikaz, int rozdil = 1)
 {
-  String i;
+  String i = "";
   int mx = Prevodnik[mot_x];
   int my = Prevodnik[mot_y];
   if (abs(x - mot.outProc(mx)) >= rozdil)
   {
     mot.prikazSet(mx,prikaz);
     mot.inputProc(mx,x);
-    i += SendSystem.motor(mx,mot.outProc(mx) );
+    //i += SendSystem.motor(mx,mot.outProc(mx) );
   }
   if (abs(y - mot.outProc(my)) >= rozdil)
   {
     mot.prikazSet(my,prikaz);
     mot.inputProc(my,y);
-    i += SendSystem.motor(my,mot.outProc(my) );
+    //i += SendSystem.motor(my,mot.outProc(my) );
   }
   return i;
 }
@@ -696,6 +696,8 @@ void MenuWifiSet(komunFace komF)
     menu w;
     w.begin(komF,"UrciWifi",3000);
     int n = WiFi.scanNetworks();
+    int swifi = 0;
+    int swifiI = 0;
     for (int i = 0; i < n; i++)
     {
       Serial.print(i);
@@ -709,11 +711,21 @@ void MenuWifiSet(komunFace komF)
       {
         w.addPolozkaData(i,i,String(WiFi.SSID(i)),2000);
         Serial.println("+");
+        swifi ++;
+        swifiI = i;
       }
     }
     w.addPolozkaData(-1,-1,"_upd",2000);
     w.addPolozkaData(-2,-2,"_add",2000);
-    p = w.work();
+    if (swifi == 1)
+    {
+      p = w.work(5000,swifiI);
+    }
+    else
+    {
+      p = w.work();
+    }
+    
     if(p == -2)
     {
       MenuWifiAdd(komF);
