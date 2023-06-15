@@ -256,8 +256,8 @@ Serial.println((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-#define motRychRovne 0.7
-#define motRychStrana 0.25
+#define motRychRovne 1
+#define motRychStrana 0.35
 
 double rozdilPravy(int uhel)
 {
@@ -424,7 +424,7 @@ void ZpracovaniDat(String mess, AsyncWebSocketClient *client = NULL)
         if (komP.pocetVAktualSouboru() != 2)
         {
           cons.print("Problem s velikosti q:" + String(komP.pocetVAktualSouboru()));
-          return;
+          //return;
         }
         int t = komP.readInt(); 
         //cons.print("okkpaqa");

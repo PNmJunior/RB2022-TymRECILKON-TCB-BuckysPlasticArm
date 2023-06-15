@@ -262,6 +262,9 @@ Serial.println();
   */
 }
 
+#define nasMax 1.2
+#define nasMin 0.8
+
 
 void setup() {
   // put your setup code here, to run once:
