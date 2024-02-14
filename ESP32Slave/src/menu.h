@@ -37,7 +37,7 @@ public:
     polozka newPolozka(int _indexButt,int _indexTlac,String _segD,long _cas);
     void addPolozkaData(int _indexButt,int _indexTlac,String _segD,long _cas);
     void addPolozka(polozka pol);
-    int work();
+    int work(long int timeEND = -1, int vystTimeEND = 0);
     void begin(komunFace face, String nadp , long casNadp);
     void begin(disp *_displej,enkoder *_enk, HardwareSerial *_ser, String nadp , long casNadp);
 };
@@ -95,7 +95,7 @@ void menu::addPolozkaData(int _indexButt,int _indexTlac,String _segD,long _cas)
 }
 
 
-int menu::work()
+int menu::work(long int timeEND , int vystTimeEND )
 {
     if(nadpis != "")
     {
@@ -116,6 +116,12 @@ int menu::work()
     long casZnovu;
     bool tl;
     bool bt;
+    long int casEND = -1;
+    if (timeEND >=0)
+    {
+        casEND = millis()+ timeEND;
+    }
+    
     displej->addText4(polozky[0].segD,polozky[0].cas);
     do
     {
@@ -150,6 +156,7 @@ int menu::work()
         }
         if (u != 0)
         {
+            casEND = -1;
             alfa += u;
             if (alfa < 0)
             {
@@ -183,21 +190,27 @@ int menu::work()
             case 'T':
                 tl = true;
                 s = 0;
+                casEND = -1;
                 break;
             case 'b':
             case 'B':
                 bt = true;
                 s = 0;
+                casEND = -1;
                 break;           
             default:
                 break;
             }
         }
-    } while (tl == false && bt == false);
+    } while (tl == false && bt == false &&(casEND == -1 || casEND > millis()) );
     int m = polozky[alfa].indexButt;
     if (tl == true)
     {
         m= polozky[alfa].indexTlac;
+    }
+    else if(casEND != -1)
+    {
+        m = vystTimeEND;
     }
     for (size_t i = 0; i < pocet; i++)
     {
