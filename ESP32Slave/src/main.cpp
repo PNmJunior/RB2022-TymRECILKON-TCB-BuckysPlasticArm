@@ -46,14 +46,14 @@ String WifiNotPassword = "@";
 
 #define M_LED 0//0
 #define M_1 1//5
-#define M_2 2//1
-#define M_3 3//2
-#define M_4 4//3
-#define M_Kleste 5//4
+#define M_2 2//4
+#define M_3 3//3
+#define M_4 4//2
+#define M_Kleste 5//1
 #define M_Levy 6//6
 #define M_Pravy 7//7
 
-const byte Prevodnik[8] = {0,5,1,2,3,4,6,7};
+const byte Prevodnik[8] = {0,5,4,3,2,1,6,7};
 
 const byte NastMotPin[8]= {32,33,25,23,19,13,12,26};//system
 
@@ -92,13 +92,13 @@ const bool NastMotNeg[8] = {
 
 const byte NastMotMaxMin[8][2] = {
   {255,0},//M_LED
-  {255,100},//M_1
-  {255,100},//M_2
-  {255,50},//M_3
-  {255,50},//M_4
+  {190,60},//M_1
+  {255,115},//M_2
+  {255,80},//M_3
+  {255,55},//M_4
   {170,130},//M_Kleste
-  {255,50},//M_Levy
-  {245,50} //M_Pravy
+  {225,110},//M_Levy
+  {200,100} //M_Pravy
 };//razeno podle prevodniku
 
 
