@@ -670,6 +670,8 @@ void MenuWifiSet(komunFace komF)
     menu w;
     w.begin(komF,"UrciWifi",3000);
     int n = WiFi.scanNetworks();
+    int swifi = 0;
+    int swifiI = 0;
     for (int i = 0; i < n; i++)
     {
       Serial.print(i);
@@ -683,11 +685,22 @@ void MenuWifiSet(komunFace komF)
       {
         w.addPolozkaData(i,i,String(WiFi.SSID(i)),2000);
         Serial.println("+");
+        swifi ++;
+        swifiI = i;
       }
     }
     w.addPolozkaData(-1,-1,"_upd",2000);
     w.addPolozkaData(-2,-2,"_add",2000);
-    p = w.work();
+    if (swifi == 1)
+    {
+      p = w.work(5000,swifiI);
+    }
+    else
+    {
+      p = w.work();
+    }
+
+
     if(p == -2)
     {
       MenuWifiAdd(komF);
@@ -875,5 +888,17 @@ void loop(void)
   {
     ws.textAll(l);
   }
+
+  if(!WiFi.isConnected())
+  {
+    for (int i = 9; i > 0; i--)
+    {
+      segDisp.addText4("ECW" + String(i));
+      delay(1000);
+    }
+
+    ESP.restart();
+  }
+
   ws.cleanupClients();
 }
