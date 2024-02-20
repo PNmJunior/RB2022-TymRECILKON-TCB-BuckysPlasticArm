@@ -1,9 +1,3 @@
-#include <consolHeslo.h>
-#ifndef consolHeslo
-#define consolHeslo "ja"
-#endif
-
-
 #ifndef consolLib
 #define consolLib
 #include <Arduino.h>
