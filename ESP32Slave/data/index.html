@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="joy.js"></script>
     <style>
         body
         {
@@ -21,6 +20,25 @@
 <body>
     <div class="content">
         <div class="card-grid"> 
+            <datalist id="valMinPlusStep50">
+                <option value="-100"></option>
+                <option value="-50"></option>
+                <option value="0"></option>
+                <option value="50"></option>
+                <option value="100"></option>
+              </datalist>
+
+              <datalist id="valMinPlusStep100">
+                <option value="-100"></option>
+                <option value="0"></option>
+                <option value="100"></option>
+              </datalist>
+
+              <datalist id="valLed">
+                <option value="-100"></option>
+                <option value="0"></option>
+                <option value="100"></option>
+              </datalist>
             <table id="mytable">
                 <col width="25%"><col width="25%"><col width="25%"><col width="25%">
                 <tr>
@@ -28,7 +46,7 @@
                         <div class="card">
                             <p class="card-title"> LED</p>
                             <p class="switch">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider0" min="-100" max="100" step="20" value ="0" class="slider">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider0" min="-100" max="100" step="20" value ="0" class="slider" list="valLed">
                             </p>
                             <p class="state"> <span id="sV0"></span> &percnt;</p>
                         </div> 
@@ -57,7 +75,7 @@
                         <div class="card2">
                             <p class="card-title"> Kleste</p>
                             <p class="switch2">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider5" min="-100" max="100" step="100" value ="0" class="slider2">
+                                <input type="range" onchange="updateSliderPWM(this)" orient="vertical" id="slider5" min="-100" max="100" step="100" value ="0" class="slider2" list="valMinPlusStep100">
                             </p>
                             <p class="state"> <span id="sV5"></span> &percnt;</p>
                         </div>   
@@ -66,7 +84,7 @@
                         <div class="card2">
                             <p class="card-title"> M4</p>
                             <p class="switch2">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider4" min="-100" max="100" step="50" value ="0" class="slider2">
+                                <input type="range" onchange="updateSliderPWM(this)" orient="vertical" id="slider4" min="-100" max="100" step="50" value ="0" class="slider2" list="valMinPlusStep50">
                             </p>
                             <p class="state"> <span id="sV4"></span> &percnt;</p>
                         </div>
@@ -75,7 +93,7 @@
                         <div class="card2">
                             <p class="card-title"> M3</p>
                             <p class="switch2">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider3" min="-100" max="100" step="50" value ="0" class="slider2">
+                                <input type="range" onchange="updateSliderPWM(this)" orient="vertical" id="slider3" min="-100" max="100" step="50" value ="0" class="slider2" list="valMinPlusStep50">
                             </p>
                             <p class="state"> <span id="sV3"></span> &percnt;</p>
                         </div>
@@ -84,7 +102,7 @@
                         <div class="card2">
                             <p class="card-title"> M2</p>
                             <p class="switch2">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider2" min="-100" max="100" step="50" value ="0" class="slider2">
+                                <input type="range" onchange="updateSliderPWM(this)" orient="vertical" id="slider2" min="-100" max="100" step="50" value ="0" class="slider2" list="valMinPlusStep50">
                             </p>
                             <p class="state"> <span id="sV2"></span> &percnt;</p>
                         </div>
@@ -95,7 +113,7 @@
                         <div class="card">
                             <p class="card-title"> M1</p>
                             <p class="switch">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="-100" max="100" step="50" value ="0" class="slider">
+                                <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="-100" max="100" step="50" value ="0" class="slider" list="valMinPlusStep50">
                             </p>
                             <p class="state"> <span id="sV1"></span> &percnt;</p>
                         </div>
@@ -109,7 +127,7 @@
                                     Levy</button>
                             
                             <p class="switch3">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider6" min="-100" max="100" step="5" value ="0" class="slider3">
+                                <input type="range" onchange="updateSliderPWM(this)" orient="vertical" id="slider6" min="-100" max="100" step="5" value ="0" class="slider3" list="valMinPlusStep50">
                             </p>
                             <p class="state"> <span id="sV6"></span> &percnt;</p>
                         </div>
@@ -119,7 +137,7 @@
                             <button type="button" onclick="updateSliderPWMnull(7)">
                                 Pravy</button>
                             <p class="switch3">
-                                <input type="range" onchange="updateSliderPWM(this)" id="slider7" min="-100" max="100" step="5" value ="0" class="slider3">
+                                <input type="range" onchange="updateSliderPWM(this)" orient="vertical" id="slider7" min="-100" max="100" step="5" value ="0" class="slider3" list="valMinPlusStep50">
                             </p>
                             <p class="state"> <span id="sV7"></span> &percnt;</p>
                         </div>

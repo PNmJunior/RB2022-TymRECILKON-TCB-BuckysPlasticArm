@@ -9,15 +9,6 @@ const nahradaSubSouborZnak= " ///2||| " ;
 
 const conzolChar = '#'
 
-const M_LED = 0;
-const M_1 = 1;
-const M_2 = 2;
-const M_3 = 3;
-const M_4 = 4;
-const M_Kleste = 5;
-const M_Levy = 6;
-const M_Pravy = 7;
-
 const ModeWork = 'w';//work
 //const ModeWork = 'd';//debug
 function balicekInt(a)
@@ -64,7 +55,7 @@ function motorSend(mot,hod)
     return sendAuto(dataMotor(mot,hod));
 }
 
-function motorQestionSend(a)
+function motorQestionSend(a)//nepouzita funkce
 {
     return sendAuto(dataMotorQestion(a));
 }
@@ -129,9 +120,7 @@ function sendAuto(a)
         str = str + addSubSoubor(b);
     }
     return str;
-
 }
-
 
 function read(a)
 {
@@ -147,47 +136,10 @@ function read(a)
     return pole;
 }
 
-const Joystart = addSoubor("s");
-const Joystop  = addSoubor("t");
-let strJ1 ="";// ";s;j:1:50:10:1;t";//cteni
-let Jstartindex = 0;
-let Jstopindex = 0;
-let strJ2 = "";
-let Jmod = -1;
-
-function readJoy()
-{
-    switch (Jmod) {
-        case 0:
-            strJ1 += "";//cteni
-            Jstartindex = strJ1.indexOf(Joystart);
-            if(Jstartindex != -1)
-            {
-                Jmod = 1;
-                strJ2 = strJ1.substring(Jstartindex);
-            }
-            break;
-        case 1:
-            strJ2 += "";//cteni
-            Jstopindex = strJ2.indexOf(Joystop); 
-            if(Jstopindex != -1)
-            {
-                Jmod = 0;
-                strJ1 = strJ2.substring(Jstopindex);
-                SendESP(strJ2.substring(0,Jstopindex));
-            }
-        default:
-            break;
-    }
-    setTimeout(arguments.callee, 10);
-}
-
-
 function readInt(a)
 {
     return Number(a);
 }
-
 
 function readText(a)
 {
@@ -225,14 +177,6 @@ function initWebSocket() {
     websocket.onclose = onClose;
     websocket.onmessage = onMessage;
     }
-    Jmod = 0;
-    if(window.isSecureContext) {
-        console.log("Zabezpeceno");
-    }
-    else
-    {
-        console.log("Nezabezpeceno");
-    }
 }
 
 function onOpen(event) {
@@ -250,12 +194,10 @@ function updateSliderPWM(element) {
     startTimeAll = performance.now();
     var sliderNumber = element.id.charAt(element.id.length-1);
     var sliderValue = document.getElementById(element.id).value;
-    //document.getElementById("sV"+sliderNumber).innerHTML = sliderValue;
     console.log(sliderValue);
     SendESP(motorSend(sliderNumber, sliderValue));
     console.log(`Send time ${performance.now() - startTimeSend} milliseconds`);
 }
-
 
 function sendChat()
 {
@@ -264,7 +206,6 @@ function sendChat()
     {
         SendESP(chatSend(lll));
     }
-    
 }
 
 function sendChatPrikaz()
@@ -277,22 +218,18 @@ function sendChatPrikaz()
     
 }
 
-
-function delay(delayInms) {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(2);
-      }, delayInms);
-    });
-  }
+function delay(delayInms) 
+{
+    return new Promise(resolve => 
+        {
+        setTimeout(() => 
+            {
+                resolve(2);
+            }, delayInms);
+        }
+    );
+}
   
-async function sample() {
-    console.log('a');
-    console.log('waiting...')
-    let delayres = await delay(3000);
-    console.log('b');
-  }
-
 
 function SendESP(a)
 {
@@ -312,7 +249,6 @@ function SendESP(a)
     }
 }
 
-
 function reset123()
 {
     location.href = "/reset";
@@ -321,7 +257,6 @@ function reset123()
     stisknuto();
 }
 
-
 function stisknuto()
 { 
     motorAllSend();
@@ -329,24 +264,23 @@ function stisknuto()
 
 function Jwork(ji,jx,jy, jt)
 {
-    switch (Ji) {
+    switch (ji) {
         case 1:
-            joystick1.setSecund(Jx,Jy);
+            joystick1.setSecund(jx,jy);
             break;
         case 2:
-            joystick2.setSecund(Jx,Jy);
+            joystick2.setSecund(jx,jy);
             break;
         case 3:
-            joystick3.setSecund(Jx,Jy);
+            joystick3.setSecund(jx,jy);
             break;
         case 4:
-            joystick4.setSecund(Jx,Jy);
+            joystick4.setSecund(jx,jy);
             break;
         default:
             break;
     }
 }
-
 
 function onMessage(event) {
     startTimeIn = performance.now();
@@ -368,7 +302,7 @@ function onMessage(event) {
                     let Jx = readInt( SoubIn[1+3*i]);
                     let Jy = readInt( SoubIn[2+3*i]);
                     let Jt = readInt( SoubIn[3+3*i]);
-                    Jwork(i+1,jx,jy,jt);
+                    Jwork(i+1,Jx,Jy,Jt);
                 }
                 break;
             case "j":
@@ -376,7 +310,7 @@ function onMessage(event) {
                 let Jx = readInt( SoubIn[2]);
                 let Jy = readInt( SoubIn[3]);
                 let Jt = readInt( SoubIn[4]);
-                Jwork(ji,jx,jy,jt);
+                Jwork(Ji,Jx,Jy,Jt);
                 break;
             case "m":
                 let key = readInt( SoubIn[1]);
@@ -388,7 +322,6 @@ function onMessage(event) {
                 console.log(myObj);
                 console.log("slider"+ key.toString()+"="+myObj.toString());
                 document.getElementById("slider"+ key.toString()).value = myObj;
-                //document.getElementById(key.toString()).innerHTML = myObj;
                 document.getElementById("sV"+key.toString()).innerHTML = myObj;
                 break;
             default:
@@ -398,7 +331,6 @@ function onMessage(event) {
     console.log(`In time ${performance.now() - startTimeIn} milliseconds`);
     console.log(`All time ${performance.now() - startTimeAll} milliseconds`);
 }
-
 
 class JoystickController
 {
@@ -559,8 +491,7 @@ class JoystickController
         {
             let stick = document.getElementById(this.id);
             stick.style.transform = `translate3d(${Number(osa_x)}px, ${Number(osa_y)}px, 0px)`;
-        }
-        
+        }   
     }
 }
 
@@ -613,14 +544,12 @@ function update()
 function loop()
 {
 	requestAnimationFrame(loop);
-	//update();
-    
 }
-//setTimeout(update(), 1000);
+
 
 loop();
-readJoy();
 update();
+
 
 function hideRow(element2) {
     let element = document.getElementById('t' + element2.id.toString());
@@ -634,5 +563,3 @@ function hideRow(element2) {
         //button.innerText = "Show tr";
     }
 }
-
-
