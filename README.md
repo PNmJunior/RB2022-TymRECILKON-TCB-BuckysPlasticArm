@@ -86,6 +86,7 @@ Při komunikaci přes USB mezi aplikací a Bluepill([^12]), který snímal poloh
 Na tomto projektu jsem si otestoval mnoho technologií a postupů. Vzhledem ke komplikovanosti problematiky serverů z pohledu bezpečnosti a výkonu, jsem se rozhodl si vytvořit nový projekt zabývající se částečným převodem povinností serveru na aplikaci, která by s ESP32 komunikovala přes Bluetooth.
 
 ## Zdroje:
+Zdroje jsou zobrazené na konci README.md
 
 [^1]: Robotic Day 2022 [online]. 2022 [cit. 2024-02-15]. Dostupné z: http://robotickyden.cz/2022/
 
@@ -105,18 +106,17 @@ Na tomto projektu jsem si otestoval mnoho technologií a postupů. Vzhledem ke k
 
 [^9]: HTTPS server. ESPRESSIF [online]. [cit. 2024-02-22]. Dostupné z: https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/api-reference/protocols/esp_https_server.html?highlight=https
 
-[^10]: <input type="range">. Mdm [online]. [cit. 2024-02-26]. Dostupné z: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range
+[^10]: ```<input type="range">```. Mdm [online]. [cit. 2024-02-26]. Dostupné z: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range
 
 [^11]: PK-DevKitV1 Esp32. PROKYBER s.r.o. [online]. [cit. 2024-02-26]. Dostupné z: https://e-shop.prokyber.cz/esp32/esp32-pkdevkitv1/
 
 [^12]: BluePill ARM STM32 STM32F103C8 Vývojová deska. LaskaKit [online]. [cit. 2024-02-26]. Dostupné z: https://www.laskakit.cz/bluepill-arm-stm32-stm32f103c8-vyvojova-deska/
 
-[^13]: Stylování <input type=range>. JAHODA, Bohumil. JE ČAS [online]. 2023 [cit. 2024-03-05]. Dostupné z: https://jecas.cz/input-range
+[^13]: Stylování ```<input type=range>```. JAHODA, Bohumil. JE ČAS [online]. 2023 [cit. 2024-03-05]. Dostupné z: https://jecas.cz/input-range
 
 
----
----
----
+===
+
 Původní verze úvodu:
 
 # BuckysPlasticArm
