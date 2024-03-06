@@ -115,7 +115,9 @@ Zdroje jsou zobrazené na konci README.md
 [^13]: Stylování ```<input type=range>```. JAHODA, Bohumil. JE ČAS [online]. 2023 [cit. 2024-03-05]. Dostupné z: https://jecas.cz/input-range
 
 
-===
+---
+
+---
 
 Původní verze úvodu:
 
